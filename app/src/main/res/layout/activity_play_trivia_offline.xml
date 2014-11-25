@@ -1,0 +1,66 @@
+<RelativeLayout
+    android:id="@+id/rl_trivia_main_offline"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="0dp"
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
+    android:paddingTop="0dp"
+    tools:context="com.adventurpriseme.tcast.PlayTriviaActivity">
+
+    <!-- Background image -->
+    <ImageView
+        android:id="@+id/img_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <!-- This is a "strut" to mark the middle of the view. This is a hack-workaround to divide the screen in half -->
+    <View
+        android:id="@+id/strut_Center"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerInParent="true"/>
+
+    <ImageView
+        android:id="@+id/img_thought_bubble"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/strut_Center"/>
+    <!--     android:src="@drawable/pd_thought_bubble_outline_half_long"
+         android:contentDescription="@string/cd_thought_bubble_outline"/>
+         -->
+
+    <TextView
+        android:id="@+id/tvPlayTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:paddingTop="16dp"
+        android:text="@string/welcomeToTC"
+        android:textColor="#000000"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/tvQuestion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"/>
+
+    <CheckBox
+        android:id="@+id/checkbox_willHost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:clickable="true"
+        android:enabled="true"
+        android:onClick="onCheckBoxClicked"
+        android:text="@string/willingToHost"
+        android:textStyle="bold"
+        android:typeface="normal"
+        />
+
+</RelativeLayout>
