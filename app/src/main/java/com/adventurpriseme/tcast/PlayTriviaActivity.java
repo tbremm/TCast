@@ -17,7 +17,6 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.google.android.gms.cast.ApplicationMetadata;
 import com.google.android.gms.cast.Cast;
@@ -48,9 +47,10 @@ public class PlayTriviaActivity extends ActionBarActivity implements GoogleApiCl
 	private MediaRouter        m_MediaRouter;
 	private MediaRouteSelector m_MediaRouteSelector;
 	private GoogleApiClient    m_ApiClient;
-	private boolean mWaitingForReconnect = false;
-	private boolean mApplicationStarted  = false;
-	private TriviaChannel mTriviaChannel;
+	private boolean m_WaitingForReconnect = false;
+	private boolean m_ApplicationStarted  = false;
+	private TriviaChannel        m_TriviaChannel;
+	private CTriviaCastCCMessage m_cTriviaCastCCMessage;
 
 	/**
 	 * Play Trivia Activity creator.
@@ -176,9 +176,9 @@ public class PlayTriviaActivity extends ActionBarActivity implements GoogleApiCl
 	@Override
 	public void onConnected (Bundle bundle)
 		{
-		if (mWaitingForReconnect)
+		if (m_WaitingForReconnect)
 			{
-			mWaitingForReconnect = false;
+			m_WaitingForReconnect = false;
 			//reconnectChannels();
 			}
 		else
@@ -197,13 +197,13 @@ public class PlayTriviaActivity extends ActionBarActivity implements GoogleApiCl
 						String sessionId = result.getSessionId ();
 						String applicationStatus = result.getApplicationStatus ();
 						boolean wasLaunched = result.getWasLaunched ();
-						mApplicationStarted = true;
+						m_ApplicationStarted = true;
 
-						TextView tmp = (TextView) findViewById (R.id.tvQuestion);
-						mTriviaChannel = new TriviaChannel (tmp);
+						// Give the channel our message object
+						m_TriviaChannel = new TriviaChannel (m_cTriviaCastCCMessage);
 						try
 							{
-							Cast.CastApi.setMessageReceivedCallbacks (m_ApiClient, mTriviaChannel.getNamespace (), mTriviaChannel);
+							Cast.CastApi.setMessageReceivedCallbacks (m_ApiClient, m_TriviaChannel.getNamespace (), m_TriviaChannel);
 
 							//sendMessage("http://gnosm.net/missilecommand/sounds/524
 							// .mp3");
@@ -227,7 +227,7 @@ public class PlayTriviaActivity extends ActionBarActivity implements GoogleApiCl
 	public void onConnectionSuspended (int i)
 		{
 		// TODO
-		mWaitingForReconnect = true;
+		m_WaitingForReconnect = true;
 		}
 
 	@Override
@@ -246,11 +246,11 @@ public class PlayTriviaActivity extends ActionBarActivity implements GoogleApiCl
 
 	private void sendMessage (String message)
 		{
-		if (m_ApiClient != null && mTriviaChannel != null)
+		if (m_ApiClient != null && m_TriviaChannel != null)
 			{
 			try
 				{
-				Cast.CastApi.sendMessage (m_ApiClient, mTriviaChannel.getNamespace (), message).setResultCallback (new ResultCallback<Status> ()
+				Cast.CastApi.sendMessage (m_ApiClient, m_TriviaChannel.getNamespace (), message).setResultCallback (new ResultCallback<Status> ()
 				{
 				@Override
 				public void onResult (Status result)
@@ -273,7 +273,7 @@ public class PlayTriviaActivity extends ActionBarActivity implements GoogleApiCl
 			}
 		else
 			{
-			Log.e (TAG, "mTriviaChannel is null!");
+			Log.e (TAG, "m_TriviaChannel is null!");
 			}
 		}
 

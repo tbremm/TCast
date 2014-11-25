@@ -1,7 +1,7 @@
 package com.adventurpriseme.tcast;
 
+import android.content.Context;
 import android.util.Log;
-import android.widget.TextView;
 
 import com.google.android.gms.cast.Cast;
 import com.google.android.gms.cast.CastDevice;
@@ -13,12 +13,21 @@ import com.google.android.gms.cast.CastDevice;
 public class TriviaChannel extends PlayTriviaActivity implements Cast.MessageReceivedCallback
 	{
 	private final String TAG = "RPS Cast Channel";
-	private TextView tv;
+	private Context m_context;
+	private CTriviaCastCCMessage m_cTriviaCastCCMessage;
 
-	public TriviaChannel (TextView _tv)
+	public TriviaChannel () {}
+
+	public TriviaChannel (CTriviaCastCCMessage CCMsg)
 		{
-		tv = _tv;
+
 		}
+
+	public TriviaChannel (Context context)
+		{
+		m_context = context;
+		}
+
 
 	public String getNamespace ()
 		{
@@ -30,7 +39,6 @@ public class TriviaChannel extends PlayTriviaActivity implements Cast.MessageRec
 		{
 		Log.d (TAG, "onMessageReceived: " + message);
 
-		// TODO: Do stuff here
-		tv.setText (message);
+		// TODO: set an IChromeCastMessage here to be read in the parent
 		}
 	}
