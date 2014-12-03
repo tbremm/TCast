@@ -1,8 +1,8 @@
 <?php
 	$servername = "localhost";
-	$username = "gnosmnet_public";
-	$password = "itspublic!";
-	$dbname = "gnosmnet_Trivia";
+	$username = "trivia1";
+	$password = "trivia2";
+	$dbname = "dbTrivia";
 
 	// Create connection
 	$conn = new mysqli($servername, $username, $password, $dbname);
