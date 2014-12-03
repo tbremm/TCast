@@ -3,6 +3,7 @@ package com.adventurpriseme.tcast;
 import android.content.Context;
 import android.util.Log;
 
+import com.adventurpriseme.tcast.IChromeCast.IChromeCastMessage;
 import com.google.android.gms.cast.Cast;
 import com.google.android.gms.cast.CastDevice;
 
@@ -10,24 +11,24 @@ import com.google.android.gms.cast.CastDevice;
  * Created by Timothy on 11/18/2014.
  * Copyright 11/18/2014 adventurpriseme.com
  */
-public class TriviaChannel extends PlayTriviaActivity implements Cast.MessageReceivedCallback
+public class CCastChannel extends PlayTriviaActivity implements Cast.MessageReceivedCallback
 	{
-	private final String TAG = "RPS Cast Channel";
-	private Context m_context;
-	private CTriviaCastCCMessage m_cTriviaCastCCMessage;
+	private final String TAG = "Trivia Cast Channel";
+	private Context            m_context;
+	private IChromeCastMessage m_CastMsg;
 
-	public TriviaChannel () {}
-
-	public TriviaChannel (CTriviaCastCCMessage CCMsg)
+	public CCastChannel ()
 		{
-
 		}
 
-	public TriviaChannel (Context context)
+	/**
+	 * Manages the
+	 * @param ICMsgCallback
+	 */
+	public CCastChannel (IChromeCastMessage ICMsgCallback)
 		{
-		m_context = context;
+		m_CastMsg = ICMsgCallback;
 		}
-
 
 	public String getNamespace ()
 		{
@@ -38,6 +39,8 @@ public class TriviaChannel extends PlayTriviaActivity implements Cast.MessageRec
 	public void onMessageReceived (CastDevice castDevice, String namespace, String message)
 		{
 		Log.d (TAG, "onMessageReceived: " + message);
+
+		m_CastMsg.onReceiveCallback (message);
 
 		// TODO: set an IChromeCastMessage here to be read in the parent
 		}

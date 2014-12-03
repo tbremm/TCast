@@ -44,6 +44,14 @@ public abstract class CPromptDlg extends AlertDialog.Builder implements OnClickL
 		setNegativeButton (cancelMsg, this);
 		}
 
+	/**
+	 * onClick listener for dialog buttons.
+	 *
+	 * This can catch the okay or cancel buttons.
+	 *
+	 * @param dialog (required)  Dialog interface
+	 * @param which (required)  Determines what button was hit. 0-indexed.
+	 */
 	@Override
 	public void onClick (DialogInterface dialog, int which)
 		{

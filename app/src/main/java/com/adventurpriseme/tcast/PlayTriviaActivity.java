@@ -17,7 +17,9 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
+import com.adventurpriseme.tcast.IChromeCast.IChromeCastMessage;
 import com.google.android.gms.cast.ApplicationMetadata;
 import com.google.android.gms.cast.Cast;
 import com.google.android.gms.cast.CastDevice;
@@ -36,7 +38,7 @@ import java.io.IOException;
  * <p/>
  * This is where the user will connect to the chromecast.
  */
-public class PlayTriviaActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, Cast.MessageReceivedCallback
+public class PlayTriviaActivity extends ActionBarActivity implements IChromeCastMessage, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, Cast.MessageReceivedCallback
 	{
 
 	private static final String TAG = "Trivia Activity";
@@ -49,8 +51,7 @@ public class PlayTriviaActivity extends ActionBarActivity implements GoogleApiCl
 	private GoogleApiClient    m_ApiClient;
 	private boolean m_WaitingForReconnect = false;
 	private boolean m_ApplicationStarted  = false;
-	private TriviaChannel        m_TriviaChannel;
-	private CTriviaCastCCMessage m_cTriviaCastCCMessage;
+	private CCastChannel       m_CCastChannel;
 
 	/**
 	 * Play Trivia Activity creator.
@@ -185,6 +186,9 @@ public class PlayTriviaActivity extends ActionBarActivity implements GoogleApiCl
 			{
 			try
 				{
+				// Give the channel our message object
+				m_CCastChannel = new CCastChannel (this);
+
 				Cast.CastApi.launchApplication (m_ApiClient, "53EAA363", false).setResultCallback (new ResultCallback<Cast.ApplicationConnectionResult> ()
 				{
 				@Override
@@ -199,11 +203,9 @@ public class PlayTriviaActivity extends ActionBarActivity implements GoogleApiCl
 						boolean wasLaunched = result.getWasLaunched ();
 						m_ApplicationStarted = true;
 
-						// Give the channel our message object
-						m_TriviaChannel = new TriviaChannel (m_cTriviaCastCCMessage);
 						try
 							{
-							Cast.CastApi.setMessageReceivedCallbacks (m_ApiClient, m_TriviaChannel.getNamespace (), m_TriviaChannel);
+							Cast.CastApi.setMessageReceivedCallbacks (m_ApiClient, m_CCastChannel.getNamespace (), m_CCastChannel);
 
 							//sendMessage("http://gnosm.net/missilecommand/sounds/524
 							// .mp3");
@@ -246,11 +248,11 @@ public class PlayTriviaActivity extends ActionBarActivity implements GoogleApiCl
 
 	private void sendMessage (String message)
 		{
-		if (m_ApiClient != null && m_TriviaChannel != null)
+		if (m_ApiClient != null && m_CCastChannel != null)
 			{
 			try
 				{
-				Cast.CastApi.sendMessage (m_ApiClient, m_TriviaChannel.getNamespace (), message).setResultCallback (new ResultCallback<Status> ()
+				Cast.CastApi.sendMessage (m_ApiClient, m_CCastChannel.getNamespace (), message).setResultCallback (new ResultCallback<Status> ()
 				{
 				@Override
 				public void onResult (Status result)
@@ -273,7 +275,7 @@ public class PlayTriviaActivity extends ActionBarActivity implements GoogleApiCl
 			}
 		else
 			{
-			Log.e (TAG, "m_TriviaChannel is null!");
+			Log.e (TAG, "m_CCastChannel is null!");
 			}
 		}
 
@@ -303,8 +305,7 @@ public class PlayTriviaActivity extends ActionBarActivity implements GoogleApiCl
 /*	FIXME - We need to figure out how to scale/load bitmaps into memory efficiently to avoid visual lag and overrunning our memory resources.
 
 		Bitmap bmBackground = CBitmapLoader.decodeSampledBitmapFromResource (getResources (), R.drawable.pd_thought_bubble_outline_half_long,
-		findViewById (R.id.rl_trivia_main_offline).getWidth (),
-		                                                                     findViewById (R.id.rl_trivia_main_offline).getHeight ());
+		findViewById (R.id.rl_trivia_main_offline).getWidth (), findViewById (R.id.rl_trivia_main_offline).getHeight ());
 
 		imgvThoughtBubble.setImageBitmap (bmBackground);
 */
@@ -337,6 +338,26 @@ public class PlayTriviaActivity extends ActionBarActivity implements GoogleApiCl
 		//			// Create a welcome message for the user
 		//			((TextView) findViewById (R.id.tvPlayTitle)).setText ("Hi, " + m_cTriviaPlayer.getName () + ", welcome to Trivia!");
 		//			}
+		}
+
+	/**
+	 * Callback for receiving a message from the chromecast.
+	 * <p/>
+	 * This function handles messages received from the chromecast.
+	 * This will trigger a game action of some kind.
+	 *
+	 * @param strMsg (required)  The incoming message
+	 */
+	@Override
+	public void onReceiveCallback (String strMsg)
+		{
+		TextView textView = (TextView) findViewById (R.id.tvQuestion);
+		textView.setText (strMsg);
+
+		if (strMsg.equals ("timeout"))
+			{
+			sendMessage ("done");
+			}
 		}
 
 	private final class MyMediaRouterCallback extends MediaRouter.Callback

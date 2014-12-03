@@ -8,5 +8,4 @@ package com.adventurpriseme.tcast.IChromeCast;
  */
 public interface ITriviaCastCCMessage extends IChromeCastMessage
 	{
-
 	}
