@@ -14,6 +14,7 @@
 
 			triviaOnConnect = function() {
 			    // do stuff
+			    doQuestion();
 			}
 
 			triviaSendMessage = function() {
