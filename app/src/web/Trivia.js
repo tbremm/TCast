@@ -20,6 +20,10 @@
 			    // do stuff
 			}
 
+            triviaWindowLoad = function () {
+                // do stuff
+            }
+
 			doQuestion = function() {
 				//alert("onload reached");
 				$.ajax({

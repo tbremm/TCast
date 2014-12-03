@@ -12,6 +12,9 @@
 
             displayDebug ("onload");
 
+            // CALL INTO TRIVIA
+            triviaWindowLoad();
+
             // **********************************************
             // handler for the 'ready' event
             // **********************************************
@@ -29,6 +32,9 @@
                 displayDebug (window.castReceiverManager.getSender (event.data).userAgent);
                 displayDebug ("onSenderConnected");
 
+                // CALL INTO TRIVIA
+                triviaOnConnect(event.senderId);
+
             };
 
             // **********************************************
@@ -43,6 +49,9 @@
                 displayDebug ("onSenderDisconnected");
                 
 				// TODO: STUFF ON DISCONNECT HERE
+
+                // CALL INTO TRIVIA
+                triviaOnDisconnect(event.senderId);
             };
 
             // **********************************************
@@ -71,9 +80,8 @@
 
 				// TODO: DO GAME STUFF HER
 
-
-                // Send messages like this
-           	    // window.messageBus.send(event.senderId, nRoundWinner.toString ());
+                // CALL INTO TRIVIA
+                triviaMessageReceived(event.senderId, event.data);
             }
 
             // initialize the CastReceiverManager with an application status message
@@ -81,6 +89,10 @@
             displayDebug ('Receiver Manager started');
             };  // onLoad ()
 
+
+        sendCastMessage = function(id, msg) {
+            window.messageBus.send(id, msg);
+        }
 
         // **********************************************
         // utility function wrapper to display text in a given id
@@ -97,7 +109,8 @@
         function displayMessage (text) {
             console.log (text);
             // todo document.getElementById ("message").innerHTML=text;
-            window.castReceiverManager.setApplicationState ("displayMessage");
+            window.cast
+            ReceiverManager.setApplicationState ("displayMessage");
         }
 
         // **********************************************
