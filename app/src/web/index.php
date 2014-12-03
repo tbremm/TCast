@@ -9,7 +9,7 @@
 		<script language="javascript" type="text/javascript" src="Trivia.js"></script>
 		<script language="javascript" type="text/javascript" src="Cast.js"></script>
 		<script type="text/javascript" src="//www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js"></script>
-		<script type="text/javascript" src="Cast.js"></script><script type="text/javascript">
+		<script type="text/javascript" src="Cast.js"></script>
 
 	</head>
 	<!--
