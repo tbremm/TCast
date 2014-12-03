@@ -3,6 +3,23 @@
 			var questionStartTime = -1;
 			var fadeInVar;
 			var questionTimerVar;
+
+			triviaMessageReceived = function() {
+			    // do stuff
+			}
+
+			triviaOnDisconnect = function() {
+			    // do stuff
+			}
+
+			triviaOnConnect = function() {
+			    // do stuff
+			}
+
+			triviaSendMessage = function() {
+			    // do stuff
+			}
+
 			doQuestion = function() {
 				//alert("onload reached");
 				$.ajax({
