@@ -26,6 +26,7 @@
 			<div id="qbox">
 				<div id="qboxtext">
 				</div>
+			</div>
 			<div id="abox">
 				<div id="aboxtext">
 				</div>

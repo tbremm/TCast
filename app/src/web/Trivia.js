@@ -25,8 +25,8 @@
                 clearInterval(questionTimerVar);
                 clearInterval(fadeInVar);
 
-				var qboxtext = document.getElementById("qbox");
-				qboxtext.style.opacity = 0.0;
+				var qbox = document.getElementById("qbox");
+				qbox.style.opacity = 0.0;
 
 			}
 
@@ -101,9 +101,9 @@
 						var answer = split_data[1];
 						answerIsTrue = split_data[2];
 						
-						var qboxtext = document.getElementById("qboxtext");
-						question = [question, "<br>", answer, "<br>", "True or False?"];
-						qboxtext.innerHTML = question;
+						var qbox = document.getElementById("qbox");
+						question = question + "<br>" + answer + "<br>" + "True or False?";
+						qbox.innerHTML = question;
 						
 						//var aboxtext = document.getElementById("aboxtext");
 						//aboxtext.innerHTML = answer;
@@ -113,8 +113,8 @@
 						for (i = 0; i < players.length; i++) {
 						    // fixme todo - will have to think about disconnects
 						    // while looping over players
-						    triviaSendMessage(players[i], ["Q: ", question]);
-						    triviaSendMessage(players[i], ["A: ", answer]);
+						    triviaSendMessage(players[i], ("Q: " +  question));
+						    triviaSendMessage(players[i], ("A: " +  answer));
 					    }
 						fadeStartTime = $.now();
 						fadeInVar = setInterval(fadeIn, 50);
@@ -128,18 +128,18 @@
 			}
 
 			endQuestion = function () {
-				var qboxtext = document.getElementById("qboxtext");
+				var qbox = document.getElementById("qbox");
 				if (answerIsTrue) {
-				    qboxtext.innerHTML = [qboxtext.innerHTML, "<br>", "It's True!"];
+				    qbox.innerHTML = (qbox.innerHTML + "<br>" + "It's True!");
 		        } else {
-		            qboxtext.innerHTML = [qboxtext.innerHTML, "<br>", "It's False!"];
+		            qbox.innerHTML = (qbox.innerHTML + "<br>" + "It's False!");
 		        }
                 gameState = Q_END;
 
 			    var i;
 			    // fixme think about player disconnects during loops
 			    for (i = 0; i < players.length; i++) {
-			        if (    (answerIsTrue && (players[i].answer = TRUE)) ||
+			        if (    (answerIsTrue && (players[i].answer == TRUE)) ||
 			                (!answerIsTrue && (players[i].answer == FALSE))) {
 			            triviaSendMessage(players[i], WIN);
 			        } else {
