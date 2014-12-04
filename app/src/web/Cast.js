@@ -35,6 +35,8 @@
                 // CALL INTO TRIVIA
                 triviaOnConnect(event.senderId);
 
+
+                sendCastMessage(event.senderId, "connected");
             };
 
             // **********************************************

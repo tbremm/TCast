@@ -3,7 +3,7 @@
 			var questionStartTime = -1;
 			var fadeInVar;
 			var questionTimerVar;
-			var players;
+			var players = [];
 			var answerIsTrue;
 			var questionEndTimerVar;
             var questionEndStartTime;
@@ -15,8 +15,7 @@
 			var Q_END = 2;          // question is over, give a few seconds to review
 
             triviaWindowLoad = function () {
-				var qboxtext = document.getElementById("qbox");
-				qboxtext.style.opacity = 0.0;
+                setGamePending();
                 // do stuff
             }
 
@@ -48,20 +47,21 @@
 				    if (data == TRUE || data == FALSE) {
 				        players[senderIndex].answer = data;
 				    } else if (data == CONTINUE) {
-				    if (data != "continue") {
-				        endQuestion();
+				        if (data != "continue") {
+				            endQuestion();
 
-                        questionEndStartTime = $.now;
-				        questionEndTimerVar = setInterval(function () {
-                            if (($.now - questionEndStartTimer) > 10000) { // 10 seconds
-                                clearInterval(questionEndTimerVar);
-                                resetQuestion();
-                                doQuestion();
-                            }
-				        }, 50);
+                            questionEndStartTime = $.now;
+				            questionEndTimerVar = setInterval(function () {
+                                if (($.now - questionEndStartTimer) > 10000) { // 10 seconds
+                                    clearInterval(questionEndTimerVar);
+                                    resetQuestion();
+                                    doQuestion();
+                                }
+				            }, 50);
+				        }
 				    }
-				}
-			}
+			    }
+	        }
 
 			triviaOnDisconnect = function(id) {
 			    // do stuff
@@ -74,9 +74,8 @@
 
 			triviaOnConnect = function(id) {
 			    // do stuff
-			    if (players.length == 0) {
-			        setGamePending();
-			    }
+                // temp
+                setGamePending();
 				players.push(id);
 			    //doQuestion();
 			}
@@ -87,11 +86,11 @@
 			}
 
 
-			setGamePending = function(id) {
-
+			setGamePending = function() {
 			    gameState = GAME_PENDING;
-		        var qboxtext = document.getElementById("qboxtext");
-				qboxtext.innerHTML = question;
+		        var qbox = document.getElementById("qbox");
+		        qbox.style.opacity = 1.0;
+				qbox.innerHTML = "Game Pending...";
 			}
 
 			doQuestion = function() {
@@ -164,7 +163,7 @@
 				
 				var opacity = timePassed / totalTime;
 				
-				var qboxtext = document.getElementById("qbox");
+				var qbox = document.getElementById("qbox");
 				
 				if (timePassed >= totalTime) {
 					opacity = 1.0;
@@ -172,7 +171,7 @@
 					startQuestionTimer();
 				}
 				
-				qboxtext.style.opacity = opacity;
+				qbox.style.opacity = opacity;
 			}
 			
 			var questionTime = 30000; // in ms
@@ -193,9 +192,11 @@
 				
 				if (timeLeft < 0) {
 					clearInterval(questionTimerVar);
-					triviaSendMessage(player1, "timeout");
+					var i;
+					for (i = 0; i < players.length; i++) {
+					    triviaSendMessage(players[i], "timeout");
+					}
 					endQuestion(); // fixme todo - give phones time to give last-seond answer?
 				}
-			
 			}
 			
