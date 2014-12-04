@@ -111,8 +111,7 @@
         function displayMessage (text) {
             console.log (text);
             // todo document.getElementById ("message").innerHTML=text;
-            window.cast
-            ReceiverManager.setApplicationState ("displayMessage");
+            window.castReceiverManager.setApplicationState ("displayMessage");
         }
 
         // **********************************************

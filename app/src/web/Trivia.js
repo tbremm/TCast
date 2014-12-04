@@ -47,18 +47,11 @@
 				    if (data == TRUE || data == FALSE) {
 				        players[senderIndex].answer = data;
 				    } else if (data == CONTINUE) {
-				        if (data != "continue") {
-				            endQuestion();
-
-                            questionEndStartTime = $.now;
-				            questionEndTimerVar = setInterval(function () {
-                                if (($.now - questionEndStartTimer) > 10000) { // 10 seconds
-                                    clearInterval(questionEndTimerVar);
-                                    resetQuestion();
-                                    doQuestion();
-                                }
-				            }, 50);
-				        }
+				        if (gameState == GAME_PENDING) {
+    				        doQuestion();
+    				    } else
+    				        endQuestion();
+    				    }
 				    }
 			    }
 	        }
@@ -141,6 +134,7 @@
 		        } else {
 		            qboxtext.innerHTML = [qboxtext.innerHTML, "<br>", "It's False!"];
 		        }
+                gameState = Q_END;
 
 			    var i;
 			    // fixme think about player disconnects during loops
@@ -152,6 +146,15 @@
 			            triviaSendMessage(players[i], LOSE);
 			        }
 			    }
+
+                questionEndStartTime = $.now;
+				questionEndTimerVar = setInterval(function () {
+                    if (($.now - questionEndStartTimer) > 10000) { // 10 seconds
+                        clearInterval(questionEndTimerVar);
+                        resetQuestion();
+                        doQuestion();
+                    }
+				}, 50);
 			}
 
 			function fadeIn () {
