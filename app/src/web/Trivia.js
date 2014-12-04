@@ -102,8 +102,8 @@
 						answerIsTrue = split_data[2];
 						
 						var qbox = document.getElementById("qbox");
-						question = question + "<br>" + answer + "<br>" + "True or False?";
-						qbox.innerHTML = question;
+						var questionHTML = question + "<br>" + answer + "<br>" + "True or False?";
+						qbox.innerHTML = questionHTML;
 						
 						//var aboxtext = document.getElementById("aboxtext");
 						//aboxtext.innerHTML = answer;
