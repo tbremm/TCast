@@ -19,5 +19,16 @@
     <string name="okay_button">Okay!</string>
     <string name="cancel">Cancel</string>
     <string name="cd_thought_bubble_outline">thought bubble outline</string>
+    <string name="click_to_start">Click the Chromecast button to start!</string>
+    <string name="cd_play_trivia_off_bg">Disconnected trivia game background</string>
+    <string name="cd_center_strut">Invisible center strut</string>
+    <string name="inst_check_box_to_host">Check this box if you are willing to host!</string>
+    <string name="true_or_false">True or False?</string>
+    <string name="str_true">True</string>
+    <string name="str_false">False</string>
+    <string name="get_question_btn_text">Get a question!</string>
+    <string name="you_win">You win!</string>
+    <string name="time_is_up">Time\'s Up!</string>
+    <string name="you_lose">You lose!</string>
 
 </resources>
