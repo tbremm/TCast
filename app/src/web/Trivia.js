@@ -49,7 +49,7 @@
 				    } else if (data == CONTINUE) {
 				        if (gameState == GAME_PENDING) {
     				        doQuestion();
-    				    } else
+    				    } else {
     				        endQuestion();
     				    }
 				    }
