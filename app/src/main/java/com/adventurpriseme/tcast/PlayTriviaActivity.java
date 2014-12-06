@@ -2,6 +2,7 @@ package com.adventurpriseme.tcast;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -145,6 +146,7 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 		switch (item.getItemId ())
 			{
 			case R.id.action_settings:
+				onSettingsSelected ();
 				return true;
 			case R.id.home:
 				// This ID represents the Home or Up button. In the case of this
@@ -160,6 +162,18 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 
 		return super.onOptionsItemSelected (item);
 		}
+
+	/**
+	 * Action bar settings menu entry
+	 * <p/>
+	 * This will load the settings view.
+	 */
+	private void onSettingsSelected ()
+		{
+		Intent intent = new Intent (this, TriviaPrefsActivity.class);
+		startActivity (intent);
+		}
+
 
 	/**
 	 * onClick handler for any checkboxes we might have here.

@@ -1,33 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.adventurpriseme.tcast" >
+          package="com.adventurpriseme.tcast">
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.AppCompat" >
-        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
+        android:theme="@style/Theme.AppCompat">
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version"/>
 
         <activity
             android:name="com.adventurpriseme.tcast.MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
         <activity
-            android:name=".PlayTriviaActivity"
+            android:name="com.adventurpriseme.tcast.PlayTriviaActivity"
             android:label="@string/title_activity_play_trivia"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName="com.adventurpriseme.tcast.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.adventurpriseme.triviacast.MainActivity" />
+                android:value="com.adventurpriseme.triviacast.MainActivity"/>
         </activity>
-
+        <activity
+            android:name="com.adventurpriseme.tcast.TriviaPrefsActivity"
+            android:label="@string/title_activity_trivia_prefs"
+            android:parentActivityName="com.adventurpriseme.tcast.PlayTriviaActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.adventurpriseme.tcast.PlayTriviaActivity"/>
+        </activity>
     </application>
 
 </manifest>
