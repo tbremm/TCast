@@ -10,7 +10,7 @@
 
 			var gameState;
 			// possibilities for game state
-			var GAME_PENDING = 0;   // game hasnt started
+			var GAME_PENDING = 0;   // game has not started
 			var Q_IN_PROGRESS = 1;  // question is up, timer ticking
 			var Q_END = 2;          // question is over, give a few seconds to review
 
@@ -38,23 +38,33 @@
             var LOSE = "lose";
 
 
-			triviaMessageReceived = function(id, data) {
+			triviaMessageReceived = function(id, data)
+				{
 			    // do stuff
 				var senderIndex = players.indexOf(id);
-				if (senderIndex > -1) {
+				if (senderIndex > -1)
+					{
 				    // fixme todo - lots of message parsing that we need to do!!
-
-				    if (data == TRUE || data == FALSE) {
-				        players[senderIndex].answer = data;
-				    } else if (data == CONTINUE) {
-				        if (gameState == GAME_PENDING) {
-    				        doQuestion();
-    				    } else {
-    				        endQuestion();
-    				    }
-				    }
-			    }
-	        }
+					switch (data.toLowerCase ())    // Filter case for simplicity
+						{
+						case TRUE:
+						case FALSE:
+							{
+							players[senderIndex].answer = data;
+							break;
+							}
+						case CONTINUE:
+							{
+							gameState == GAME_PENDING ? doQuestion () : endQuestion ();
+							break;
+							}
+						default:
+							{
+							console.log ("Trivia Message Received: \'" + data);
+							}
+						}
+			        }
+	            }
 
 			triviaOnDisconnect = function(id) {
 			    // do stuff
@@ -95,16 +105,16 @@
 					data: '',
 					success: function(data) {
 						//alert(data);
-					
+
 						var split_data = data.split(':');
 						var question = split_data[0];
 						var answer = split_data[1];
 						answerIsTrue = split_data[2];
-						
+
 						var qbox = document.getElementById("qbox");
 						var questionHTML = question + "<br>" + answer + "<br>" + "True or False?";
 						qbox.innerHTML = questionHTML;
-						
+
 						//var aboxtext = document.getElementById("aboxtext");
 						//aboxtext.innerHTML = answer;
 
@@ -118,7 +128,7 @@
 					    }
 						fadeStartTime = $.now();
 						fadeInVar = setInterval(fadeIn, 50);
-					
+
 					},
 					error: function(xhr, desc, err) {
 						console.log(xhr);
@@ -160,39 +170,39 @@
 			function fadeIn () {
 				var totalTime = 2000; // 2 second fade in
 				var thisTime = $.now();
-				
+
 				// fadeStartTime better be set before this function gets called
 				var timePassed = thisTime - fadeStartTime;
-				
+
 				var opacity = timePassed / totalTime;
-				
+
 				var qbox = document.getElementById("qbox");
-				
+
 				if (timePassed >= totalTime) {
 					opacity = 1.0;
 					clearInterval(fadeInVar);
 					startQuestionTimer();
 				}
-				
+
 				qbox.style.opacity = opacity;
 			}
-			
+
 			var questionTime = 30000; // in ms
 			function startQuestionTimer () {
 				questionStartTime = $.now();
 				questionTimerVar = setInterval(questionTimerFunc, 50);
 			}
-			
+
 			function questionTimerFunc () {
 				var thisTime = $.now();
-				
+
 				var timePassed = thisTime - questionStartTime;
 				var timeLeft = questionTime - timePassed;
 				timeLeft = Math.round(timeLeft/1000.0);
-				
+
 				var timer = document.getElementById("timer");
 				timer.innerHTML = timeLeft;
-				
+
 				if (timeLeft < 0) {
 					clearInterval(questionTimerVar);
 					var i;
@@ -202,4 +212,3 @@
 					endQuestion(); // fixme todo - give phones time to give last-seond answer?
 				}
 			}
-			
