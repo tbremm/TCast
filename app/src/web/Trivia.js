@@ -157,9 +157,9 @@
 			        }
 			    }
 
-                questionEndStartTime = $.now;
+                questionEndStartTime = $.now();
 				questionEndTimerVar = setInterval(function () {
-                    if (($.now - questionEndStartTime) > 10000) { // 10 seconds
+                    if (($.now() - questionEndStartTime) > 10000) { // 10 seconds
                         clearInterval(questionEndTimerVar);
                         resetQuestion();
                         doQuestion();
