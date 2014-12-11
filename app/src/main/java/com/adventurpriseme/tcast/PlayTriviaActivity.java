@@ -1,10 +1,11 @@
 package com.adventurpriseme.tcast;
 
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
@@ -16,7 +17,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.adventurpriseme.tcast.IChromeCast.IChromeCastMessage;
@@ -43,7 +43,7 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 
 	private static final String TAG = "Trivia Activity";
 	private static MediaRouter.Callback m_MediaRouterCallback;
-	final Context context = this;
+	//	final Context context = this;
 	/** Data members */
 	private CTriviaPlayer      m_cTriviaPlayer;
 	private MediaRouter        m_MediaRouter;
@@ -52,6 +52,7 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 	private boolean m_WaitingForReconnect = false;
 	private boolean m_ApplicationStarted  = false;
 	private CCastChannel       m_CCastChannel;
+	private SharedPreferences m_sharedPreferences;
 
 	/**
 	 * Play Trivia Activity creator.
@@ -67,15 +68,13 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 		super.onCreate (savedInstanceState);
 
 		// Create a new player
-		m_cTriviaPlayer = new CTriviaPlayer ();
+		m_sharedPreferences = PreferenceManager.getDefaultSharedPreferences (this);
+		m_cTriviaPlayer = new CTriviaPlayer (m_sharedPreferences);
 
 		// Set the activity layout dependant on our connected state
 		if (m_ApiClient == null || !m_ApiClient.isConnected ())
 			{
 			setContentView (R.layout.activity_play_trivia_off);
-
-			// Initialize the willingness to host checkbox
-			((CheckBox) findViewById (R.id.checkbox_willHost)).setChecked (m_cTriviaPlayer.getWillHost ());
 			}
 		else
 			{
@@ -116,9 +115,6 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 		if (m_ApiClient == null || !m_ApiClient.isConnected ())
 			{
 			setContentView (R.layout.activity_play_trivia_off);
-
-			// Initialize the willingness to host checkbox
-			((CheckBox) findViewById (R.id.checkbox_willHost)).setChecked (m_cTriviaPlayer.getWillHost ());
 			}
 		else
 			{
@@ -174,32 +170,6 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 		startActivity (intent);
 		}
 
-
-	/**
-	 * onClick handler for any checkboxes we might have here.
-	 * <p/>
-	 * This determines if the user is willing to host the trivia round
-	 *
-	 * @param view
-	 * 		The view owning the checkbox
-	 */
-	public void onCheckBoxClicked (View view)
-		{
-		// Is the view (checkbox) checked?
-		boolean bChecked = ((CheckBox) view).isChecked ();
-
-		// Operate on the specific checkbox
-		switch (view.getId ())
-			{
-			case R.id.checkbox_willHost:    // Is player willing to host?
-				m_cTriviaPlayer.setWillHost (bChecked);
-				break;
-			default:
-				// Should never get here
-				break;
-			}
-		}
-
 	@Override
 	public void onConnected (Bundle bundle)
 		{
@@ -244,9 +214,6 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 							if (m_ApiClient == null || !m_ApiClient.isConnected ())
 								{
 								setContentView (R.layout.activity_play_trivia_off);
-
-								// Initialize the willingness to host checkbox
-								((CheckBox) findViewById (R.id.checkbox_willHost)).setChecked (m_cTriviaPlayer.getWillHost ());
 								}
 							else
 								{
@@ -264,9 +231,6 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 				if (m_ApiClient == null || !m_ApiClient.isConnected ())
 					{
 					setContentView (R.layout.activity_play_trivia_off);
-
-					// Initialize the willingness to host checkbox
-					((CheckBox) findViewById (R.id.checkbox_willHost)).setChecked (m_cTriviaPlayer.getWillHost ());
 					}
 				else
 					{
@@ -284,9 +248,6 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 		if (m_ApiClient == null || !m_ApiClient.isConnected ())
 			{
 			setContentView (R.layout.activity_play_trivia_off);
-
-			// Initialize the willingness to host checkbox
-			((CheckBox) findViewById (R.id.checkbox_willHost)).setChecked (m_cTriviaPlayer.getWillHost ());
 			}
 		else
 			{
@@ -310,9 +271,6 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 		if (m_ApiClient == null || !m_ApiClient.isConnected ())
 			{
 			setContentView (R.layout.activity_play_trivia_off);
-
-			// Initialize the willingness to host checkbox
-			((CheckBox) findViewById (R.id.checkbox_willHost)).setChecked (m_cTriviaPlayer.getWillHost ());
 			}
 		else
 			{
@@ -373,9 +331,6 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 		if (m_ApiClient == null || !m_ApiClient.isConnected ())
 			{
 			setContentView (R.layout.activity_play_trivia_off);
-
-			// Initialize the willingness to host checkbox
-			((CheckBox) findViewById (R.id.checkbox_willHost)).setChecked (m_cTriviaPlayer.getWillHost ());
 			}
 		else
 			{
@@ -393,9 +348,6 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 		if (m_ApiClient == null || !m_ApiClient.isConnected ())
 			{
 			setContentView (R.layout.activity_play_trivia_off);
-
-			// Initialize the willingness to host checkbox
-			((CheckBox) findViewById (R.id.checkbox_willHost)).setChecked (m_cTriviaPlayer.getWillHost ());
 			}
 		else
 			{
@@ -430,16 +382,36 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 			}
 		else if (strMsg.equals ("connected"))
 			{
+			sendMessage ("connected");
 			// Create the getQuestion button
+			btnGetQuestion.setText (getString (R.string.btn_text_host_game));
 			btnGetQuestion.setOnClickListener (new View.OnClickListener ()
 				{
 				@Override
 				public void onClick (View view)
 					{
-					sendMessage ("continue");
+					sendMessage ("request host");
 					}
 				});
 			btnGetQuestion.setVisibility (View.VISIBLE);
+			}
+		else if (strMsg.equals ("host"))
+			{
+			btnGetQuestion.setText ("Start the game!");
+			btnGetQuestion.setOnClickListener (new View.OnClickListener ()
+			{
+			@Override
+			public void onClick (View view)
+				{
+				sendMessage ("play," + (m_sharedPreferences.getBoolean ("pref_debug_checkbox_enable_timer", true) ? "1" : "0"));
+				}
+			});
+			}
+		else if (strMsg.equals ("hosted"))
+			{
+			btnGetQuestion.setVisibility (View.INVISIBLE);
+			tvPlayTitle.setText (getString (R.string.waiting_on_host));
+			tvPlayTitle.setVisibility (View.VISIBLE);
 			}
 		else if (strMsg.startsWith ("Q:"))
 			{
@@ -523,9 +495,6 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 				{
 				Log.d (TAG, "Application Disconnected: " + errorCode);
 				setContentView (R.layout.activity_play_trivia_off);
-
-				// Initialize the willingness to host checkbox
-				((CheckBox) findViewById (R.id.checkbox_willHost)).setChecked (m_cTriviaPlayer.getWillHost ());
 				// fixme teardown();
 				}
 

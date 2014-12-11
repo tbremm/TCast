@@ -28,26 +28,4 @@
         android:text="@string/click_to_start"
         />
 
-    <CheckBox
-        android:id="@+id/checkbox_willHost"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:clickable="true"
-        android:enabled="true"
-        android:onClick="onCheckBoxClicked"
-        android:text="@string/willingToHost"
-        android:textStyle="bold"
-        android:typeface="normal"
-        />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_above="@id/checkbox_willHost"
-        android:text="@string/inst_check_box_to_host"/>
-
 </RelativeLayout>

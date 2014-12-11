@@ -1,5 +1,7 @@
 package com.adventurpriseme.tcast;
 
+import android.content.SharedPreferences;
+
 /**
  * This class defines a player for the trivia game.
  * <p/>
@@ -16,8 +18,10 @@ public class CTriviaPlayer implements IPerson
 	/**
 	 * Constructor
 	 */
-	public CTriviaPlayer ()
+	public CTriviaPlayer (SharedPreferences preferences)
 		{
+		m_bWillHost = preferences.getBoolean ("pref_host_checkbox_will_host", false);
+		m_strName = preferences.getString ("pref_player_name_text", "Player");
 		}
 
 	/**

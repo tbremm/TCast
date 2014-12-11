@@ -1,0 +1,18 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- A 'parent' preference, which enables/disables child preferences (below)
+         when checked/unchecked. -->
+    <CheckBoxPreference
+        android:key="pref_debug_checkbox_enable_debug"
+        android:title="@string/pref_title_enable_debug"
+        android:defaultValue="false"/>
+
+    <!-- A 'parent' preference, which enables/disables child preferences (below)
+         when checked/unchecked. -->
+    <CheckBoxPreference
+        android:key="pref_debug_checkbox_enable_timer"
+        android:dependency="pref_debug_checkbox_enable_debug"
+        android:title="@string/pref_title_debug_enable_timer"
+        android:defaultValue="true"/>
+
+</PreferenceScreen>

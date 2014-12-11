@@ -30,5 +30,8 @@
     <string name="you_win">You win!</string>
     <string name="time_is_up">Time\'s Up!</string>
     <string name="you_lose">You lose!</string>
+    <string name="pref_title_enable_debug">Enable debug options</string>
+    <string name="btn_text_host_game">Host game</string>
+    <string name="waiting_on_host">Waiting on host...</string>
 
 </resources>

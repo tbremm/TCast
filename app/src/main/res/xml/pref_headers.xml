@@ -3,15 +3,12 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="com.adventurpriseme.tcast.TriviaPrefsActivity$GeneralPreferenceFragment"
-        android:title="@string/pref_header_general"/>
+        android:title="@string/pref_header_player"/>
 
     <header
-        android:fragment="com.adventurpriseme.tcast.TriviaPrefsActivity$NotificationPreferenceFragment"
-        android:title="@string/pref_header_notifications"/>
+        android:title="@string/pref_header_host"/>
 
     <header
-        android:fragment="com.adventurpriseme.tcast.TriviaPrefsActivity$DataSyncPreferenceFragment"
-        android:title="@string/pref_header_data_sync"/>
+        android:title="@string/pref_header_debug"/>
 
 </preference-headers>

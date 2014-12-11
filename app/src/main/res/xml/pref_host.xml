@@ -1,0 +1,10 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- A 'parent' preference, which enables/disables child preferences (below)
+         when checked/unchecked. -->
+    <CheckBoxPreference
+        android:key="pref_host_checkbox_will_host"
+        android:title="@string/pref_title_willing_to_host"
+        android:defaultValue="true"/>
+
+</PreferenceScreen>
