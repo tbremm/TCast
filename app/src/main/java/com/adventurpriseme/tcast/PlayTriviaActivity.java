@@ -38,20 +38,21 @@ import java.io.IOException;
  * <p/>
  * This is where the user will connect to the chromecast.
  */
-public class PlayTriviaActivity extends ActionBarActivity implements IChromeCastMessage, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, Cast.MessageReceivedCallback
+public class PlayTriviaActivity extends ActionBarActivity
+		implements IChromeCastMessage, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, Cast.MessageReceivedCallback
 	{
 
 	private static final String TAG = "Trivia Activity";
 	private static MediaRouter.Callback m_MediaRouterCallback;
 	//	final Context context = this;
 	/** Data members */
-	private CTriviaPlayer      m_cTriviaPlayer;
-	private MediaRouter        m_MediaRouter;
-	private MediaRouteSelector m_MediaRouteSelector;
-	private GoogleApiClient    m_ApiClient;
+	private        CTriviaPlayer        m_cTriviaPlayer;
+	private        MediaRouter          m_MediaRouter;
+	private        MediaRouteSelector   m_MediaRouteSelector;
+	private        GoogleApiClient      m_ApiClient;
 	private boolean m_WaitingForReconnect = false;
 	private boolean m_ApplicationStarted  = false;
-	private CCastChannel       m_CCastChannel;
+	private CCastChannel      m_CCastChannel;
 	private SharedPreferences m_sharedPreferences;
 
 	/**
@@ -142,9 +143,12 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 		switch (item.getItemId ())
 			{
 			case R.id.action_settings:
+			{
 				onSettingsSelected ();
 				return true;
+			}
 			case R.id.home:
+			{
 				// This ID represents the Home or Up button. In the case of this
 				// activity, the Up button is shown. Use NavUtils to allow users
 				// to navigate up one level in the application structure. For
@@ -154,6 +158,12 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 				//
 				NavUtils.navigateUpFromSameTask (this);
 				return true;
+			}
+			case R.id.action_about:
+			{
+			// Show an about dialog box with version info
+			CAboutDialog.Show (PlayTriviaActivity.this);
+			}
 			}
 
 		return super.onOptionsItemSelected (item);
@@ -361,7 +371,8 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 	 * This function handles messages received from the chromecast.
 	 * This will trigger a game action of some kind.
 	 *
-	 * @param strMsg (required)  The incoming message
+	 * @param strMsg
+	 * 		(required)  The incoming message
 	 */
 	@Override
 	public void onReceiveCallback (String strMsg)
@@ -377,7 +388,7 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 		if (strMsg.equals ("timeout"))
 			{
 			sendMessage ("done");
-			tvPlayTitle.setText (getString(R.string.time_is_up));
+			tvPlayTitle.setText (getString (R.string.time_is_up));
 			tvPlayTitle.setVisibility (View.VISIBLE);
 			}
 		else if (strMsg.equals ("connected"))
@@ -386,13 +397,13 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 			// Create the getQuestion button
 			btnGetQuestion.setText (getString (R.string.btn_text_host_game));
 			btnGetQuestion.setOnClickListener (new View.OnClickListener ()
+			{
+			@Override
+			public void onClick (View view)
 				{
-				@Override
-				public void onClick (View view)
-					{
-					sendMessage ("request host");
-					}
-				});
+				sendMessage ("request host");
+				}
+			});
 			btnGetQuestion.setVisibility (View.VISIBLE);
 			}
 		else if (strMsg.equals ("host"))
@@ -431,13 +442,13 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 
 			// Create TRUE answer button
 			btnTrue.setOnClickListener (new View.OnClickListener ()
+			{
+			@Override
+			public void onClick (View view)
 				{
-				@Override
-				public void onClick (View view)
-					{
-					sendMessage ("true");
-					}
-				});
+				sendMessage ("true");
+				}
+			});
 			btnTrue.setVisibility (View.VISIBLE);
 
 			// Create FALSE answer button
@@ -455,14 +466,14 @@ public class PlayTriviaActivity extends ActionBarActivity implements IChromeCast
 			{
 			btnFalse.setVisibility (View.INVISIBLE);
 			btnTrue.setVisibility (View.INVISIBLE);
-			tvPlayTitle.setText (getString(R.string.you_win));
+			tvPlayTitle.setText (getString (R.string.you_win));
 			tvPlayTitle.setVisibility (View.VISIBLE);
 			}
 		else if (strMsg.equals ("lose"))
 			{
 			btnFalse.setVisibility (View.INVISIBLE);
 			btnTrue.setVisibility (View.INVISIBLE);
-			tvPlayTitle.setText (getString(R.string.you_lose));
+			tvPlayTitle.setText (getString (R.string.you_lose));
 			tvPlayTitle.setVisibility (View.VISIBLE);
 			}
 		}

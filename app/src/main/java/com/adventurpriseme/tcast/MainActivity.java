@@ -38,9 +38,17 @@ public class MainActivity extends Activity
 		int id = item.getItemId ();
 
 		//noinspection SimplifiableIfStatement
-		if (id == R.id.action_settings)
+		switch (id)
+			{
+			case R.id.action_settings:
 			{
 			return true;
+			}
+			case R.id.action_about:
+			{
+			// Show an about dialog box with version info
+			CAboutDialog.Show (MainActivity.this);
+			}
 			}
 
 		return super.onOptionsItemSelected (item);

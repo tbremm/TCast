@@ -26,7 +26,7 @@
             android:parentActivityName="com.adventurpriseme.tcast.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.adventurpriseme.triviacast.MainActivity"/>
+                android:value="com.adventurpriseme.tcast.MainActivity"/>
         </activity>
         <activity
             android:name="com.adventurpriseme.tcast.TriviaPrefsActivity"

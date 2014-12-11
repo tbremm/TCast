@@ -23,6 +23,7 @@ public class CCastChannel extends PlayTriviaActivity implements Cast.MessageRece
 
 	/**
 	 * Manages the
+	 *
 	 * @param ICMsgCallback
 	 */
 	public CCastChannel (IChromeCastMessage ICMsgCallback)

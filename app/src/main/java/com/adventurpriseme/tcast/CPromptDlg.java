@@ -46,11 +46,13 @@ public abstract class CPromptDlg extends AlertDialog.Builder implements OnClickL
 
 	/**
 	 * onClick listener for dialog buttons.
-	 *
+	 * <p/>
 	 * This can catch the okay or cancel buttons.
 	 *
-	 * @param dialog (required)  Dialog interface
-	 * @param which (required)  Determines what button was hit. 0-indexed.
+	 * @param dialog
+	 * 		(required)  Dialog interface
+	 * @param which
+	 * 		(required)  Determines what button was hit. 0-indexed.
 	 */
 	@Override
 	public void onClick (DialogInterface dialog, int which)
