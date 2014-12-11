@@ -10,9 +10,11 @@
 
 			var gameState;
 			// possibilities for game state
+			
 			var GAME_PENDING = 0;   // game has not started
-			var Q_IN_PROGRESS = 1;  // question is up, timer ticking
-			var Q_END = 2;          // question is over, give a few seconds to review
+			var HOST_SELECTED = 1;	// host selected
+			var Q_IN_PROGRESS = 2;  // question is up, timer ticking
+			var QUESTION_REVIEW = 3;          // question is over, give a few seconds to review
 
             triviaWindowLoad = function () {
                 setGamePending();
@@ -33,7 +35,15 @@
             // list of commands
             var TRUE = "true";
             var FALSE = "false";
-            var CONTINUE = "continue";
+			var CONNECTED = "connected"
+			var HOST_REQUEST = "request host";
+			var HOST_ACK = "host";
+			var GAME_HOSTED = "hosted";
+			var CONFIG = "config";
+			
+			var CONTINUE = "continue";
+			var PLAY_GAME = "PLAY"
+			
             var WIN = "win";
             var LOSE = "lose";
 
@@ -42,25 +52,77 @@
 				{
 			    // do stuff
 				var senderIndex = players.indexOf(id);
+				data_arr = data.split(':');
+				
 				if (senderIndex > -1)
 					{
+					var data_split = data.split(',');
+					var command = data[0].toLowerCase();
+					
 				    // fixme todo - lots of message parsing that we need to do!!
-					switch (data.toLowerCase ())    // Filter case for simplicity
+					switch (command)    // Filter case for simplicity
 						{
 						case TRUE:
 						case FALSE:
 							{
-							players[senderIndex].answer = data;
-							break;
+								players[senderIndex].answer = data;
+								break;
+							}
+						case HOST_REQUEST:
+							{
+							if (gameState == GAME_PENDING) 
+								{
+								// select host - first person who gets here
+								hostID = players[senderIndex];
+								gameState = HOST_SELECTED;
+								
+								var i;
+								for (i = 0; i < players.length; i++) 
+									{
+										if (players[i] == hostID) {
+											triviaSendMessage(players[i], HOST_ACK);
+										} else {
+											triviaSendMessage(players[i], GAME_HOSTED);
+										}
+									}
+								}
+								break;
+							}
+						case PLAY_GAME:
+							{
+							if (gameState == HOST_SELECTED) 
+								{
+									// fixme todo : do configuration here, in data_splits[1]
+									doQuestion();
+								}
+								break;
+							}
+						case CONFIG:
+							{	
+									// fixme todo : do configuration here, in data_splits[1]
+								break;
 							}
 						case CONTINUE:
 							{
-							gameState == GAME_PENDING ? doQuestion () : endQuestion ();
-							break;
+							//gameState == GAME_PENDING ? doQuestion () : endQuestion ();
+							//break;
+							
+								if (timer_disabled) {
+									if (gameState == Q_IN_PROGRESS) {
+										endQuestion();
+									} else if (gameState == QUESTION_REVIEW) {
+										resetQuestion();
+										doQuestion();
+									}
+								}
+									
+							
+								break;
 							}
 						default:
 							{
 							console.log ("Trivia Message Received: \'" + data);
+								break;
 							}
 						}
 			        }
@@ -75,10 +137,16 @@
 			    }
 			}
 
+			var readyForMessages = true; // todo
 			triviaOnConnect = function(id) {
 			    // do stuff
                 // temp
-                setGamePending();
+				if (readyForMessages) {
+					sendCastMessage(event.senderId, "connected");
+				}
+				if (players.length == 0) {
+					setGamePending();
+				}
 				players.push(id);
 			    //doQuestion();
 			}
@@ -94,6 +162,16 @@
 		        var qbox = document.getElementById("qbox");
 		        qbox.style.opacity = 1.0;
 				qbox.innerHTML = "Game Pending...";
+			}
+			
+			var timer_disable = false;
+			configureTrivia = function(cfg) {
+				// todo: configuration options?
+				if (cfg == "1") {
+					timer_disable = true;
+				} else {
+					timer_disable = false;
+				}
 			}
 
 			doQuestion = function() {
@@ -126,9 +204,10 @@
 						    triviaSendMessage(players[i], ("Q: " +  question));
 						    triviaSendMessage(players[i], ("A: " +  answer));
 					    }
-						fadeStartTime = $.now();
-						fadeInVar = setInterval(fadeIn, 50);
-
+						if (!timer_disabled) {
+							fadeStartTime = $.now();
+							fadeInVar = setInterval(fadeIn, 50);
+						}
 					},
 					error: function(xhr, desc, err) {
 						console.log(xhr);
@@ -144,7 +223,7 @@
 		        } else {
 		            qbox.innerHTML = (qbox.innerHTML + "<br>" + "It's False!");
 		        }
-                gameState = Q_END;
+                gameState = QUESTION_REVIEW;
 
 			    var i;
 			    // fixme think about player disconnects during loops
@@ -157,14 +236,16 @@
 			        }
 			    }
 
-                questionEndStartTime = $.now;
-				questionEndTimerVar = setInterval(function () {
-                    if (($.now - questionEndStartTime) > 10000) { // 10 seconds
-                        clearInterval(questionEndTimerVar);
-                        resetQuestion();
-                        doQuestion();
-                    }
-				}, 50);
+				if (!timer_disable) {
+					questionEndStartTime = $.now();
+					questionEndTimerVar = setInterval(function () {
+						if (($.now() - questionEndStartTime) > 5000) { // 10 seconds
+							clearInterval(questionEndTimerVar);
+							resetQuestion();
+							doQuestion();
+						}
+					}, 50);
+				} 
 			}
 
 			function fadeIn () {
