@@ -18,18 +18,23 @@
 
 	if ($result->num_rows > 0) {
 	
-		$row1 = $result->fetch_assoc();
-        $row2 = $result->fetch_assoc();
+		//$row1 = $result->fetch_assoc();
+        //$row2 = $result->fetch_assoc();
 
+		$row1 = mysqli_fetch_assoc($result);
+		$row2 = mysqli_fetch_assoc($result);
+		
         $doTrue = rand(0,1);
 
 		echo $row1["COL 2"].":";
-		if (doTrue) {
+		if ($doTrue) {
 		    echo $row1["COL 3"].":";
 	    } else {
 	        echo $row2["COL 3"].":";
 	    }
 	    echo $doTrue;
+		
+		mysqli_free_result($result);
 	} else {
 		//echo "0 results";
 	}

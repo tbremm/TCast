@@ -34,9 +34,6 @@
 
                 // CALL INTO TRIVIA
                 triviaOnConnect(event.senderId);
-
-
-                sendCastMessage(event.senderId, "connected");
             };
 
             // **********************************************
@@ -94,7 +91,7 @@
 
         sendCastMessage = function(id, msg) {
             window.messageBus.send(id, msg);
-        }
+        }  
 
         // **********************************************
         // utility function wrapper to display text in a given id
