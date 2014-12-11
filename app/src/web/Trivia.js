@@ -42,22 +42,34 @@
 			var CONFIG = "config";
 			
 			var CONTINUE = "continue";
-			var PLAY_GAME = "PLAY"
+			var PLAY_GAME = "play"
 			
             var WIN = "win";
             var LOSE = "lose";
 
-
+			getPlayerIndexById = function(id) 
+				{
+				var i;
+				for (i = 0; i < players.length; i++) 
+					{
+					if (players[i].id = id) 
+						{
+						return i;
+						}
+					}
+				}
+				
 			triviaMessageReceived = function(id, data)
 				{
 			    // do stuff
-				var senderIndex = players.indexOf(id);
-				data_arr = data.split(':');
+				var senderIndex = getPlayerIndexById(id);
+				
+				//players.indexOf(id);
 				
 				if (senderIndex > -1)
 					{
 					var data_split = data.split(',');
-					var command = data[0].toLowerCase();
+					var command = data_split[0].toLowerCase();
 					
 				    // fixme todo - lots of message parsing that we need to do!!
 					switch (command)    // Filter case for simplicity
@@ -73,16 +85,16 @@
 							if (gameState == GAME_PENDING) 
 								{
 								// select host - first person who gets here
-								hostID = players[senderIndex];
+								hostID = players[senderIndex].id;
 								gameState = HOST_SELECTED;
 								
 								var i;
 								for (i = 0; i < players.length; i++) 
 									{
-										if (players[i] == hostID) {
-											triviaSendMessage(players[i], HOST_ACK);
+										if (players[i].id == hostID) {
+											triviaSendMessage(players[i].id, HOST_ACK);
 										} else {
-											triviaSendMessage(players[i], GAME_HOSTED);
+											triviaSendMessage(players[i].id, GAME_HOSTED);
 										}
 									}
 								}
@@ -92,7 +104,7 @@
 							{
 							if (gameState == HOST_SELECTED) 
 								{
-									// fixme todo : do configuration here, in data_splits[1]
+									configureTrivia(data_split[1]);
 									doQuestion();
 								}
 								break;
@@ -100,6 +112,7 @@
 						case CONFIG:
 							{	
 									// fixme todo : do configuration here, in data_splits[1]
+								configureTrivia(data_split); // dont allow in questions? fixme todo
 								break;
 							}
 						case CONTINUE:
@@ -107,7 +120,7 @@
 							//gameState == GAME_PENDING ? doQuestion () : endQuestion ();
 							//break;
 							
-								if (timer_disabled) {
+								if (timer_enable) {
 									if (gameState == Q_IN_PROGRESS) {
 										endQuestion();
 									} else if (gameState == QUESTION_REVIEW) {
@@ -130,11 +143,11 @@
 
 			triviaOnDisconnect = function(id) {
 			    // do stuff
-			    var ind = players.indexOf(id);
-			    players.splice(ind, 1);
-			    if (players.length == 0) {
-			        setGamePending();
-			    }
+			    var ind = getPlayerIndexById(id);//players.indexOf(id);
+			    // fixme todo players.splice(ind, 1);
+			    //if (players.length == 0) {
+			    //    setGamePending();
+			    //}
 			}
 
 			var readyForMessages = true; // todo
@@ -142,12 +155,16 @@
 			    // do stuff
                 // temp
 				if (readyForMessages) {
-					sendCastMessage(event.senderId, "connected");
+					sendCastMessage(id, "connected");
 				}
 				if (players.length == 0) {
 					setGamePending();
 				}
-				players.push(id);
+				
+				var _new_player = new Object();
+				_new_player.id = id;
+				
+				players.push(_new_player);
 			    //doQuestion();
 			}
 
@@ -164,13 +181,13 @@
 				qbox.innerHTML = "Game Pending...";
 			}
 			
-			var timer_disable = false;
+			var timer_enable = false;
 			configureTrivia = function(cfg) {
 				// todo: configuration options?
 				if (cfg == "1") {
-					timer_disable = true;
+					timer_enable = true;
 				} else {
-					timer_disable = false;
+					timer_enable = false;
 				}
 			}
 
@@ -201,10 +218,10 @@
 						for (i = 0; i < players.length; i++) {
 						    // fixme todo - will have to think about disconnects
 						    // while looping over players
-						    triviaSendMessage(players[i], ("Q: " +  question));
-						    triviaSendMessage(players[i], ("A: " +  answer));
+						    triviaSendMessage(players[i].id, ("Q: " +  question));
+						    triviaSendMessage(players[i].id, ("A: " +  answer));
 					    }
-						if (!timer_disabled) {
+						if (timer_enable) {
 							fadeStartTime = $.now();
 							fadeInVar = setInterval(fadeIn, 50);
 						}
@@ -230,13 +247,13 @@
 			    for (i = 0; i < players.length; i++) {
 			        if (    (answerIsTrue && (players[i].answer == TRUE)) ||
 			                (!answerIsTrue && (players[i].answer == FALSE))) {
-			            triviaSendMessage(players[i], WIN);
+			            triviaSendMessage(players[i].id, WIN);
 			        } else {
-			            triviaSendMessage(players[i], LOSE);
+			            triviaSendMessage(players[i].id, LOSE);
 			        }
 			    }
 
-				if (!timer_disable) {
+				if (timer_enable) {
 					questionEndStartTime = $.now();
 					questionEndTimerVar = setInterval(function () {
 						if (($.now() - questionEndStartTime) > 5000) { // 10 seconds
@@ -288,7 +305,7 @@
 					clearInterval(questionTimerVar);
 					var i;
 					for (i = 0; i < players.length; i++) {
-					    triviaSendMessage(players[i], "timeout");
+					    triviaSendMessage(players[i].id, "timeout");
 					}
 					endQuestion(); // fixme todo - give phones time to give last-seond answer?
 				}
