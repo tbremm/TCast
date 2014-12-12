@@ -4,7 +4,7 @@
 			var fadeInVar;
 			var roundTimerVar;
 			var players = [];
-			var answerIsTrue;
+			var roundAnswer;
 			var postRoundTimerVar;
             var postRoundStartTime;
 
@@ -41,6 +41,7 @@
 			var CONFIG = "config";				// configuration message from host
 			var BEGIN_ROUND = "begin round";	// begin a round, sent from host
 			var END_ROUND = "end round";		// end a round, sent from host
+			var ANSWER = "answer";					// answer from a phone
 			
 			// commands from web -> phones
 			var HOST_ACK = "host";				// let phone know they are the host	
@@ -70,17 +71,22 @@
 				
 				if (senderIndex > -1)
 					{
-					var data_split = data.split(',');
+					var data_split = data.split('|');
 					var command = data_split[0].toLowerCase();
 					
+					var cmd_split = command.split('=');
+					var switch_arg;
+					if (cmd_split.length > 1 ) {
+						switch_arg = cmd_split[0];
+					} else {
+						switch_arg = cmd_split;
+					}
 				    // fixme todo - lots of message parsing that we need to do!!
-					switch (command)    // Filter case for simplicity
+					switch (switch_arg)    // Filter case for simplicity
 						{
-						case TRUE:
-						case FALSE:
+						case ANSWER:
 							{
-								players[senderIndex].answer = data;
-								break;
+							players[senderIndex].answer = cmd_split[1];
 							}
 						case HOST_REQUEST:
 							{
@@ -104,7 +110,7 @@
 							}
 						case BEGIN_ROUND:
 							{
-							if (gameState == HOST_SELECTED) 
+							if (gameState == HOST_SELECTED || (gameState == POST_ROUND)) 
 								{
 								// fixme - this is awkward as fuck
 								var j;
@@ -131,10 +137,17 @@
 							configureTrivia(arg, id); // dont allow in questions? fixme todo
 							break;
 							}
+						case END_ROUND:
+							{
+							if (gameState == ROUND) 
+								{
+								endRound();
+								}
+							}
 						default:
 							{
 							console.log ("Trivia Message Received: \'" + data);
-								break;
+							break;
 							}
 						}
 			        }
@@ -226,31 +239,36 @@
 				//alert("onload reached");
 				gameState = ROUND;
 				$.ajax({
-					url: 'GetTrueFalseQuestion.php',
+					url: 'GetFourAnswerQ.php',
 					type: 'post',
 					data: '',
 					success: function(data) {
 						//alert(data);
 
-						var split_data = data.split(':');
+						var split_data = data.split('|');
 						var question = split_data[0];
-						var answer = split_data[1];
-						answerIsTrue = split_data[2];
+						var a1 = split_data[1];
+						var a2 = split_data[2];
+						var a3 = split_data[3];
+						var a4 = split_data[4];
+						roundAnswer = split_data[5];
 
 						var qbox = document.getElementById("qbox");
-						var questionHTML = question + "<br>" + answer + "<br>" + "True or False?";
+						var questionHTML = question + "<br>" + a1 + "<br>" + a2 + "<br>" + a3 + "<br>" + a4;
 						qbox.innerHTML = questionHTML;
-
-						//var aboxtext = document.getElementById("aboxtext");
-						//aboxtext.innerHTML = answer;
 
 						// send Q&A to phones
 						var i;
 						for (i = 0; i < players.length; i++) {
 						    // fixme todo - will have to think about disconnects
 						    // while looping over players
-						    triviaSendMessage(players[i].id, ("Q: " +  question));
-						    triviaSendMessage(players[i].id, ("A: " +  answer));
+							var msg = 	"Q=" + question +
+										"A1=" + a1 +
+										"A2=" + a2 +
+										"A3=" + a3 +
+										"A4=" + a4;
+										
+						    triviaSendMessage(players[i].id, msg);
 					    }
 						fadeStartTime = $.now();
 						fadeInVar = setInterval(fadeIn, 50);
@@ -265,28 +283,27 @@
 
 			endRound = function () {
 				var qbox = document.getElementById("qbox");
-				if (answerIsTrue) {
-				    qbox.innerHTML = (qbox.innerHTML + "<br>" + "It's True!");
-		        } else {
-		            qbox.innerHTML = (qbox.innerHTML + "<br>" + "It's False!");
-		        }
+				qbox.innerHTML = (qbox.innerHTML + "<br>" + "Answer: " + roundAnswer);
+		        
                 gameState = POST_ROUND;
 
 			    var i;
 			    // fixme think about player disconnects during loops
 			    for (i = 0; i < players.length; i++) {
-			        if (    (answerIsTrue && (players[i].answer == TRUE)) ||
-			                (!answerIsTrue && (players[i].answer == FALSE))) {
-			            triviaSendMessage(players[i].id, WIN);
-			        } else {
-			            triviaSendMessage(players[i].id, LOSE);
-			        }
+					if (players[i].answer == roundAnswer) {
+						triviaSendMessage(players[i].id, WIN);
+						// todo increment scores here!
+						// todo make 'winners' list to display on TV
+					} else {
+						triviaSendMessage(players[i].id, LOSE);
+						// todo decrement scores sometimes?
+					}
 			    }
 
 				if (postround_timer_enable) {
 					postRoundStartTime = $.now();
 					postRoundTimerVar = setInterval(function () {
-						if (!postround_timer_enable || (($.now() - postRoundStartTime)) > 5000) { // 5 seconds
+						if ((($.now() - postRoundStartTime)) > 5000) { // 5 seconds
 							clearInterval(postRoundTimerVar);
 							resetRound();
 							doRound();
@@ -324,27 +341,22 @@
 			}
 
 			function roundTimerFunc () {
-				if (round_timer_enable) {
-					var thisTime = $.now();
+				var thisTime = $.now();
 
-					var timePassed = thisTime - roundStartTime;
-					var timeLeft = roundTime - timePassed;
-					timeLeft = Math.round(timeLeft/1000.0);
+				var timePassed = thisTime - roundStartTime;
+				var timeLeft = roundTime - timePassed;
+				timeLeft = Math.round(timeLeft/1000.0);
 
-					var timer = document.getElementById("timer");
-					timer.innerHTML = timeLeft;
+				var timer = document.getElementById("timer");
+				timer.innerHTML = timeLeft;
 
-					if (timeLeft < 0) {
-						timer.innerHTML = 0;
-						clearInterval(roundTimerVar);
-						//var i;
-						//for (i = 0; i < players.length; i++) {
-							// no need to send timeout message triviaSendMessage(players[i].id, "timeout");
-						//} no need for this for loop - win/loss message will make it clear the round is over
-						endRound(); // fixme todo - give phones time to give last-seond answer?
-					}
-				} else {
+				if (timeLeft < 0) {
 					timer.innerHTML = 0;
-					endRound();
-				}
+					clearInterval(roundTimerVar);
+					//var i;
+					//for (i = 0; i < players.length; i++) {
+						// no need to send timeout message triviaSendMessage(players[i].id, "timeout");
+					//} no need for this for loop - win/loss message will make it clear the round is over
+					endRound(); // fixme todo - give phones time to give last-seond answer?
+				} 
 			}
