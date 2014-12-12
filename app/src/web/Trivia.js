@@ -110,7 +110,7 @@
 							}
 						case BEGIN_ROUND:
 							{
-							if (gameState == HOST_SELECTED || (gameState == POST_ROUND)) 
+							if (gameState == HOST_SELECTED || ((gameState == POST_ROUND) && !round_timer_enable)) 
 								{
 								// fixme - this is awkward as fuck
 								var j;
@@ -139,7 +139,7 @@
 							}
 						case END_ROUND:
 							{
-							if (gameState == ROUND) 
+							if ((gameState == ROUND) && !postround_timer_enable) 
 								{
 								endRound();
 								}
