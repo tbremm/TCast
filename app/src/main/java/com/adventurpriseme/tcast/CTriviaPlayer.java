@@ -13,7 +13,9 @@ public class CTriviaPlayer implements IPerson
 	// Data members
 	private String  m_strName   = "";
 	private boolean m_bWillHost = true;
+	private boolean m_bHosting  = false;
 	private int     m_nScore    = 0;
+	private String  m_strAnswer = "";
 
 	/**
 	 * Constructor
@@ -93,5 +95,25 @@ public class CTriviaPlayer implements IPerson
 			{
 			m_nScore = nScore;
 			}
+		}
+
+	public String getAnswer ()
+		{
+		return m_strAnswer;
+		}
+
+	public void setAnswer (String strAnswer)
+		{
+		m_strAnswer = strAnswer;
+		}
+
+	public boolean isHosting ()
+		{
+		return m_bHosting;
+		}
+
+	public void setIsHosting (boolean bHosting)
+		{
+		m_bHosting = bHosting;
 		}
 	}

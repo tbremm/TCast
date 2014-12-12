@@ -35,5 +35,9 @@
     <string name="waiting_on_host">Waiting on host…</string>
     <string name="action_about">About</string>
     <string name="about">CastMe&#8482; Trivia\nCopyright &#169; 2014\n\nhttp://adventurpriseme.com\nsupport@adventurpriseme.com</string>
+    <string name="start_the_game">Start the game!</string>
+    <string name="next_question">Next Question!</string>
+    <string name="waiting_for_host">Waiting for host...</string>
+    <string name="finish_round">Finish round</string>
 
 </resources>
