@@ -72,17 +72,17 @@
 				if (senderIndex > -1)
 					{
 					var data_split = data.split('|');
-					var command = data_split[0].toLowerCase();
 					
+					var command = data_split[0].toLowerCase();
 					var cmd_split = command.split('=');
 					var switch_arg;
-					if (cmd_split.length > 1 ) {
+					if (cmd_split.length > 1 ) {	// length should always be 2
 						switch_arg = cmd_split[0];
 					} else {
 						switch_arg = cmd_split;
 					}
-				    // fixme todo - lots of message parsing that we need to do!!
-					switch (switch_arg)    // Filter case for simplicity
+					// fixme todo - lots of message parsing that we need to do!!
+					switch (command)    // Filter case for simplicity
 						{
 						case ANSWER:
 							{
@@ -95,18 +95,21 @@
 								// select host - first person who gets here
 								hostID = players[senderIndex].id;
 								gameState = HOST_SELECTED;
-								
+									
 								var i;
 								for (i = 0; i < players.length; i++) 
 									{
-										if (players[i].id == hostID) {
-											triviaSendMessage(players[i].id, HOST_ACK);
-										} else {
-											triviaSendMessage(players[i].id, GAME_HOSTED);
+									if (players[i].id == hostID) 
+										{
+										triviaSendMessage(players[i].id, HOST_ACK);
+										} 
+									else 
+										{
+										triviaSendMessage(players[i].id, GAME_HOSTED);
 										}
 									}
 								}
-								break;
+							break;
 							}
 						case BEGIN_ROUND:
 							{
@@ -117,9 +120,9 @@
 								var arg = "";
 								for (j = 0; j < (data_split.length - 1); j++) {
 									arg += data_split[j+1];
-								}
+								}	
 								configureTrivia(arg, id); // dont allow in questions? fixme todo
-							
+								
 								resetRound();
 								doRound();
 								}
@@ -151,8 +154,8 @@
 							break;
 							}
 						}
-			        }
-	            }
+					}
+				}	
 
 			triviaOnDisconnect = function(id) {
 			    // do stuff
@@ -276,11 +279,12 @@
 						for (i = 0; i < players.length; i++) {
 						    // fixme todo - will have to think about disconnects
 						    // while looping over players
-							var msg = 	"Q=" + question +
-										"A1=" + a1 +
-										"A2=" + a2 +
-										"A3=" + a3 +
-										"A4=" + a4;
+							var msg = 	"qanda" +
+										"|q=" + question +
+										"|a=" + a1 +
+										"|a=" + a2 +
+										"|a=" + a3 +
+										"|a=" + a4;
 										
 						    triviaSendMessage(players[i].id, msg);
 					    }
