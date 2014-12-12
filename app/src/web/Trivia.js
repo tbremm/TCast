@@ -120,6 +120,7 @@
 								}
 								configureTrivia(arg, id); // dont allow in questions? fixme todo
 							
+								resetRound();
 								doRound();
 								}
 							break;
@@ -213,19 +214,32 @@
 					switch (switch_arg) {
 						case "round timer": {
 							if (option_split[1] == "true") {
+								if ((gameState == ROUND) && !round_timer_enable) {
+									// timer resets upon this change - does not hold state
+									startRoundTimer();
+								}	
 								round_timer_enable = true;
 							} else if (option_split[1] == "false") {
+								if ((gameState == ROUND) && round_timer_enable) {
+									clearInterval(roundTimerVar);
+								}
 								round_timer_enable = false;
 							}
 							break;
 						} case "postround timer": {
 							// fixme todo - should functionize common things like this true/false
 							if (option_split[1] == "true") {
+								if ((gameState == POST_ROUND) && !postround_timer_enable) {
+									startPostRoundTimer();
+								}
 								postround_timer_enable = true;
 							} else if (option_split[1] == "false") {
+								if ((gameState == POST_ROUND) && postround_timer_enable) {
+									clearInterval(postRoundTimerVar);
+								}
 								postround_timer_enable = false;
 							}
-						} case "my name": {
+						} case "player name": {
 							var ind = getPlayerIndexById(senderId);
 							players[ind].name = option_split[1];
 						}	
@@ -299,7 +313,11 @@
 						// todo decrement scores sometimes?
 					}
 			    }
+				
+				startPostRouteTimer();
+			}
 
+			function startPostRouteTimer () {
 				if (postround_timer_enable) {
 					postRoundStartTime = $.now();
 					postRoundTimerVar = setInterval(function () {
@@ -309,9 +327,9 @@
 							doRound();
 						}
 					}, 50);
-				} 
+				}
 			}
-
+						
 			function fadeIn () {
 				var totalTime = 2000; // 2 second fade in
 				var thisTime = $.now();
