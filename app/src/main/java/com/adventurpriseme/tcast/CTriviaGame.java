@@ -62,6 +62,8 @@ public class CTriviaGame {
 		{
 		m_strMsgOut = new ArrayList<String>();    // TODO: Make this dependent on the type of question expected
 		m_activity = (PlayTriviaActivity) activity;
+        m_question = "";
+        m_answers = new ArrayList<String>();
 		setGameState (WAITING);
 		}
 
@@ -197,7 +199,7 @@ public class CTriviaGame {
             String playerName = MSG_PLAYER_NAME + MSG_SPLIT_KEY_VALUE +
                     String.valueOf(m_activity.getPlayerName());
 
-            m_activity.sendMessage("begin round" + "|" + enableRoundTimer +
+            m_activity.sendMessage(MSG_BEGIN_ROUND + "|" + enableRoundTimer +
                     "|" + enablePostRoundTimer +
                     "|" + playerName);
         }

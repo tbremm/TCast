@@ -61,7 +61,6 @@ public class PlayTriviaActivity
 	private boolean m_ApplicationStarted  = false;
 	private CCastChannel      m_CCastChannel;
 	private SharedPreferences m_sharedPreferences;
-	private ArrayList<String> m_strMessagesToSend;
 	private Context m_context = this;
 
 	/**
@@ -495,7 +494,7 @@ public class PlayTriviaActivity
 		}
 
         public String getPlayerName () {
-            String playerName = "player name=" +
+            String playerName =
                     PreferenceManager.getDefaultSharedPreferences (this)
                             .getString("pref_player_name_text", "Player");
             return playerName;
@@ -551,8 +550,6 @@ public class PlayTriviaActivity
 						else
 							{
 							Log.e (TAG, "Sent message: " + message);
-							// Clear out the send message buffer
-							clearMessagesToSend ();
 							}
 						}
 					});
@@ -584,11 +581,6 @@ public class PlayTriviaActivity
 		{
 		// Just call the other AddButtonLayout Method with Margin 0
 		AddButtonLayout (button, centerInParent, 0, 0, 0, 0);
-		}
-
-	private void clearMessagesToSend ()
-		{
-		m_strMessagesToSend.clear();
 		}
 
 	/**
