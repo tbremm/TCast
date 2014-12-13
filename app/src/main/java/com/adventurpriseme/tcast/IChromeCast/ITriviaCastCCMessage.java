@@ -6,6 +6,6 @@ package com.adventurpriseme.tcast.IChromeCast;
  * Created by Timothy on 11/24/2014.
  * Copyright 11/24/2014 adventurpriseme.com
  */
-public interface ITriviaCastCCMessage extends IChromeCastMessage
-	{
-	}
+public interface ITriviaCastCCMessage
+	extends IChromeCastMessage
+	{}

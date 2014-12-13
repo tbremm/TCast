@@ -14,7 +14,7 @@ public interface IChromeCastMessage
 	 * Implement this function to handle a message string coming in from the chromecast.
 	 *
 	 * @param strMsg
-	 * 		(required)  Content of the message received from the chromecast
+	 * 	(required)  Content of the message received from the chromecast
 	 */
 	public void onReceiveCallback (String strMsg);
 	}

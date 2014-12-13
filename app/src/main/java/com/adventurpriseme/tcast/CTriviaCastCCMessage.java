@@ -8,7 +8,8 @@ import com.adventurpriseme.tcast.IChromeCast.ITriviaCastPlayerCCM;
  * Created by Timothy on 11/24/2014.
  * Copyright 11/24/2014 adventurpriseme.com
  */
-public class CTriviaCastCCMessage implements ITriviaCastPlayerCCM
+public class CTriviaCastCCMessage
+	implements ITriviaCastPlayerCCM
 	{
 	/**
 	 * Callback for receiving a message from the chromecast.
@@ -20,7 +21,6 @@ public class CTriviaCastCCMessage implements ITriviaCastPlayerCCM
 	@Override
 	public void onReceiveCallback (String strMsg)
 		{
-
 		}
 	// TODO - This class
 	}

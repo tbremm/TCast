@@ -21,7 +21,6 @@ import static com.adventurpriseme.tcast.CTriviaGame.TriviaGameState.WAITING;
  */
 public class CTriviaGame
 	{
-
 	private static final String[] Q_AND_A_STRING_ARRAY = new String[5];   // TODO: Don't hardcode this size
 	// The caller's context
 	private PlayTriviaActivity m_activity;
@@ -33,7 +32,6 @@ public class CTriviaGame
 		{
 		m_strMsgOut = new String[4];    // TODO: Make this dependent on the type of question expected
 		m_activity = (PlayTriviaActivity) activity;
-
 		setGameState (WAITING);
 		}
 
@@ -58,7 +56,7 @@ public class CTriviaGame
 	 * Preserves the message and sets the game state to process it.
 	 *
 	 * @param strMsgIn
-	 * 		String content of the received message
+	 * 	String content of the received message
 	 */
 	public void onMessageIn (String strMsgIn)
 		{
@@ -78,32 +76,29 @@ public class CTriviaGame
 			{
 			m_strMsgOut[0] = "connected";
 			m_strMsgOut[1] = "request host";
-			m_activity.updateGame (CONNECTED);
+			m_activity.updateGame (CONNECTED, m_strMsgOut);
 			}
-
 		else if (m_strMsgIn.equals ("host"))
 			{
-			String enableRoundTimer =
-					"round timer=" + String.valueOf (PreferenceManager.getDefaultSharedPreferences (m_activity).getBoolean ("pref_debug_checkbox_enable_timer", true));
+			String enableRoundTimer = "round timer=" + String.valueOf (PreferenceManager.getDefaultSharedPreferences (m_activity)
+				                                                           .getBoolean ("pref_debug_checkbox_enable_timer", true));
 			String enablePostRoundTimer = "postround timer=true";  // TODO: Don't hardcode this
-			String playerName = "player name=" + PreferenceManager.getDefaultSharedPreferences (m_activity).getString ("pref_player_name_text", "Player");
+			String playerName = "player name=" + PreferenceManager.getDefaultSharedPreferences (m_activity)
+				                                     .getString ("pref_player_name_text", "Player");
 			m_strMsgOut[0] = "begin round|" + enableRoundTimer + "|" + enablePostRoundTimer + "|" + playerName;
-
-			m_activity.updateGame (HOSTING);
+			m_activity.updateGame (HOSTING, m_strMsgOut);
 			}
-
 		else if (m_strMsgIn.equals ("hosted"))
 			{
-			m_strMsgOut[0] = "config|player name=" + PreferenceManager.getDefaultSharedPreferences (m_activity).getString ("pref_player_name_text", "Player");
-			m_activity.updateGame (HOSTED);
+			m_strMsgOut[0] = "config|player name=" + PreferenceManager.getDefaultSharedPreferences (m_activity)
+				                                         .getString ("pref_player_name_text", "Player");
+			m_activity.updateGame (HOSTED, m_strMsgOut);
 			}
-
 		else if (m_strMsgIn.startsWith ("qanda|"))
 			{
 			// Expecting: "qanda|q=some question|a=answer1|a=answer2|...|a=answer"
 			// Get a question k=v and answer k=v's
 			String[] strings = m_strMsgIn.split ("\\|");
-
 			// TODO: Pick what strings to take based off of game format (t/f, multi, open-ended, etc)
 			if (strings.length == 6)    // command, question, answers 1-4
 				{
@@ -115,33 +110,35 @@ public class CTriviaGame
 					m_strMsgOut[i - 1] = strings[i].split ("=")[1];
 					}
 				}
-			m_activity.updateGame (GOT_Q_AND_A);
+			m_activity.updateGame (GOT_Q_AND_A, m_strMsgOut);
 			}
-
 		else if (m_strMsgIn.equals ("win"))
 			{
-			if (m_activity.getTriviaPlayer ().getWillHost ())
+			if (m_activity.getTriviaPlayer ()
+				    .getWillHost ())
 				{
-				String enableRoundTimer =
-						"round timer=" + String.valueOf (PreferenceManager.getDefaultSharedPreferences (m_activity).getBoolean ("pref_debug_checkbox_enable_timer", true));
+				String enableRoundTimer = "round timer=" + String.valueOf (PreferenceManager.getDefaultSharedPreferences (m_activity)
+					                                                           .getBoolean ("pref_debug_checkbox_enable_timer", true));
 				String enablePostRoundTimer = "postround timer=true";  // TODO: Don't hardcode this
-				String playerName = "player name=" + PreferenceManager.getDefaultSharedPreferences (m_activity).getString ("pref_player_name_text", "Player");
+				String playerName = "player name=" + PreferenceManager.getDefaultSharedPreferences (m_activity)
+					                                     .getString ("pref_player_name_text", "Player");
 				m_strMsgOut[0] = "begin round|" + enableRoundTimer;
 				}
-			m_activity.updateGame (ROUND_WIN);
+			m_activity.updateGame (ROUND_WIN, m_strMsgOut);
 			}
-
 		else if (m_strMsgIn.equals ("lose"))
 			{
-			if (m_activity.getTriviaPlayer ().getWillHost ())
+			if (m_activity.getTriviaPlayer ()
+				    .getWillHost ())
 				{
-				String enableRoundTimer =
-						"round timer=" + String.valueOf (PreferenceManager.getDefaultSharedPreferences (m_activity).getBoolean ("pref_debug_checkbox_enable_timer", true));
+				String enableRoundTimer = "round timer=" + String.valueOf (PreferenceManager.getDefaultSharedPreferences (m_activity)
+					                                                           .getBoolean ("pref_debug_checkbox_enable_timer", true));
 				String enablePostRoundTimer = "postround timer=true";  // TODO: Don't hardcode this
-				String playerName = "player name=" + PreferenceManager.getDefaultSharedPreferences (m_activity).getString ("pref_player_name_text", "Player");
+				String playerName = "player name=" + PreferenceManager.getDefaultSharedPreferences (m_activity)
+					                                     .getString ("pref_player_name_text", "Player");
 				m_strMsgOut[0] = "begin round|" + enableRoundTimer;
 				}
-			m_activity.updateGame (ROUND_LOSE);
+			m_activity.updateGame (ROUND_LOSE, m_strMsgOut);
 			}
 		}
 

@@ -42,10 +42,10 @@ import java.io.IOException;
  * <p/>
  * This is where the user will connect to the chromecast.
  */
-public class PlayTriviaActivity extends ActionBarActivity
-		implements IChromeCastMessage, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, Cast.MessageReceivedCallback
+public class PlayTriviaActivity
+	extends ActionBarActivity
+	implements IChromeCastMessage, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, Cast.MessageReceivedCallback
 	{
-
 	private static final String   TAG                = "Trivia Activity";
 	private static final String[] EMPTY_STRING_ARRAY = new String[0];
 	//	final Context context = this;
@@ -61,6 +61,7 @@ public class PlayTriviaActivity extends ActionBarActivity
 	private CCastChannel      m_CCastChannel;
 	private SharedPreferences m_sharedPreferences;
 	private String[]          m_strMessagesToSend;
+	private Context m_context = this;
 
 	/**
 	 * Play Trivia Activity creator.
@@ -74,13 +75,12 @@ public class PlayTriviaActivity extends ActionBarActivity
 	protected void onCreate (Bundle savedInstanceState)
 		{
 		super.onCreate (savedInstanceState);
-
 		// Show the Up button in the action bar.
 		setupActionBar ();
-
 		// Create the media router, selector, and callback for the chromecast
 		m_MediaRouter = MediaRouter.getInstance (getApplicationContext ());
-		m_MediaRouteSelector = new MediaRouteSelector.Builder ().addControlCategory (CastMediaControlIntent.categoryForCast ("53EAA363")).build ();
+		m_MediaRouteSelector = new MediaRouteSelector.Builder ().addControlCategory (CastMediaControlIntent.categoryForCast ("53EAA363"))
+			                       .build ();
 		m_MediaRouterCallback = new MyMediaRouterCallback ();
 		}
 
@@ -104,7 +104,6 @@ public class PlayTriviaActivity extends ActionBarActivity
 		{
 		m_MediaRouter.removeCallback (m_MediaRouterCallback);
 		super.onStop ();
-
 		// Set the activity layout dependant on our connected state
 		if (m_ApiClient == null || !m_ApiClient.isConnected ())
 			{
@@ -120,7 +119,7 @@ public class PlayTriviaActivity extends ActionBarActivity
 	 * Called after {@link this.onCreate()} has finished.
 	 *
 	 * @param savedInstanceState
-	 * 		(required)
+	 * 	(required)
 	 */
 	@Override
 	protected void onPostCreate (Bundle savedInstanceState)
@@ -130,7 +129,6 @@ public class PlayTriviaActivity extends ActionBarActivity
 		m_sharedPreferences = PreferenceManager.getDefaultSharedPreferences (this);
 		m_cTriviaPlayer = new CTriviaPlayer (m_sharedPreferences);
 		m_cTriviaGame = new CTriviaGame (this);
-
 		// Set the activity layout dependant on our connected state
 		if (m_ApiClient == null || !m_ApiClient.isConnected ())
 			{
@@ -184,7 +182,6 @@ public class PlayTriviaActivity extends ActionBarActivity
 			CAboutDialog.Show (PlayTriviaActivity.this);
 			}
 			}
-
 		return super.onOptionsItemSelected (item);
 		}
 
@@ -214,44 +211,42 @@ public class PlayTriviaActivity extends ActionBarActivity
 				setContentView (R.layout.activity_play_trivia_on);
 				// Give the channel our message object
 				m_CCastChannel = new CCastChannel (this);
-
-				Cast.CastApi.launchApplication (m_ApiClient, "53EAA363", false).setResultCallback (new ResultCallback<Cast.ApplicationConnectionResult> ()
-				{
-				@Override
-				public void onResult (Cast.ApplicationConnectionResult result)
+				Cast.CastApi.launchApplication (m_ApiClient, "53EAA363", false)
+					.setResultCallback (new ResultCallback<Cast.ApplicationConnectionResult> ()
 					{
-					Status status = result.getStatus ();
-					if (status.isSuccess ())
+					@Override
+					public void onResult (Cast.ApplicationConnectionResult result)
 						{
-						ApplicationMetadata applicationMetadata = result.getApplicationMetadata ();
-						String sessionId = result.getSessionId ();
-						String applicationStatus = result.getApplicationStatus ();
-						boolean wasLaunched = result.getWasLaunched ();
-						m_ApplicationStarted = true;
-
-						try
+						Status status = result.getStatus ();
+						if (status.isSuccess ())
 							{
-							Cast.CastApi.setMessageReceivedCallbacks (m_ApiClient, m_CCastChannel.getNamespace (), m_CCastChannel);
-
-							//sendMessage("http://gnosm.net/missilecommand/sounds/524
-							// .mp3");
-							}
-						catch (IOException e)
-							{
-							Log.e (TAG, "Exception while creating channel", e);
-							// Set the activity layout dependant on our connected state
-							if (m_ApiClient == null || !m_ApiClient.isConnected ())
+							ApplicationMetadata applicationMetadata = result.getApplicationMetadata ();
+							String sessionId = result.getSessionId ();
+							String applicationStatus = result.getApplicationStatus ();
+							boolean wasLaunched = result.getWasLaunched ();
+							m_ApplicationStarted = true;
+							try
 								{
-								setContentView (R.layout.activity_play_trivia_off);
+								Cast.CastApi.setMessageReceivedCallbacks (m_ApiClient, m_CCastChannel.getNamespace (), m_CCastChannel);
+								//sendMessage("http://gnosm.net/missilecommand/sounds/524
+								// .mp3");
 								}
-							else
+							catch (IOException e)
 								{
-								setContentView (R.layout.activity_play_trivia_on);
+								Log.e (TAG, "Exception while creating channel", e);
+								// Set the activity layout dependant on our connected state
+								if (m_ApiClient == null || !m_ApiClient.isConnected ())
+									{
+									setContentView (R.layout.activity_play_trivia_off);
+									}
+								else
+									{
+									setContentView (R.layout.activity_play_trivia_on);
+									}
 								}
 							}
 						}
-					}
-				});
+					});
 				}
 			catch (Exception e)
 				{
@@ -339,7 +334,6 @@ public class PlayTriviaActivity extends ActionBarActivity
 		{
 		super.onStart ();
 		m_MediaRouter.addCallback (m_MediaRouteSelector, m_MediaRouterCallback, MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
-
 		// Set the activity layout dependant on our connected state
 		if (m_ApiClient == null || !m_ApiClient.isConnected ())
 			{
@@ -358,7 +352,7 @@ public class PlayTriviaActivity extends ActionBarActivity
 	 * This will trigger a game action of some kind.
 	 *
 	 * @param strMsg
-	 * 		(required)  The incoming message
+	 * 	(required)  The incoming message
 	 */
 	@Override
 	public void onReceiveCallback (String strMsg)
@@ -366,155 +360,152 @@ public class PlayTriviaActivity extends ActionBarActivity
 		m_cTriviaGame.onMessageIn (strMsg);
 		}
 
-	public void updateGame (CTriviaGame.TriviaGameState state)
+	public void updateGame (CTriviaGame.TriviaGameState state, String[] msgToSend)
 		{
-		setMessagesToSend (m_cTriviaGame.getAllMessagesToSend ());
+		// Store off our message
+		setMessagesToSend (msgToSend);
+
 		// Get all of our GUI elements
-		Button btnBeginNewRound = (Button) findViewById (R.id.btn_begin_new_round);
 		TextView tvPlayTitle = (TextView) findViewById (R.id.tvPlayTitle);
 		TextView tvQuestion = (TextView) findViewById (R.id.tvQuestion);
+		Button btnBeginNewRound = (Button) findViewById (R.id.btn_begin_new_round);
 		RadioGroup rgAnswers = (RadioGroup) findViewById (R.id.radio_group_answers);
+		// TODO Add an onCheckedChangeListener to handle button graphical state?
 
 		switch (state)
 			{
 			case CONNECTED:
-			{
-			// Clear the display of UI elements
-			setAllUiElements_Visibility (View.INVISIBLE);
-
-			if (m_cTriviaPlayer.getWillHost ())
-				{
-				// Create the getQuestion button
-				btnBeginNewRound.setText (getString (R.string.btn_text_host_game));
+				// Clear the display of UI elements
+				setAllUiElements_Visibility (View.INVISIBLE);
+				if (m_cTriviaPlayer.getWillHost ())
+					{
+					// Create the getQuestion button
+					btnBeginNewRound.setText (getString (R.string.btn_text_host_game));
+					btnBeginNewRound.setOnClickListener (new View.OnClickListener ()
+					{
+					@Override
+					public void onClick (View view)
+						{
+						sendMessage (getMessagesToSend ()[1]);
+						}
+					});
+					btnBeginNewRound.setVisibility (View.VISIBLE);
+					}
+				else
+					{
+					tvQuestion.setText (getString (R.string.waiting_for_host));
+					tvQuestion.setVisibility (View.VISIBLE);
+					}
+				break;
+			case HOSTING:
+				// Clear the display of UI elements
+				setAllUiElements_Visibility (View.INVISIBLE);
+				m_cTriviaPlayer.setIsHosting (true);
+				btnBeginNewRound.setText (getString (R.string.start_the_game));
 				btnBeginNewRound.setOnClickListener (new View.OnClickListener ()
 				{
 				@Override
 				public void onClick (View view)
 					{
-					sendMessage (getMessagesToSend ()[1]);
+					sendMessage (getMessagesToSend ()[0]);
 					}
 				});
 				btnBeginNewRound.setVisibility (View.VISIBLE);
-				}
-			else
-				{
-				tvQuestion.setText (getString (R.string.waiting_for_host));
-				tvQuestion.setVisibility (View.VISIBLE);
-				}
-			break;
-			}
-
-			case HOSTING:
-			{
-			// Clear the display of UI elements
-			setAllUiElements_Visibility (View.INVISIBLE);
-
-			m_cTriviaPlayer.setIsHosting (true);
-			btnBeginNewRound.setText (getString (R.string.start_the_game));
-			btnBeginNewRound.setOnClickListener (new View.OnClickListener ()
-			{
-			@Override
-			public void onClick (View view)
-				{
-				sendMessage (getMessagesToSend ()[0]);
-				}
-			});
-			btnBeginNewRound.setVisibility (View.VISIBLE);
-			break;
-			}
+				break;
 
 			case HOSTED:
-			{
-			// Clear the display of UI elements
-			setAllUiElements_Visibility (View.INVISIBLE);
-
-			m_cTriviaPlayer.setIsHosting (false);
-			tvPlayTitle.setText (getString (R.string.waiting_on_host));
-			tvPlayTitle.setVisibility (View.VISIBLE);
-			break;
-			}
+				// Clear the display of UI elements
+				setAllUiElements_Visibility (View.INVISIBLE);
+				m_cTriviaPlayer.setIsHosting (false);
+				tvPlayTitle.setText (getString (R.string.waiting_on_host));
+				tvPlayTitle.setVisibility (View.VISIBLE);
+				break;
 
 			case GOT_Q_AND_A:
-			{
-			// Clear the display of UI elements
-			setAllUiElements_Visibility (View.INVISIBLE);
-
-			// Create the title text
-			tvPlayTitle.setText (R.string.true_or_false);
-			tvPlayTitle.setVisibility (View.VISIBLE);
-
-			// Create the question text
-			tvQuestion.setText (getMessagesToSend ()[0]);
-			tvQuestion.setVisibility (View.VISIBLE);
-
-			// Create the correct number of radio buttons in the group
-			int numAnswers = getMessagesToSend ().length;
-			for (int i = 1; i < numAnswers; ++i)
-				{
-				rgAnswers.addView (new CAnswerRadioButton (this, i, getMessagesToSend ()[i]));
-				}
-
-			// Make sure we see the buttons
-			rgAnswers.setVisibility (View.VISIBLE);
-
-			// Host gets to short-circuit the question
-			if (m_cTriviaPlayer.isHosting ())
-				{
-				btnBeginNewRound.setText (getString (R.string.finish_round));
-				btnBeginNewRound.setVisibility (View.VISIBLE);
-				AddButtonLayout (btnBeginNewRound, RelativeLayout.ALIGN_PARENT_BOTTOM);
-				}
-			break;
-			}
+				setAllUiElements_Visibility (View.INVISIBLE);   // Clear the display of UI elements
+				tvPlayTitle.setText (R.string.true_or_false);   // Create the title text
+				tvPlayTitle.setVisibility (View.VISIBLE);       // Make it visible
+				tvQuestion.setText (getMessagesToSend ()[0]);   // Create the question text
+				tvQuestion.setVisibility (View.VISIBLE);        // Make it visible
+				int numAnswers = getMessagesToSend ().length;   // Create the correct number of radio buttons in the group
+				rgAnswers.removeAllViews ();                    // Remove any pre-existing radio buttons
+				for (int i = 1; i < numAnswers; ++i)            // Add a radio button for each available answer
+					{
+					rgAnswers.addView (new CAnswerRadioButton (this, i, getMessagesToSend ()[i]));
+					}
+				rgAnswers.setVisibility (View.VISIBLE);         // Make sure we see the buttons
+				if (m_cTriviaPlayer.isHosting ())               // Host gets to short-circuit the question
+					{
+					btnBeginNewRound.setText (getString (R.string.finish_round));
+					btnBeginNewRound.setVisibility (View.VISIBLE);
+					btnBeginNewRound.setOnClickListener (new View.OnClickListener ()
+					{
+					@Override
+					public void onClick (View view)
+						{
+						String enableRoundTimer = "round timer=" + String.valueOf (PreferenceManager.getDefaultSharedPreferences (m_context)
+							                                                           .getBoolean ("pref_debug_checkbox_enable_timer", true));
+						String enablePostRoundTimer = "postround timer=true";  // TODO: Don't hardcode this
+						String playerName = "player name=" + PreferenceManager.getDefaultSharedPreferences (m_context)
+							                                     .getString ("pref_player_name_text", "Player");
+						sendMessage ("begin round|" + enableRoundTimer + "|" + enablePostRoundTimer + "|" + playerName);
+						}
+					});
+					AddButtonLayout (btnBeginNewRound, RelativeLayout.ALIGN_BASELINE); // Put button at the bottom of the screen
+					}
+				break;
 
 			case ROUND_WIN:
-			{
-			// Clear the display of UI elements
-			setAllUiElements_Visibility (View.INVISIBLE);
-
-			tvPlayTitle.setText (getString (R.string.you_win));
-			tvPlayTitle.setVisibility (View.VISIBLE);
-
-			if (m_cTriviaPlayer.getWillHost ())
-				{
-				btnBeginNewRound.setText (getString (R.string.next_question));
-				btnBeginNewRound.setOnClickListener (new View.OnClickListener ()
-				{
-				@Override
-				public void onClick (View view)
+				// Clear the display of UI elements
+				setAllUiElements_Visibility (View.INVISIBLE);
+				tvPlayTitle.setText (getString (R.string.you_win));
+				tvPlayTitle.setVisibility (View.VISIBLE);
+				if (m_cTriviaPlayer.isHosting ())               // Host gets to short-circuit the question
 					{
-					sendMessage (getMessagesToSend ()[0]);
+					btnBeginNewRound.setText (getString (R.string.finish_round));
+					btnBeginNewRound.setVisibility (View.VISIBLE);
+					btnBeginNewRound.setOnClickListener (new View.OnClickListener ()
+					{
+					@Override
+					public void onClick (View view)
+						{
+						String enableRoundTimer = "round timer=" + String.valueOf (PreferenceManager.getDefaultSharedPreferences (m_context)
+							                                                           .getBoolean ("pref_debug_checkbox_enable_timer", true));
+						String enablePostRoundTimer = "postround timer=true";  // TODO: Don't hardcode this
+						String playerName = "player name=" + PreferenceManager.getDefaultSharedPreferences (m_context)
+							                                     .getString ("pref_player_name_text", "Player");
+						sendMessage ("begin round|" + enableRoundTimer + "|" + enablePostRoundTimer + "|" + playerName);
+						}
+					});
+					AddButtonLayout (btnBeginNewRound, RelativeLayout.ALIGN_BASELINE); // Put button at the bottom of the screen
 					}
-				});
-				btnBeginNewRound.setVisibility (View.VISIBLE);
-				}
-			break;
-			}
+				break;
 
 			case ROUND_LOSE:
-			{
-			// Clear the display of UI elements
-			setAllUiElements_Visibility (View.INVISIBLE);
-
-			tvPlayTitle.setText (getString (R.string.you_lose));
-			tvPlayTitle.setVisibility (View.VISIBLE);
-
-			if (m_cTriviaPlayer.getWillHost ())
-				{
-				btnBeginNewRound.setText (getString (R.string.next_question));
-				btnBeginNewRound.setOnClickListener (new View.OnClickListener ()
-				{
-				@Override
-				public void onClick (View view)
+				// Clear the display of UI elements
+				setAllUiElements_Visibility (View.INVISIBLE);
+				tvPlayTitle.setText (getString (R.string.you_lose));
+				tvPlayTitle.setVisibility (View.VISIBLE);
+				if (m_cTriviaPlayer.isHosting ())               // Host gets to short-circuit the question
 					{
-					sendMessage (getMessagesToSend ()[0]);
+					btnBeginNewRound.setText (getString (R.string.finish_round));
+					btnBeginNewRound.setVisibility (View.VISIBLE);
+					btnBeginNewRound.setOnClickListener (new View.OnClickListener ()
+					{
+					@Override
+					public void onClick (View view)
+						{
+						String enableRoundTimer = "round timer=" + String.valueOf (PreferenceManager.getDefaultSharedPreferences (m_context)
+							                                                           .getBoolean ("pref_debug_checkbox_enable_timer", true));
+						String enablePostRoundTimer = "postround timer=true";  // TODO: Don't hardcode this
+						String playerName = "player name=" + PreferenceManager.getDefaultSharedPreferences (m_context)
+							                                     .getString ("pref_player_name_text", "Player");
+						sendMessage ("begin round|" + enableRoundTimer + "|" + enablePostRoundTimer + "|" + playerName);
+						}
+					});
+					AddButtonLayout (btnBeginNewRound, RelativeLayout.ALIGN_BASELINE); // Put button at the bottom of the screen
 					}
-				});
-				btnBeginNewRound.setVisibility (View.VISIBLE);
-				}
-
-			break;
-			}
+				break;
 
 			case QUIT:
 				break;
@@ -528,16 +519,16 @@ public class PlayTriviaActivity extends ActionBarActivity
 	 * Set the visibility of all children of the main relative layout.
 	 *
 	 * @param visibility
-	 * 		(required)  This should be View.VISIBLE, INVISIBLE, or GONE
+	 * 	(required)  This should be View.VISIBLE, INVISIBLE, or GONE
 	 */
 	private void setAllUiElements_Visibility (int visibility)
 		{
 		RelativeLayout relativeLayout = (RelativeLayout) findViewById (R.id.rl_trivia_main_on);
 		int numViewElements = relativeLayout.getChildCount ();
-
 		for (int i = 0; i < numViewElements; ++i)
 			{
-			relativeLayout.getChildAt (i).setVisibility (visibility);
+			relativeLayout.getChildAt (i)
+				.setVisibility (visibility);
 			}
 		}
 
@@ -547,24 +538,24 @@ public class PlayTriviaActivity extends ActionBarActivity
 			{
 			try
 				{
-				Cast.CastApi.sendMessage (m_ApiClient, m_CCastChannel.getNamespace (), message).setResultCallback (new ResultCallback<Status> ()
-				{
-				@Override
-				public void onResult (Status result)
+				Cast.CastApi.sendMessage (m_ApiClient, m_CCastChannel.getNamespace (), message)
+					.setResultCallback (new ResultCallback<Status> ()
 					{
-					if (!result.isSuccess ())
+					@Override
+					public void onResult (Status result)
 						{
-						Log.e (TAG, "Sending message failed");
+						if (!result.isSuccess ())
+							{
+							Log.e (TAG, "Sending message failed");
+							}
+						else
+							{
+							Log.e (TAG, "Sent message: " + message);
+							// Clear out the send message buffer
+							clearMessagesToSend ();
+							}
 						}
-					else
-						{
-						Log.e (TAG, "Sent message: " + message);
-
-						// Clear out the send message buffer
-						clearMessagesToSend ();
-						}
-					}
-				});
+					});
 				}
 			catch (Exception e)
 				{
@@ -591,7 +582,7 @@ public class PlayTriviaActivity extends ActionBarActivity
 	 *
 	 * @param button
 	 * @param centerInParent
-	 * 		RelativeLayout.ALIGN_PARENT_BOTTOM, etc
+	 * 	RelativeLayout.ALIGN_PARENT_BOTTOM, etc
 	 */
 	private void AddButtonLayout (Button button, int centerInParent)
 		{
@@ -618,13 +609,10 @@ public class PlayTriviaActivity extends ActionBarActivity
 		{
 		// Defining the layout parameters of the Button
 		RelativeLayout.LayoutParams buttonLayoutParameters = new RelativeLayout.LayoutParams (RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-
 		// Add Margin to the LayoutParameters
 		buttonLayoutParameters.setMargins (marginLeft, marginTop, marginRight, marginBottom);
-
 		// Add Rule to Layout
 		buttonLayoutParameters.addRule (centerInParent);
-
 		// Setting the parameters on the Button
 		button.setLayoutParams (buttonLayoutParameters);
 		}
@@ -642,24 +630,25 @@ public class PlayTriviaActivity extends ActionBarActivity
 	/**
 	 * Creates a radio button customized for a trivia answer
 	 */
-	private class CAnswerRadioButton extends RadioButton
+	private class CAnswerRadioButton
+		extends RadioButton
 		{
-
 		/**
 		 * Constructor for the button.
-		 *
+		 * <p/>
 		 * This sets the button's properties so that its text matches the correct answer,
 		 * and has the "radio" selector hidden so it looks like the whole button is selected.
 		 * Size is to wrap_content, and its onClick listener sets the player's answer and
 		 * sends it to the game server.
 		 *
-		 * @param context (required)  Typically "this"
-		 * @param index (required)  Index of the answer to assign this button to
+		 * @param context
+		 * 	(required)  Typically "this"
+		 * @param index
+		 * 	(required)  Index of the answer to assign this button to
 		 */
 		public CAnswerRadioButton (Context context, int index, String buttonText)
 			{
 			super (context);
-
 			// Populate the button with our settings
 			setId (index);
 			setText (buttonText);
@@ -673,10 +662,9 @@ public class PlayTriviaActivity extends ActionBarActivity
 				{
 				// Check the radio button
 				((RadioGroup) view.getParent ()).check (view.getId ());
-
 				// Save off the answer
-				m_cTriviaPlayer.setAnswer (((RadioButton) view).getText ().toString ());
-
+				m_cTriviaPlayer.setAnswer (((RadioButton) view).getText ()
+					                           .toString ());
 				// Send the answer to the game server
 				sendMessage (m_cTriviaPlayer.getAnswer ());
 				}
@@ -684,7 +672,8 @@ public class PlayTriviaActivity extends ActionBarActivity
 			}
 		}
 
-	private final class MyMediaRouterCallback extends MediaRouter.Callback
+	private final class MyMediaRouterCallback
+		extends MediaRouter.Callback
 		{
 		private final String TAG = "My Media Router Callback";
 		private CastDevice mSelectedDevice;
@@ -695,7 +684,6 @@ public class PlayTriviaActivity extends ActionBarActivity
 			{
 			mSelectedDevice = CastDevice.getFromBundle (info.getExtras ());
 			String routeId = info.getId ();
-
 			mCastClientListener = new Cast.Listener ()
 			{
 			@Override
@@ -724,14 +712,11 @@ public class PlayTriviaActivity extends ActionBarActivity
 					}
 				}
 			};
-
 			Cast.CastOptions.Builder apiOptionsBuilder = Cast.CastOptions.builder (mSelectedDevice, mCastClientListener);
-
 			m_ApiClient = new GoogleApiClient.Builder (PlayTriviaActivity.this).addApi (Cast.API, apiOptionsBuilder.build ())
-			                                                                   .addConnectionCallbacks (PlayTriviaActivity.this)
-			                                                                   .addOnConnectionFailedListener (PlayTriviaActivity.this)
-			                                                                   .build ();
-
+				              .addConnectionCallbacks (PlayTriviaActivity.this)
+				              .addOnConnectionFailedListener (PlayTriviaActivity.this)
+				              .build ();
 			m_ApiClient.connect ();
 			}
 		}

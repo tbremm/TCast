@@ -17,12 +17,11 @@ public interface IPerson
 	 * @return a string containing the person's name.
 	 */
 	String getName ();
-
 	/**
 	 * Set the person's name.
 	 *
 	 * @param strName
-	 * 		(required)  The new player name
+	 * 	(required)  The new player name
 	 */
 	void setName (String strName);
 	}

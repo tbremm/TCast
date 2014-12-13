@@ -7,14 +7,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-public class MainActivity extends Activity
+public class MainActivity
+	extends Activity
 	{
 	@Override
 	protected void onCreate (Bundle savedInstanceState)
 		{
 		super.onCreate (savedInstanceState);
 		setContentView (R.layout.activity_main);
-
 		if (getActionBar () != null)
 			{
 			getActionBar ().setDisplayHomeAsUpEnabled (true);
@@ -36,7 +36,6 @@ public class MainActivity extends Activity
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId ();
-
 		//noinspection SimplifiableIfStatement
 		switch (id)
 			{
@@ -50,7 +49,6 @@ public class MainActivity extends Activity
 			CAboutDialog.Show (MainActivity.this);
 			}
 			}
-
 		return super.onOptionsItemSelected (item);
 		}
 

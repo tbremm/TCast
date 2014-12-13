@@ -8,7 +8,8 @@ import android.content.SharedPreferences;
  * Created by Timothy on 11/19/2014.
  * Copyright 11/19/2014 adventurpriseme.com
  */
-public class CTriviaPlayer implements IPerson
+public class CTriviaPlayer
+	implements IPerson
 	{
 	// Data members
 	private String  m_strName   = "";
@@ -41,7 +42,7 @@ public class CTriviaPlayer implements IPerson
 	 * Set the person's name.
 	 *
 	 * @param strName
-	 * 		(required)  The new player name
+	 * 	(required)  The new player name
 	 */
 	@Override
 	public void setName (String strName)
@@ -63,7 +64,7 @@ public class CTriviaPlayer implements IPerson
 	 * Set the player's willingness to host a game.
 	 *
 	 * @param bWillHost
-	 * 		(required)  True if player is willing to host, false otherwise.
+	 * 	(required)  True if player is willing to host, false otherwise.
 	 */
 	public void setWillHost (boolean bWillHost)
 		{
@@ -87,7 +88,7 @@ public class CTriviaPlayer implements IPerson
 	 * Sets the player's score.
 	 *
 	 * @param nScore
-	 * 		(optional) Sets the player's score.
+	 * 	(optional) Sets the player's score.
 	 */
 	public void setScore (int nScore)
 		{

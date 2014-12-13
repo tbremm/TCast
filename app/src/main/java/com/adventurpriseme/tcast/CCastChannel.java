@@ -11,7 +11,9 @@ import com.google.android.gms.cast.CastDevice;
  * Created by Timothy on 11/18/2014.
  * Copyright 11/18/2014 adventurpriseme.com
  */
-public class CCastChannel extends PlayTriviaActivity implements Cast.MessageReceivedCallback
+public class CCastChannel
+	extends PlayTriviaActivity
+	implements Cast.MessageReceivedCallback
 	{
 	private final String TAG = "Trivia Cast Channel";
 	private Context            m_context;
@@ -40,9 +42,7 @@ public class CCastChannel extends PlayTriviaActivity implements Cast.MessageRece
 	public void onMessageReceived (CastDevice castDevice, String namespace, String message)
 		{
 		Log.d (TAG, "onMessageReceived: " + message);
-
 		m_CastMsg.onReceiveCallback (message);
-
 		// TODO: set an IChromeCastMessage here to be read in the parent
 		}
 	}

@@ -23,32 +23,11 @@ import android.widget.TextView;
  */
 public class CAboutDialog
 	{
-
-	/**
-	 * Get the Version Name of the app
-	 *
-	 * @param context
-	 * 		(required)  Context of the desired version
-	 *
-	 * @return Version Name of the app
-	 */
-	static String getVersionName (Context context)
-		{
-		try
-			{
-			return context.getPackageManager ().getPackageInfo (context.getPackageName (), 0).versionName;
-			}
-		catch (PackageManager.NameNotFoundException e)
-			{
-			return "Unknown";
-			}
-		}
-
 	/**
 	 * Get the Version Code of the app
 	 *
 	 * @param context
-	 * 		(required)  Context of the desired version
+	 * 	(required)  Context of the desired version
 	 *
 	 * @return int  Version Code of the app
 	 */
@@ -56,7 +35,8 @@ public class CAboutDialog
 		{
 		try
 			{
-			return context.getPackageManager ().getPackageInfo (context.getPackageName (), 0).versionCode;
+			return context.getPackageManager ()
+				       .getPackageInfo (context.getPackageName (), 0).versionCode;
 			}
 		catch (PackageManager.NameNotFoundException e)
 			{
@@ -73,7 +53,7 @@ public class CAboutDialog
 	 * &nbsp;&nbsp;R.string.about
 	 *
 	 * @param callingActivity
-	 * 		(required)  The activity that will host the "About" dialog box.
+	 * 	(required)  The activity that will host the "About" dialog box.
 	 */
 	public static void Show (Activity callingActivity)
 		{
@@ -100,10 +80,31 @@ public class CAboutDialog
 		Linkify.addLinks (tvAbout, Linkify.ALL);
 		// Build and show the dialog
 		new AlertDialog.Builder (callingActivity).setTitle ("About " + callingActivity.getString (R.string.app_name))
-		                                         .setCancelable (true)
-		                                         .setIcon (R.drawable.ic_launcher)
-		                                         .setPositiveButton ("OK", null)
-		                                         .setView (about)
-		                                         .show ();    // Builder method returns allow for method chaining
+			.setCancelable (true)
+			.setIcon (R.drawable.ic_launcher)
+			.setPositiveButton ("OK", null)
+			.setView (about)
+			.show ();    // Builder method returns allow for method chaining
+		}
+
+	/**
+	 * Get the Version Name of the app
+	 *
+	 * @param context
+	 * 	(required)  Context of the desired version
+	 *
+	 * @return Version Name of the app
+	 */
+	static String getVersionName (Context context)
+		{
+		try
+			{
+			return context.getPackageManager ()
+				       .getPackageInfo (context.getPackageName (), 0).versionName;
+			}
+		catch (PackageManager.NameNotFoundException e)
+			{
+			return "Unknown";
+			}
 		}
 	}
