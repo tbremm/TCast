@@ -120,6 +120,10 @@
 								var arg = "";
 								for (j = 0; j < (data_split.length - 1); j++) {
 									arg += data_split[j+1];
+									// add pipe splitters between args - so wasteful because this is done already. fixme
+									if (j != (data_split.length - 2)) {
+										arg += "|";
+									}
 								}	
 								configureTrivia(arg, id); // dont allow in questions? fixme todo
 								
@@ -242,6 +246,7 @@
 								}
 								postround_timer_enable = false;
 							}
+							break;
 						} case "player name": {
 							var ind = getPlayerIndexById(senderId);
 							players[ind].name = option_split[1];
