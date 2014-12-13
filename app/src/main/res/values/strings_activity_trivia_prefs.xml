@@ -1,25 +1,25 @@
 <resources>
-    <string name="title_activity_trivia_prefs">Settings</string>
+	<string name="title_activity_trivia_prefs">Settings</string>
 
-    <!-- Strings related to Settings -->
+	<!-- Strings related to Settings -->
 
-    <!-- Player settings -->
-    <string name="pref_header_player">Player</string>
+	<!-- Player settings -->
+	<string name="pref_header_player">Player</string>
 
-    <!-- Player name setting -->
-    <string name="pref_title_display_name">Player name</string>
-    <string name="pref_default_display_name">Player</string>
+	<!-- Player name setting -->
+	<string name="pref_title_display_name">Player name</string>
+	<string name="pref_default_display_name">Player</string>
 
-    <!-- Host settings -->
-    <string name="pref_header_host">Host</string>
+	<!-- Host settings -->
+	<string name="pref_header_host">Host</string>
 
-    <!-- User's willingness to host a game -->
-    <string name="pref_title_willing_to_host">I am willing to host</string>
+	<!-- User's willingness to host a game -->
+	<string name="pref_title_willing_to_host">I am willing to host</string>
 
-    <!-- Debug settings -->
-    <string name="pref_header_debug">Debug</string>
+	<!-- Debug settings -->
+	<string name="pref_header_debug">Debug</string>
 
-    <!-- Turn timer on or off -->
-    <string name="pref_title_debug_enable_timer">Enable game timer</string>
+	<!-- Turn timer on or off -->
+	<string name="pref_title_debug_enable_timer">Enable game timer</string>
 
 </resources>

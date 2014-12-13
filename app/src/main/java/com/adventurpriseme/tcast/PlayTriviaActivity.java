@@ -364,14 +364,12 @@ public class PlayTriviaActivity
 		{
 		// Store off our message
 		setMessagesToSend (msgToSend);
-
 		// Get all of our GUI elements
 		TextView tvPlayTitle = (TextView) findViewById (R.id.tvPlayTitle);
 		TextView tvQuestion = (TextView) findViewById (R.id.tvQuestion);
 		Button btnBeginNewRound = (Button) findViewById (R.id.btn_begin_new_round);
 		RadioGroup rgAnswers = (RadioGroup) findViewById (R.id.radio_group_answers);
 		// TODO Add an onCheckedChangeListener to handle button graphical state?
-
 		switch (state)
 			{
 			case CONNECTED:
@@ -412,7 +410,6 @@ public class PlayTriviaActivity
 				});
 				btnBeginNewRound.setVisibility (View.VISIBLE);
 				break;
-
 			case HOSTED:
 				// Clear the display of UI elements
 				setAllUiElements_Visibility (View.INVISIBLE);
@@ -420,7 +417,6 @@ public class PlayTriviaActivity
 				tvPlayTitle.setText (getString (R.string.waiting_on_host));
 				tvPlayTitle.setVisibility (View.VISIBLE);
 				break;
-
 			case GOT_Q_AND_A:
 				setAllUiElements_Visibility (View.INVISIBLE);   // Clear the display of UI elements
 				tvPlayTitle.setText (R.string.true_or_false);   // Create the title text
@@ -454,7 +450,6 @@ public class PlayTriviaActivity
 					AddButtonLayout (btnBeginNewRound, RelativeLayout.ALIGN_BASELINE); // Put button at the bottom of the screen
 					}
 				break;
-
 			case ROUND_WIN:
 				// Clear the display of UI elements
 				setAllUiElements_Visibility (View.INVISIBLE);
@@ -480,7 +475,6 @@ public class PlayTriviaActivity
 					AddButtonLayout (btnBeginNewRound, RelativeLayout.ALIGN_BASELINE); // Put button at the bottom of the screen
 					}
 				break;
-
 			case ROUND_LOSE:
 				// Clear the display of UI elements
 				setAllUiElements_Visibility (View.INVISIBLE);
@@ -506,10 +500,11 @@ public class PlayTriviaActivity
 					AddButtonLayout (btnBeginNewRound, RelativeLayout.ALIGN_BASELINE); // Put button at the bottom of the screen
 					}
 				break;
-
 			case QUIT:
 				break;
-
+			case ERROR:
+				// TODO: Error handling
+				sendMessage ("error|msg=");
 			default:
 				break;
 			}

@@ -7,22 +7,23 @@
         About Box text is that the look of the text can
         be modified (here set to white with a little padding).
 -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/aboutView"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
+<ScrollView
+	android:id="@+id/aboutView"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
 
-    <LinearLayout
-        android:id="@+id/aboutLayout"
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:padding="5dp">
+	<LinearLayout
+		android:id="@+id/aboutLayout"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:orientation="horizontal"
+		android:padding="5dp">
 
-        <TextView
-            android:id="@+id/aboutText"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:textColor="#FFF"/>
-    </LinearLayout>
+		<TextView
+			android:id="@+id/aboutText"
+			android:layout_width="wrap_content"
+			android:layout_height="fill_parent"
+			android:textColor="#FFF"/>
+	</LinearLayout>
 </ScrollView>

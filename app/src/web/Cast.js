@@ -43,10 +43,10 @@
                 displayDebug ('Received Sender Disconnected event: ' + event.data);
                 if (window.castReceiverManager.getSenders ().length == 0) {
                     window.close ();
-					
+
                 }
                 displayDebug ("onSenderDisconnected");
-                
+
 				// TODO: STUFF ON DISCONNECT HERE
 
                 // CALL INTO TRIVIA
@@ -77,7 +77,7 @@
                 displayDebug ('Message [' + event.senderId + ']: ' + event.data);    // Output debug info
                 displayMessage (event.data);                                         // Output raw message to screen for debug
 
-				// TODO: DO GAME STUFF HER
+				// TODO: DO GAME STUFF HERE
 
                 // CALL INTO TRIVIA
                 triviaMessageReceived(event.senderId, event.data);
@@ -91,7 +91,7 @@
 
         sendCastMessage = function(id, msg) {
             window.messageBus.send(id, msg);
-        }  
+        }
 
         // **********************************************
         // utility function wrapper to display text in a given id
