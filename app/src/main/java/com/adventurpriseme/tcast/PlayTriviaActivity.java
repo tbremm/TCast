@@ -423,7 +423,7 @@ public class PlayTriviaActivity
 				tvQuestion.setVisibility (View.VISIBLE);        // Make it visible
                 ArrayList<String> answers = m_cTriviaGame.getAnswers();
 				rgAnswers.removeAllViews ();                    // Remove any pre-existing radio buttons
-				for (int i = 1; i < answers.size(); ++i)            // Add a radio button for each available answer
+				for (int i = 0; i < answers.size(); ++i)            // Add a radio button for each available answer
 					{
 					rgAnswers.addView (new CAnswerRadioButton (this, i, answers.get(i)));
 					}
