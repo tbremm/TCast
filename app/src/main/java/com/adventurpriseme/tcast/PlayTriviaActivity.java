@@ -34,6 +34,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * This is the trivia game entry point.
@@ -60,7 +61,7 @@ public class PlayTriviaActivity
 	private boolean m_ApplicationStarted  = false;
 	private CCastChannel      m_CCastChannel;
 	private SharedPreferences m_sharedPreferences;
-	private String[]          m_strMessagesToSend;
+	private ArrayList<String> m_strMessagesToSend;
 	private Context m_context = this;
 
 	/**
@@ -360,10 +361,8 @@ public class PlayTriviaActivity
 		m_cTriviaGame.onMessageIn (strMsg);
 		}
 
-	public void updateGame (CTriviaGame.TriviaGameState state, String[] msgToSend)
+	public void updateUI (CTriviaGame.TriviaGameState state)
 		{
-		// Store off our message
-		setMessagesToSend (msgToSend);
 		// Get all of our GUI elements
 		TextView tvPlayTitle = (TextView) findViewById (R.id.tvPlayTitle);
 		TextView tvQuestion = (TextView) findViewById (R.id.tvQuestion);
@@ -377,14 +376,14 @@ public class PlayTriviaActivity
 				setAllUiElements_Visibility (View.INVISIBLE);
 				if (m_cTriviaPlayer.getWillHost ())
 					{
-					// Create the getQuestion button
+					// Create the "host game" button
 					btnBeginNewRound.setText (getString (R.string.btn_text_host_game));
 					btnBeginNewRound.setOnClickListener (new View.OnClickListener ()
 					{
 					@Override
 					public void onClick (View view)
 						{
-						sendMessage (getMessagesToSend ()[1]);
+                            m_cTriviaGame.requestHost();
 						}
 					});
 					btnBeginNewRound.setVisibility (View.VISIBLE);
@@ -405,7 +404,7 @@ public class PlayTriviaActivity
 				@Override
 				public void onClick (View view)
 					{
-					sendMessage (getMessagesToSend ()[0]);
+                    m_cTriviaGame.beginNewRound();
 					}
 				});
 				btnBeginNewRound.setVisibility (View.VISIBLE);
@@ -419,15 +418,15 @@ public class PlayTriviaActivity
 				break;
 			case GOT_Q_AND_A:
 				setAllUiElements_Visibility (View.INVISIBLE);   // Clear the display of UI elements
-				tvPlayTitle.setText (R.string.true_or_false);   // Create the title text
+				tvPlayTitle.setText (R.string.true_or_false);         // Create the title text
 				tvPlayTitle.setVisibility (View.VISIBLE);       // Make it visible
-				tvQuestion.setText (getMessagesToSend ()[0]);   // Create the question text
+				tvQuestion.setText (m_cTriviaGame.getQuestion()); // Create the question text
 				tvQuestion.setVisibility (View.VISIBLE);        // Make it visible
-				int numAnswers = getMessagesToSend ().length;   // Create the correct number of radio buttons in the group
+                ArrayList<String> answers = m_cTriviaGame.getAnswers();
 				rgAnswers.removeAllViews ();                    // Remove any pre-existing radio buttons
-				for (int i = 1; i < numAnswers; ++i)            // Add a radio button for each available answer
+				for (int i = 1; i < answers.size(); ++i)            // Add a radio button for each available answer
 					{
-					rgAnswers.addView (new CAnswerRadioButton (this, i, getMessagesToSend ()[i]));
+					rgAnswers.addView (new CAnswerRadioButton (this, i, answers.get(i)));
 					}
 				rgAnswers.setVisibility (View.VISIBLE);         // Make sure we see the buttons
 				if (m_cTriviaPlayer.isHosting ())               // Host gets to short-circuit the question
@@ -439,12 +438,7 @@ public class PlayTriviaActivity
 					@Override
 					public void onClick (View view)
 						{
-						String enableRoundTimer = "round timer=" + String.valueOf (PreferenceManager.getDefaultSharedPreferences (m_context)
-							                                                           .getBoolean ("pref_debug_checkbox_enable_timer", true));
-						String enablePostRoundTimer = "postround timer=true";  // TODO: Don't hardcode this
-						String playerName = "player name=" + PreferenceManager.getDefaultSharedPreferences (m_context)
-							                                     .getString ("pref_player_name_text", "Player");
-						sendMessage ("begin round|" + enableRoundTimer + "|" + enablePostRoundTimer + "|" + playerName);
+                        m_cTriviaGame.beginNewRound();
 						}
 					});
 					AddButtonLayout (btnBeginNewRound, RelativeLayout.ALIGN_BASELINE); // Put button at the bottom of the screen
@@ -464,12 +458,7 @@ public class PlayTriviaActivity
 					@Override
 					public void onClick (View view)
 						{
-						String enableRoundTimer = "round timer=" + String.valueOf (PreferenceManager.getDefaultSharedPreferences (m_context)
-							                                                           .getBoolean ("pref_debug_checkbox_enable_timer", true));
-						String enablePostRoundTimer = "postround timer=true";  // TODO: Don't hardcode this
-						String playerName = "player name=" + PreferenceManager.getDefaultSharedPreferences (m_context)
-							                                     .getString ("pref_player_name_text", "Player");
-						sendMessage ("begin round|" + enableRoundTimer + "|" + enablePostRoundTimer + "|" + playerName);
+                            m_cTriviaGame.beginNewRound();
 						}
 					});
 					AddButtonLayout (btnBeginNewRound, RelativeLayout.ALIGN_BASELINE); // Put button at the bottom of the screen
@@ -489,12 +478,7 @@ public class PlayTriviaActivity
 					@Override
 					public void onClick (View view)
 						{
-						String enableRoundTimer = "round timer=" + String.valueOf (PreferenceManager.getDefaultSharedPreferences (m_context)
-							                                                           .getBoolean ("pref_debug_checkbox_enable_timer", true));
-						String enablePostRoundTimer = "postround timer=true";  // TODO: Don't hardcode this
-						String playerName = "player name=" + PreferenceManager.getDefaultSharedPreferences (m_context)
-							                                     .getString ("pref_player_name_text", "Player");
-						sendMessage ("begin round|" + enableRoundTimer + "|" + enablePostRoundTimer + "|" + playerName);
+                            m_cTriviaGame.beginNewRound();
 						}
 					});
 					AddButtonLayout (btnBeginNewRound, RelativeLayout.ALIGN_BASELINE); // Put button at the bottom of the screen
@@ -509,6 +493,26 @@ public class PlayTriviaActivity
 				break;
 			}
 		}
+
+        public String getPlayerName () {
+            String playerName = "player name=" +
+                    PreferenceManager.getDefaultSharedPreferences (this)
+                            .getString("pref_player_name_text", "Player");
+            return playerName;
+        }
+
+        public boolean getRoundTimerEnable () {
+            Boolean enableRoundTimer = PreferenceManager.getDefaultSharedPreferences(this)
+                                       .getBoolean("pref_host_round_timer_enable", true);
+            return enableRoundTimer;
+        }
+
+        public boolean getPostRoundTimerEnable () {
+            Boolean enablePostRoundTimer = PreferenceManager.getDefaultSharedPreferences(this)
+                                           .getBoolean("pref_host_postround_timer_enable", true);
+            return enablePostRoundTimer;
+        }
+
 
 	/**
 	 * Set the visibility of all children of the main relative layout.
@@ -527,7 +531,8 @@ public class PlayTriviaActivity
 			}
 		}
 
-	private void sendMessage (final String message)
+    // public - so CTriviaGame can interact with this function
+	public void sendMessage (final String message)
 		{
 		if (m_ApiClient != null && m_CCastChannel != null)
 			{
@@ -567,10 +572,6 @@ public class PlayTriviaActivity
 			}
 		}
 
-	public String[] getMessagesToSend ()
-		{
-		return m_strMessagesToSend;
-		}
 
 	/**
 	 * Set layout of a button within a relative layout.
@@ -587,7 +588,7 @@ public class PlayTriviaActivity
 
 	private void clearMessagesToSend ()
 		{
-		m_strMessagesToSend = EMPTY_STRING_ARRAY;
+		m_strMessagesToSend.clear();
 		}
 
 	/**
@@ -610,11 +611,6 @@ public class PlayTriviaActivity
 		buttonLayoutParameters.addRule (centerInParent);
 		// Setting the parameters on the Button
 		button.setLayoutParams (buttonLayoutParameters);
-		}
-
-	public void setMessagesToSend (String[] strMessagesToSend)
-		{
-		m_strMessagesToSend = strMessagesToSend;
 		}
 
 	public CTriviaPlayer getTriviaPlayer ()

@@ -3,6 +3,9 @@ package com.adventurpriseme.tcast;
 import android.app.Activity;
 import android.preference.PreferenceManager;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import static com.adventurpriseme.tcast.CTriviaGame.TriviaGameState.CONNECTED;
 import static com.adventurpriseme.tcast.CTriviaGame.TriviaGameState.GOT_Q_AND_A;
 import static com.adventurpriseme.tcast.CTriviaGame.TriviaGameState.HOSTED;
@@ -19,8 +22,7 @@ import static com.adventurpriseme.tcast.CTriviaGame.TriviaGameState.WAITING;
  * Created by Timothy on 12/11/2014.
  * Copyright 12/11/2014 adventurpriseme.com
  */
-public class CTriviaGame
-	{
+public class CTriviaGame {
 	private static final String[] Q_AND_A_STRING_ARRAY         = new String[5];   // TODO: Don't hardcode this size
 	/**
 	 * Strings used for communication with the web.
@@ -40,7 +42,8 @@ public class CTriviaGame
 	private final static String MSG_ROUND_TIMER              = "round timer";
 	private final static String MSG_POSTROUND_TIMER          = "postround timer";
 	private final static String MSG_PLAYER_NAME              = "player name";
-	private final static String MSG_KEY_ANSWER               = "answer";
+    private final static String MSG_KEY_QUESTION             = "q";
+	private final static String MSG_KEY_ANSWER               = "a";
 	// Message separators
 	private final static String MSG_SPLIT_KEY_VALUE          = String.valueOf ('=');
 	private final static String MSG_SPLIT_DATA               = String.valueOf ('|');
@@ -50,26 +53,22 @@ public class CTriviaGame
 	// The caller's context
 	private PlayTriviaActivity m_activity;
 	private String             m_strMsgIn;
-	private String[]           m_strMsgOut;
+    private ArrayList<String>  m_strMsgOut;
+    private String             m_question;
+    private ArrayList<String>  m_answers;
 	private TriviaGameState    m_eTriviaGameState;
 
 	public CTriviaGame (Activity activity)
 		{
-		m_strMsgOut = new String[4];    // TODO: Make this dependent on the type of question expected
+		m_strMsgOut = new ArrayList<String>();    // TODO: Make this dependent on the type of question expected
 		m_activity = (PlayTriviaActivity) activity;
 		setGameState (WAITING);
-		}
-
-	public String[] getAllMessagesToSend ()
-		{
-		return m_strMsgOut;
 		}
 
 	public TriviaGameState getGameState ()
 		{
 		return m_eTriviaGameState;
 		}
-
 	private void setGameState (TriviaGameState state)
 		{
 		m_eTriviaGameState = state;
@@ -86,7 +85,7 @@ public class CTriviaGame
 	public void onMessageIn (String strMsgIn)
 		{
 		m_strMsgIn = strMsgIn.toLowerCase ();
-		processMessage ();
+		processMessage (strMsgIn);
 		}
 
 	/**
@@ -95,83 +94,72 @@ public class CTriviaGame
 	 * Sets the response string, if any, based upon the received string.
 	 * Sets the state according to the received message.
 	 */
-	private void processMessage ()
+	private void processMessage (String strMsgIn)
 		{
 		// Break apart the message into its parts
-		String[] inMsgSplit = m_strMsgIn.split (MSG_SPLIT_DATA);
-		if (inMsgSplit.length < 1)
+
+        ArrayList<String> inMsgSplit =  new ArrayList<String>(
+                                            Arrays.asList(strMsgIn.split("\\" + MSG_SPLIT_DATA))
+                                        );
+        ArrayList<String> messageOut = new ArrayList<String>();
+        messageOut.clear();
+		if (inMsgSplit.size() < 1)
 			{
-			m_strMsgOut = new String[] {MSG_ERROR + MSG_SPLIT_DATA + MSG_ERROR_MSG + MSG_SPLIT_KEY_VALUE + MSG_ERROR_RECEIVED_EMPTY_MSG};
-			m_activity.updateGame (TriviaGameState.ERROR, m_strMsgOut);
+			messageOut.add(MSG_ERROR);
+            messageOut.add(MSG_ERROR_MSG + MSG_SPLIT_KEY_VALUE + MSG_ERROR_RECEIVED_EMPTY_MSG);
+
+            m_activity.sendMessage (formatMessage(messageOut));
+            m_activity.updateUI(TriviaGameState.ERROR);
 			return;
 			}
-		if (inMsgSplit[0].equals (MSG_CONNECTED))
+		if (inMsgSplit.get(0).equals(MSG_CONNECTED))
 			{
-			m_strMsgOut[0] = MSG_CONNECTED;
-			m_strMsgOut[1] = MSG_REQUEST_HOST;
-			m_activity.updateGame (CONNECTED, m_strMsgOut);
+            messageOut.add(MSG_CONNECTED);
+
+            m_activity.sendMessage (formatMessage(messageOut));
+			m_activity.updateUI(CONNECTED);
 			}
-		else if (inMsgSplit[0].equals (MSG_HOST))
+		else if (inMsgSplit.get(0).equals (MSG_HOST))
 			{
-			String enableRoundTimer = MSG_ROUND_TIMER + MSG_SPLIT_KEY_VALUE + String.valueOf (PreferenceManager.getDefaultSharedPreferences (m_activity)
-				                                                                                  .getBoolean ("pref_debug_checkbox_enable_timer", true));
-			String enablePostRoundTimer = MSG_POSTROUND_TIMER + MSG_SPLIT_KEY_VALUE +
-			                              "true";  // TODO: Don't hardcode thisString playerName = MSG_PLAYER_NAME + MSG_SPLIT_KEY_VALUE + PreferenceManager.getDefaultSharedPreferences (m_activity).getString ("pref_player_name_text", "Player");
-			m_strMsgOut[0] = MSG_BEGIN_ROUND + MSG_SPLIT_DATA + enableRoundTimer + MSG_SPLIT_DATA + enablePostRoundTimer + MSG_SPLIT_DATA + MSG_PLAYER_NAME;
-			m_activity.updateGame (HOSTING, m_strMsgOut);
+			m_activity.updateUI (HOSTING);
 			}
-		else if (inMsgSplit[0].equals (MSG_HOSTED))
+		else if (inMsgSplit.get(0).equals (MSG_HOSTED))
 			{
-			m_strMsgOut[0] = MSG_CONFIG + MSG_SPLIT_DATA + MSG_PLAYER_NAME + MSG_SPLIT_KEY_VALUE + PreferenceManager.getDefaultSharedPreferences (m_activity)
-				                                                                                       .getString ("pref_player_name_text", "Player");
-			m_activity.updateGame (HOSTED, m_strMsgOut);
+            messageOut.add(MSG_CONFIG);
+            messageOut.add(MSG_PLAYER_NAME + MSG_SPLIT_KEY_VALUE + m_activity.getPlayerName()
+                          );
+			m_activity.updateUI (HOSTED);
 			}
-		else if (inMsgSplit[0].equals (MSG_Q_AND_A))
+		else if (inMsgSplit.get(0).equals (MSG_Q_AND_A))
 			{
-			if (inMsgSplit.length == 6)                         // command, question, answers 1-4
+			if (inMsgSplit.size() == 6)                         // command, question, answers 1-4
 				{
-				m_strMsgOut = Q_AND_A_STRING_ARRAY;             // Reset the array
+                m_question = "";    // clear question
+                m_answers.clear();  // clear answers
 				int answerIndex = 0;
-				for (int i = 0; i < inMsgSplit.length; ++i)     // Get and strip the question and answer values
+				for (int i = 0; i < inMsgSplit.size(); ++i)     // Get and strip the question and answer values
 					{
-					if (inMsgSplit[i].split (MSG_SPLIT_KEY_VALUE)[0].equals (MSG_KEY_ANSWER))       // Check for the message key
+					if (inMsgSplit.get(i).split (MSG_SPLIT_KEY_VALUE)[0].equals (MSG_KEY_ANSWER))       // Check for the message key
 						{
-						m_strMsgOut[answerIndex] = inMsgSplit[i].split (MSG_SPLIT_KEY_VALUE)[1];    // Get the answer value
-						answerIndex++;  // Move to next answer slot
+                        m_answers.add(inMsgSplit.get(i).split(MSG_SPLIT_KEY_VALUE)[1]);    // Get the answer value
 						}
+                    else if (inMsgSplit.get(i).split (MSG_SPLIT_KEY_VALUE)[0].equals (MSG_KEY_QUESTION))
+                        {
+                        m_question = inMsgSplit.get(i).split(MSG_SPLIT_KEY_VALUE)[1];
+                        }
 					}
 				}
-			m_activity.updateGame (GOT_Q_AND_A, m_strMsgOut);
+			m_activity.updateUI (GOT_Q_AND_A);
 			}
-		else if (inMsgSplit[0].equals (MSG_WIN))
+		else if (inMsgSplit.get(0).equals (MSG_WIN))
 			{
-			if (m_activity.getTriviaPlayer ()
-				    .getWillHost ())
-				{
-				String enableRoundTimer = "round timer=" + String.valueOf (PreferenceManager.getDefaultSharedPreferences (m_activity)
-					                                                           .getBoolean ("pref_debug_checkbox_enable_timer", true));
-				String enablePostRoundTimer = "postround timer=true";  // TODO: Don't hardcode this
-				String playerName = "player name=" + PreferenceManager.getDefaultSharedPreferences (m_activity)
-					                                     .getString ("pref_player_name_text", "Player");
-				m_strMsgOut[0] = "begin round|" + enableRoundTimer;
-				}
-			m_activity.updateGame (ROUND_WIN, m_strMsgOut);
+			m_activity.updateUI (ROUND_WIN);
 			}
-		else if (inMsgSplit[0].equals (MSG_LOSE))
+		else if (inMsgSplit.get(0).equals (MSG_LOSE))
 			{
-			if (m_activity.getTriviaPlayer ()
-				    .getWillHost ())
-				{
-				String enableRoundTimer = "round timer=" + String.valueOf (PreferenceManager.getDefaultSharedPreferences (m_activity)
-					                                                           .getBoolean ("pref_debug_checkbox_enable_timer", true));
-				String enablePostRoundTimer = "postround timer=true";  // TODO: Don't hardcode this
-				String playerName = "player name=" + PreferenceManager.getDefaultSharedPreferences (m_activity)
-					                                     .getString ("pref_player_name_text", "Player");
-				m_strMsgOut[0] = "begin round|" + enableRoundTimer;
-				}
-			m_activity.updateGame (ROUND_LOSE, m_strMsgOut);
+			m_activity.updateUI(ROUND_LOSE);
 			}
-		else if (inMsgSplit[0].equals (MSG_CONFIG))
+		else if (inMsgSplit.get(0).equals(MSG_CONFIG))
 			{
 			// TODO: Handle config messages
 			}
@@ -194,4 +182,47 @@ public class CTriviaGame
 			QUIT,
 			ERROR
 		}
-	}
+
+        // TODO: same function call for beginning a game as starting a new round.
+        // may want to separate calls (ie. one with config data - one without)
+    public void beginNewRound ()
+        {
+            // TODO: Should wrap all configuration into a single object to be passed around -GN
+            String enableRoundTimer = MSG_ROUND_TIMER + MSG_SPLIT_KEY_VALUE +
+                    String.valueOf(m_activity.getRoundTimerEnable());
+
+            String enablePostRoundTimer = MSG_POSTROUND_TIMER + MSG_SPLIT_KEY_VALUE +
+                    String.valueOf(m_activity.getPostRoundTimerEnable());
+
+            String playerName = MSG_PLAYER_NAME + MSG_SPLIT_KEY_VALUE +
+                    String.valueOf(m_activity.getPlayerName());
+
+            m_activity.sendMessage("begin round" + "|" + enableRoundTimer +
+                    "|" + enablePostRoundTimer +
+                    "|" + playerName);
+        }
+
+    public void requestHost () {
+        m_activity.sendMessage("request host");
+    }
+
+    private String formatMessage (ArrayList<String> list) {
+        String ret = "";
+        for (int i = 0; i < list.size(); i++) {
+            ret += list.get(i);
+            if (i < (list.size() - 1)) {
+                ret += MSG_SPLIT_DATA;
+            }
+        }
+        return ret;
+    }
+
+    public String getQuestion () {
+        return m_question;
+    }
+
+    public ArrayList<String> getAnswers () {
+        return m_answers;
+    }
+
+}

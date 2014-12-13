@@ -7,4 +7,14 @@
 		android:key="pref_host_checkbox_will_host"
 		android:title="@string/pref_title_willing_to_host"/>
 
+    <CheckBoxPreference
+        android:key="pref_host_checkbox_round_timer"
+        android:title="@string/pref_host_round_timer_enable"
+        android:defaultValue="true"/>
+
+    <CheckBoxPreference
+        android:key="pref_host_checkbox_postround_timer"
+        android:title="@string/pref_host_postround_timer_enable"
+        android:defaultValue="true"/>
+
 </PreferenceScreen>

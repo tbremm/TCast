@@ -1,18 +1,19 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<!-- A 'parent' preference, which enables/disables child preferences (below)
-		 when checked/unchecked. -->
-	<CheckBoxPreference
-		android:defaultValue="false"
-		android:key="pref_debug_checkbox_enable_debug"
-		android:title="@string/pref_title_enable_debug"/>
+    <!-- A 'parent' preference, which enables/disables child preferences (below)
+         when checked/unchecked. -->
+    <CheckBoxPreference
+        android:key="pref_debug_checkbox_enable_debug"
+        android:title="@string/pref_title_enable_debug"
+        android:defaultValue="false"/>
 
-	<!-- A 'parent' preference, which enables/disables child preferences (below)
-		 when checked/unchecked. -->
-	<CheckBoxPreference
-		android:defaultValue="true"
-		android:dependency="pref_debug_checkbox_enable_debug"
-		android:key="pref_debug_checkbox_enable_timer"
-		android:title="@string/pref_title_debug_enable_timer"/>
-
+    <!-- A 'parent' preference, which enables/disables child preferences (below)
+         when checked/unchecked. -->
+    <!-- Moved timer option into host options - GN
+    <CheckBoxPreference
+        android:key="pref_debug_checkbox_enable_timer"
+        android:dependency="pref_debug_checkbox_enable_debug"
+        android:title="@string/pref_title_debug_enable_timer"
+        android:defaultValue="true"/>
+    -->
 </PreferenceScreen>
