@@ -104,15 +104,6 @@ public class PlayTriviaActivity
 		{
 		m_MediaRouter.removeCallback (m_MediaRouterCallback);
 		super.onStop ();
-		// Set the activity layout dependant on our connected state
-		if (m_ApiClient == null || !m_ApiClient.isConnected ())
-			{
-			setContentView (R.layout.activity_play_trivia_off);
-			}
-		else
-			{
-			setContentView (R.layout.activity_play_trivia_on);
-			}
 		}
 
 	/**
@@ -130,16 +121,21 @@ public class PlayTriviaActivity
 		m_cTriviaPlayer = new CTriviaPlayer (m_sharedPreferences);
 		m_cTriviaGame = new CTriviaGame (this);
 		// TODO: We need to persist things like m_ApiClient in the onPause()/onStop() functions in order for this to really work
-		// Set the activity layout dependant on our connected state
-		if (m_ApiClient == null || !m_ApiClient.isConnected ())
-			{
-			setContentView (R.layout.activity_play_trivia_off);
-			}
-		else
-			{
-			setContentView (R.layout.activity_play_trivia_on);
-			}
+        chooseActivityContentView();
 		}
+
+    private void chooseActivityContentView ()
+        {
+        // Set the activity layout dependant on our connected state
+        if (m_ApiClient == null || !m_ApiClient.isConnected ())
+            {
+            setContentView (R.layout.activity_play_trivia_off);
+            }
+        else
+            {
+            setContentView (R.layout.activity_play_trivia_on);
+            }
+        }
 
 	@Override
 	public boolean onCreateOptionsMenu (Menu menu)
@@ -209,7 +205,6 @@ public class PlayTriviaActivity
 			{
 			try
 				{
-				setContentView (R.layout.activity_play_trivia_on);
 				// Give the channel our message object
 				m_CCastChannel = new CCastChannel (this);
 				Cast.CastApi.launchApplication (m_ApiClient, "53EAA363", false)
@@ -231,53 +226,27 @@ public class PlayTriviaActivity
 								Cast.CastApi.setMessageReceivedCallbacks (m_ApiClient, m_CCastChannel.getNamespace (), m_CCastChannel);
 								//sendMessage("http://gnosm.net/missilecommand/sounds/524
 								// .mp3");
-								}
+                                }
 							catch (IOException e)
-								{
-								Log.e (TAG, "Exception while creating channel", e);
-								// Set the activity layout dependant on our connected state
-								if (m_ApiClient == null || !m_ApiClient.isConnected ())
-									{
-									setContentView (R.layout.activity_play_trivia_off);
-									}
-								else
-									{
-									setContentView (R.layout.activity_play_trivia_on);
-									}
-								}
+                                {
+                                Log.e(TAG, "Exception while creating channel", e);
+                                }
 							}
 						}
 					});
 				}
 			catch (Exception e)
-				{
-				Log.e (TAG, "Failed to launch application", e);
-				// Set the activity layout dependant on our connected state
-				if (m_ApiClient == null || !m_ApiClient.isConnected ())
-					{
-					setContentView (R.layout.activity_play_trivia_off);
-					}
-				else
-					{
-					setContentView (R.layout.activity_play_trivia_on);
-					}
-				}
+                {
+                Log.e(TAG, "Failed to launch application", e);
+                }
 			}
+        chooseActivityContentView();
 		}
 
 	@Override
 	public void onConnectionSuspended (int i)
 		{
-		// TODO
-		// Set the activity layout dependant on our connected state
-		if (m_ApiClient == null || !m_ApiClient.isConnected ())
-			{
-			setContentView (R.layout.activity_play_trivia_off);
-			}
-		else
-			{
-			setContentView (R.layout.activity_play_trivia_on);
-			}
+        // TODO
 		m_WaitingForReconnect = true;
 		}
 
@@ -292,15 +261,7 @@ public class PlayTriviaActivity
 	public void onConnectionFailed (ConnectionResult connectionResult)
 		{
 		// TODO
-		// Set the activity layout dependant on our connected state
-		if (m_ApiClient == null || !m_ApiClient.isConnected ())
-			{
-			setContentView (R.layout.activity_play_trivia_off);
-			}
-		else
-			{
-			setContentView (R.layout.activity_play_trivia_on);
-			}
+		chooseActivityContentView();
 		Log.e (TAG, "onConnectionFailed...");
 		}
 
@@ -321,15 +282,7 @@ public class PlayTriviaActivity
 		// TODO: Restore activity/game state here
 		super.onResume ();
 		m_MediaRouter.addCallback (m_MediaRouteSelector, m_MediaRouterCallback, MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
-		// Set the activity layout dependant on our connected state
-		if (m_ApiClient == null || !m_ApiClient.isConnected ())
-			{
-			setContentView (R.layout.activity_play_trivia_off);
-			}
-		else
-			{
-			setContentView (R.layout.activity_play_trivia_on);
-			}
+		chooseActivityContentView();
 		}
 
 	@Override
@@ -338,15 +291,7 @@ public class PlayTriviaActivity
 		super.onStart ();
 		// TODO: Should this be in onResume()?
 		m_MediaRouter.addCallback (m_MediaRouteSelector, m_MediaRouterCallback, MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
-		// Set the activity layout dependant on our connected state
-		if (m_ApiClient == null || !m_ApiClient.isConnected ())
-			{
-			setContentView (R.layout.activity_play_trivia_off);
-			}
-		else
-			{
-			setContentView (R.layout.activity_play_trivia_on);
-			}
+		chooseActivityContentView();
 		}
 
 	/**
@@ -702,4 +647,25 @@ public class PlayTriviaActivity
 			m_ApiClient.connect ();
 			}
 		}
+
+    public void onSaveInstanceState(Bundle savedInstanceState)
+        {
+        super.onSaveInstanceState(savedInstanceState);
+
+        // save all our important things
+        /*savedInstanceState.put()
+
+
+            private        CTriviaPlayer        m_cTriviaPlayer;
+            private        CTriviaGame          m_cTriviaGame;
+            private        MediaRouter          m_MediaRouter;
+            private        MediaRouteSelector   m_MediaRouteSelector;
+            private        GoogleApiClient      m_ApiClient;
+            private boolean m_WaitingForReconnect = false;
+            private boolean m_ApplicationStarted  = false;
+            private CCastChannel      m_CCastChannel;
+            private SharedPreferences m_sharedPreferences;
+            private Context m_context = this;*/
+
+        }
 	}
