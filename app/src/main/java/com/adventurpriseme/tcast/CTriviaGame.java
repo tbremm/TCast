@@ -1,7 +1,6 @@
 package com.adventurpriseme.tcast;
 
 import android.app.Activity;
-import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,7 +70,8 @@ public class CTriviaGame {
 		{
 		return m_eTriviaGameState;
 		}
-	private void setGameState (TriviaGameState state)
+
+private void setGameState (TriviaGameState state)
 		{
 		m_eTriviaGameState = state;
 		}
@@ -86,7 +86,7 @@ public class CTriviaGame {
 	 */
 	public void onMessageIn (String strMsgIn)
 		{
-		m_strMsgIn = strMsgIn.toLowerCase ();
+		m_strMsgIn = strMsgIn.toLowerCase ();   // TODO: Move this to just-in-time conditioning, in case we want to preserve case on a string that's displayed directly
 		processMessage (strMsgIn);
 		}
 
@@ -172,19 +172,19 @@ public class CTriviaGame {
 			}
 		}
 
-	// Game state
-	public static enum TriviaGameState
+private String formatMessage (ArrayList<String> list)
+	{
+	String ret = "";
+	for (int i = 0; i < list.size (); i++)
 		{
-			WAITING,
-			CONNECTED,
-			HOSTING,
-			HOSTED,
-			GOT_Q_AND_A,
-			ROUND_WIN,
-			ROUND_LOSE,
-			QUIT,
-			ERROR
+		ret += list.get (i);
+		if (i < (list.size () - 1))
+			{
+			ret += MSG_SPLIT_DATA;
+			}
 		}
+	return ret;
+	}
 
         // TODO: same function call for beginning a game as starting a new round.
         // may want to separate calls (ie. one with config data - one without)
@@ -199,33 +199,37 @@ public class CTriviaGame {
 
             String playerName = MSG_PLAYER_NAME + MSG_SPLIT_KEY_VALUE +
                     String.valueOf(m_activity.getPlayerName());
-
-            m_activity.sendMessage(MSG_BEGIN_ROUND + "|" + enableRoundTimer +
-                    "|" + enablePostRoundTimer +
-                    "|" + playerName);
+        m_activity.sendMessage (MSG_BEGIN_ROUND + MSG_SPLIT_DATA + enableRoundTimer +
+                                MSG_SPLIT_DATA + enablePostRoundTimer +
+                                MSG_SPLIT_DATA + playerName);
         }
 
-    public void requestHost () {
-        m_activity.sendMessage("request host");
-    }
+public void requestHost ()
+	{
+	m_activity.sendMessage ("request host");
+	}
 
-    private String formatMessage (ArrayList<String> list) {
-        String ret = "";
-        for (int i = 0; i < list.size(); i++) {
-            ret += list.get(i);
-            if (i < (list.size() - 1)) {
-                ret += MSG_SPLIT_DATA;
-            }
-        }
-        return ret;
-    }
+public String getQuestion ()
+	{
+	return m_question;
+	}
 
-    public String getQuestion () {
-        return m_question;
-    }
+public ArrayList<String> getAnswers ()
+	{
+	return m_answers;
+	}
 
-    public ArrayList<String> getAnswers () {
-        return m_answers;
-    }
-
+// Game state
+public static enum TriviaGameState
+	{
+		WAITING,
+		CONNECTED,
+		HOSTING,
+		HOSTED,
+		GOT_Q_AND_A,
+		ROUND_WIN,
+		ROUND_LOSE,
+		QUIT,
+		ERROR
+	}
 }

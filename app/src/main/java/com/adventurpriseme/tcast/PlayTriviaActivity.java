@@ -129,6 +129,7 @@ public class PlayTriviaActivity
 		m_sharedPreferences = PreferenceManager.getDefaultSharedPreferences (this);
 		m_cTriviaPlayer = new CTriviaPlayer (m_sharedPreferences);
 		m_cTriviaGame = new CTriviaGame (this);
+		// TODO: We need to persist things like m_ApiClient in the onPause()/onStop() functions in order for this to really work
 		// Set the activity layout dependant on our connected state
 		if (m_ApiClient == null || !m_ApiClient.isConnected ())
 			{
@@ -306,6 +307,7 @@ public class PlayTriviaActivity
 	@Override
 	protected void onPause ()
 		{
+		// TODO: Save activity/game state here
 		if (isFinishing ())
 			{
 			m_MediaRouter.removeCallback (m_MediaRouterCallback);
@@ -316,6 +318,7 @@ public class PlayTriviaActivity
 	@Override
 	protected void onResume ()
 		{
+		// TODO: Restore activity/game state here
 		super.onResume ();
 		m_MediaRouter.addCallback (m_MediaRouteSelector, m_MediaRouterCallback, MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
 		// Set the activity layout dependant on our connected state
@@ -333,6 +336,7 @@ public class PlayTriviaActivity
 	protected void onStart ()
 		{
 		super.onStart ();
+		// TODO: Should this be in onResume()?
 		m_MediaRouter.addCallback (m_MediaRouteSelector, m_MediaRouterCallback, MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
 		// Set the activity layout dependant on our connected state
 		if (m_ApiClient == null || !m_ApiClient.isConnected ())
@@ -416,13 +420,13 @@ public class PlayTriviaActivity
 				tvPlayTitle.setVisibility (View.VISIBLE);
 				break;
 			case GOT_Q_AND_A:
-				setAllUiElements_Visibility (View.INVISIBLE);   // Clear the display of UI elements
-				tvPlayTitle.setText (R.string.true_or_false);         // Create the title text
-				tvPlayTitle.setVisibility (View.VISIBLE);       // Make it visible
-				tvQuestion.setText (m_cTriviaGame.getQuestion()); // Create the question text
-				tvQuestion.setVisibility (View.VISIBLE);        // Make it visible
-                ArrayList<String> answers = m_cTriviaGame.getAnswers();
-				rgAnswers.removeAllViews ();                    // Remove any pre-existing radio buttons
+				setAllUiElements_Visibility (View.INVISIBLE);       // Clear the display of UI elements
+				tvPlayTitle.setText (R.string.true_or_false);       // Create the title text
+				tvPlayTitle.setVisibility (View.VISIBLE);           // Make it visible
+				tvQuestion.setText (m_cTriviaGame.getQuestion ());   // Create the question text
+				tvQuestion.setVisibility (View.VISIBLE);            // Make it visible
+				ArrayList<String> answers = m_cTriviaGame.getAnswers ();
+				rgAnswers.removeAllViews ();                        // Remove any pre-existing radio buttons
 				for (int i = 0; i < answers.size(); ++i)            // Add a radio button for each available answer
 					{
 					rgAnswers.addView (new CAnswerRadioButton (this, i, answers.get(i)));
@@ -432,7 +436,7 @@ public class PlayTriviaActivity
 					{
 					btnBeginNewRound.setText (getString (R.string.finish_round));
 					btnBeginNewRound.setVisibility (View.VISIBLE);
-					btnBeginNewRound.setOnClickListener (new View.OnClickListener ()
+					btnBeginNewRound.setOnClickListener (new View.OnClickListener ()    // TODO: Investigate if we have to remove old listeners here (possible leak?)
 					{
 					@Override
 					public void onClick (View view)
@@ -440,7 +444,7 @@ public class PlayTriviaActivity
                         m_cTriviaGame.beginNewRound();
 						}
 					});
-					AddButtonLayout (btnBeginNewRound, RelativeLayout.ALIGN_BASELINE); // Put button at the bottom of the screen
+					AddButtonLayout (btnBeginNewRound, RelativeLayout.ALIGN_BASELINE); // Put button at the beginning of the screen
 					}
 				break;
 			case ROUND_WIN:
@@ -452,7 +456,7 @@ public class PlayTriviaActivity
 					{
 					btnBeginNewRound.setText (getString (R.string.finish_round));
 					btnBeginNewRound.setVisibility (View.VISIBLE);
-					btnBeginNewRound.setOnClickListener (new View.OnClickListener ()
+					btnBeginNewRound.setOnClickListener (new View.OnClickListener ()    // TODO: Investigate if we have to remove old listeners here (possible leak?)
 					{
 					@Override
 					public void onClick (View view)
@@ -472,7 +476,7 @@ public class PlayTriviaActivity
 					{
 					btnBeginNewRound.setText (getString (R.string.finish_round));
 					btnBeginNewRound.setVisibility (View.VISIBLE);
-					btnBeginNewRound.setOnClickListener (new View.OnClickListener ()
+					btnBeginNewRound.setOnClickListener (new View.OnClickListener ()    // TODO: Investigate if we have to remove old listeners here (possible leak?)
 					{
 					@Override
 					public void onClick (View view)
@@ -493,26 +497,6 @@ public class PlayTriviaActivity
 			}
 		}
 
-        public String getPlayerName () {
-            String playerName =
-                    PreferenceManager.getDefaultSharedPreferences (this)
-                            .getString("pref_player_name_text", "Player");
-            return playerName;
-        }
-
-        public boolean getRoundTimerEnable () {
-            Boolean enableRoundTimer = PreferenceManager.getDefaultSharedPreferences(this)
-                                       .getBoolean("pref_host_round_timer_enable", true);
-            return enableRoundTimer;
-        }
-
-        public boolean getPostRoundTimerEnable () {
-            Boolean enablePostRoundTimer = PreferenceManager.getDefaultSharedPreferences(this)
-                                           .getBoolean("pref_host_postround_timer_enable", true);
-            return enablePostRoundTimer;
-        }
-
-
 	/**
 	 * Set the visibility of all children of the main relative layout.
 	 *
@@ -530,7 +514,20 @@ public class PlayTriviaActivity
 			}
 		}
 
-    // public - so CTriviaGame can interact with this function
+	/**
+	 * Set layout of a button within a relative layout.
+	 *
+	 * @param button
+	 * @param centerInParent
+	 * 	RelativeLayout.ALIGN_PARENT_BOTTOM, etc
+	 */
+	private void AddButtonLayout (Button button, int centerInParent)
+		{
+		// Just call the other AddButtonLayout Method with Margin 0
+		AddButtonLayout (button, centerInParent, 0, 0, 0, 0);
+		}
+
+	// public - so CTriviaGame can interact with this function
 	public void sendMessage (final String message)
 		{
 		if (m_ApiClient != null && m_CCastChannel != null)
@@ -569,20 +566,6 @@ public class PlayTriviaActivity
 			}
 		}
 
-
-	/**
-	 * Set layout of a button within a relative layout.
-	 *
-	 * @param button
-	 * @param centerInParent
-	 * 	RelativeLayout.ALIGN_PARENT_BOTTOM, etc
-	 */
-	private void AddButtonLayout (Button button, int centerInParent)
-		{
-		// Just call the other AddButtonLayout Method with Margin 0
-		AddButtonLayout (button, centerInParent, 0, 0, 0, 0);
-		}
-
 	/**
 	 * Apply a layout to a button within a relative layout.
 	 *
@@ -605,6 +588,24 @@ public class PlayTriviaActivity
 		button.setLayoutParams (buttonLayoutParameters);
 		}
 
+	public String getPlayerName ()
+		{
+		return PreferenceManager.getDefaultSharedPreferences (this)
+			       .getString ("pref_player_name_text", "Player");
+		}
+
+	public boolean getRoundTimerEnable ()
+		{
+		return PreferenceManager.getDefaultSharedPreferences (this)
+			       .getBoolean ("pref_host_round_timer_enable", true);
+		}
+
+	public boolean getPostRoundTimerEnable ()
+		{
+		return PreferenceManager.getDefaultSharedPreferences (this)
+			       .getBoolean ("pref_host_postround_timer_enable", true);
+		}
+
 	public CTriviaPlayer getTriviaPlayer ()
 		{
 		return m_cTriviaPlayer;
@@ -613,8 +614,7 @@ public class PlayTriviaActivity
 	/**
 	 * Creates a radio button customized for a trivia answer
 	 */
-	private class CAnswerRadioButton
-		extends RadioButton
+	private class CAnswerRadioButton extends RadioButton
 		{
 		/**
 		 * Constructor for the button.
@@ -643,13 +643,11 @@ public class PlayTriviaActivity
 			@Override
 			public void onClick (View view)
 				{
-				// Check the radio button
-				((RadioGroup) view.getParent ()).check (view.getId ());
-				// Save off the answer
+				//TODO: Update graphics to let user know they've clicked something
+				((RadioGroup) view.getParent ()).check (view.getId ());                     // Check the radio button
 				m_cTriviaPlayer.setAnswer (((RadioButton) view).getText ()
-					                           .toString ());
-				// Send the answer to the game server
-				sendMessage (m_cTriviaPlayer.getAnswer ());
+					                           .toString ());    // Save off the answer
+				sendMessage (m_cTriviaPlayer.getAnswer ());                                 // Send the answer to the game server
 				}
 			});
 			}
