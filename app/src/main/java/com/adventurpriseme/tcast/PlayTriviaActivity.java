@@ -596,14 +596,15 @@ public class PlayTriviaActivity
 
 	public boolean getRoundTimerEnable ()
 		{
+        SharedPreferences temp = PreferenceManager.getDefaultSharedPreferences(this); // helpful for debug
 		return PreferenceManager.getDefaultSharedPreferences (this)
-			       .getBoolean ("pref_host_round_timer_enable", true);
+			       .getBoolean ("pref_host_checkbox_round_timer", true);
 		}
 
 	public boolean getPostRoundTimerEnable ()
 		{
 		return PreferenceManager.getDefaultSharedPreferences (this)
-			       .getBoolean ("pref_host_postround_timer_enable", true);
+			       .getBoolean ("pref_host_checkbox_postround_timer", true);
 		}
 
 	public CTriviaPlayer getTriviaPlayer ()
