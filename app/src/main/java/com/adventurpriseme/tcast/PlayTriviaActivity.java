@@ -441,7 +441,7 @@ public class PlayTriviaActivity
 					@Override
 					public void onClick (View view)
 						{
-                        m_cTriviaGame.beginNewRound();
+                        m_cTriviaGame.endRound();
 						}
 					});
 					AddButtonLayout (btnBeginNewRound, RelativeLayout.ALIGN_BASELINE); // Put button at the beginning of the screen

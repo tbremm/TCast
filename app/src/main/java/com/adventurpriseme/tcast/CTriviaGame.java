@@ -32,6 +32,7 @@ public class CTriviaGame {
 	private final static String MSG_HOST                     = "host";
 	private final static String MSG_HOSTED                   = "hosted";
 	private final static String MSG_BEGIN_ROUND              = "begin round";
+    private final static String MSG_END_ROUND                = "end round";
 	private final static String MSG_CONFIG                   = "config";
 	private final static String MSG_Q_AND_A                  = "qanda";
 	private final static String MSG_ERROR                    = "error";
@@ -203,6 +204,11 @@ private String formatMessage (ArrayList<String> list)
                                 MSG_SPLIT_DATA + enablePostRoundTimer +
                                 MSG_SPLIT_DATA + playerName);
         }
+
+    public void endRound()
+    {
+        m_activity.sendMessage (MSG_END_ROUND);
+    }
 
 public void requestHost ()
 	{
