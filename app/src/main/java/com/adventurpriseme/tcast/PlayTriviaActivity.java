@@ -282,6 +282,15 @@ public class PlayTriviaActivity
 		// TODO: Restore activity/game state here
 		super.onResume ();
 		m_MediaRouter.addCallback (m_MediaRouteSelector, m_MediaRouterCallback, MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
+
+            m_MediaRouter = MediaRouter.getInstance (getApplicationContext ());
+
+        // fixme - not really sure how to best save CC Connection info yet...
+        // this feels hacky and gross -GN
+        //if (m_ApiClientBuilt) {
+        //    m_ApiClient = this.getApiClient();
+        //}
+
 		chooseActivityContentView();
 		}
 
@@ -291,6 +300,7 @@ public class PlayTriviaActivity
 		super.onStart ();
 		// TODO: Should this be in onResume()?
 		m_MediaRouter.addCallback (m_MediaRouteSelector, m_MediaRouterCallback, MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
+
 		chooseActivityContentView();
 		}
 
@@ -652,6 +662,7 @@ public class PlayTriviaActivity
         {
         super.onSaveInstanceState(savedInstanceState);
 
+        savedInstanceState.putBoolean("fartbutt", true);
         // save all our important things
         /*savedInstanceState.put()
 
@@ -666,6 +677,15 @@ public class PlayTriviaActivity
             private CCastChannel      m_CCastChannel;
             private SharedPreferences m_sharedPreferences;
             private Context m_context = this;*/
+
+        }
+
+        private boolean m_test=false;
+    public void onRestoreInstanceState(Bundle savedInstanceState)
+        {
+            super.onRestoreInstanceState(savedInstanceState);
+
+            m_test = savedInstanceState.getBoolean("fartbutt");
 
         }
 	}
