@@ -41,7 +41,7 @@
 			var CONFIG = "config";				// configuration message from host
 			var BEGIN_ROUND = "begin round";	// begin a round, sent from host
 			var END_ROUND = "end round";		// end a round, sent from host
-			var ANSWER = "answer";					// answer from a phone
+			var ANSWER = "a";					// answer from a phone
 			
 			// commands from web -> phones
 			var HOST_ACK = "host";				// let phone know they are the host	
@@ -76,13 +76,9 @@
 					var command = data_split[0].toLowerCase();
 					var cmd_split = command.split('=');
 					var switch_arg;
-					if (cmd_split.length > 1 ) {	// length should always be 2
-						switch_arg = cmd_split[0];
-					} else {
-						switch_arg = cmd_split;
-					}
+					switch_arg = cmd_split[0];
 					// fixme todo - lots of message parsing that we need to do!!
-					switch (command)    // Filter case for simplicity
+					switch (switch_arg)    // Filter case for simplicity
 						{
 						case ANSWER:
 							{
@@ -212,11 +208,7 @@
 	
 					var option_split = option.split('=');
 					var switch_arg;
-					if (option_split.length > 1 ) {
-						switch_arg = option_split[0];
-					} else {
-						switch_arg = option;
-					}
+					switch_arg = option_split[0];
 					
 					switch (switch_arg) {
 						case "round timer": {
@@ -267,13 +259,18 @@
 					success: function(data) {
 						//alert(data);
 
+
 						var split_data = data.split('|');
-						var question = split_data[0];
-						var a1 = split_data[1];
-						var a2 = split_data[2];
-						var a3 = split_data[3];
-						var a4 = split_data[4];
-						roundAnswer = split_data[5];
+
+					    // sometimes whitespace seems to trickle in no matter
+					    // how hard you try in the PHP code. so important
+					    // to trim whitespace
+						var question = $.trim(split_data[0]);
+						var a1 = $.trim(split_data[1]);
+						var a2 = $.trim(split_data[2]);
+						var a3 = $.trim(split_data[3]);
+						var a4 = $.trim(split_data[4]);
+						roundAnswer = $.trim(split_data[5]);
 
 						var qbox = document.getElementById("qbox");
 						var questionHTML = question + "<br>" + a1 + "<br>" + a2 + "<br>" + a3 + "<br>" + a4;
@@ -313,7 +310,7 @@
 			    var i;
 			    // fixme think about player disconnects during loops
 			    for (i = 0; i < players.length; i++) {
-					if (players[i].answer == roundAnswer) {
+					if (players[i].answer == roundAnswer.toLowerCase()) {
 						triviaSendMessage(players[i].id, WIN);
 						// todo increment scores here!
 						// todo make 'winners' list to display on TV

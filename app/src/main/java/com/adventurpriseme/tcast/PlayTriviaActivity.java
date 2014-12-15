@@ -82,6 +82,8 @@ public class PlayTriviaActivity
 		m_MediaRouteSelector = new MediaRouteSelector.Builder ().addControlCategory (CastMediaControlIntent.categoryForCast ("53EAA363"))
 			                       .build ();
 		m_MediaRouterCallback = new MyMediaRouterCallback ();
+
+        chooseActivityContentView();
 		}
 
 	/**
@@ -103,6 +105,7 @@ public class PlayTriviaActivity
 	protected void onStop ()
 		{
 		m_MediaRouter.removeCallback (m_MediaRouterCallback);
+        m_ApiClient.disconnect();
 		super.onStop ();
 		}
 
@@ -121,7 +124,7 @@ public class PlayTriviaActivity
 		m_cTriviaPlayer = new CTriviaPlayer (m_sharedPreferences);
 		m_cTriviaGame = new CTriviaGame (this);
 		// TODO: We need to persist things like m_ApiClient in the onPause()/onStop() functions in order for this to really work
-        chooseActivityContentView();
+        //chooseActivityContentView();
 		}
 
     private void chooseActivityContentView ()
@@ -291,7 +294,7 @@ public class PlayTriviaActivity
         //    m_ApiClient = this.getApiClient();
         //}
 
-		chooseActivityContentView();
+		// TODO? chooseActivityContentView();
 		}
 
 	@Override
@@ -301,7 +304,7 @@ public class PlayTriviaActivity
 		// TODO: Should this be in onResume()?
 		m_MediaRouter.addCallback (m_MediaRouteSelector, m_MediaRouterCallback, MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
 
-		chooseActivityContentView();
+		// TODO chooseActivityContentView();
 		}
 
 	/**
@@ -592,7 +595,7 @@ public class PlayTriviaActivity
 			setId (index);
 			setText (buttonText);
 			setChecked (false);  // Default to no selection to remove bias
-			setButtonDrawable (R.drawable.null_selector);
+			// keep button visible for now. TODO. setButtonDrawable (R.drawable.null_selector);
 			setVisibility (View.VISIBLE);
 			setOnClickListener (new View.OnClickListener ()
 			{
@@ -603,7 +606,8 @@ public class PlayTriviaActivity
 				((RadioGroup) view.getParent ()).check (view.getId ());                     // Check the radio button
 				m_cTriviaPlayer.setAnswer (((RadioButton) view).getText ()
 					                           .toString ());    // Save off the answer
-				sendMessage (m_cTriviaPlayer.getAnswer ());                                 // Send the answer to the game server
+
+                m_cTriviaGame.sendAnswer(m_cTriviaPlayer.getAnswer());                          // Send the answer to the game server
 				}
 			});
 			}
@@ -689,3 +693,5 @@ public class PlayTriviaActivity
 
         }
 	}
+
+

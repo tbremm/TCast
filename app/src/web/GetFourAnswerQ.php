@@ -42,14 +42,14 @@
 					.$row1["A2"]."|"
 					.$row1["A3"]."|"
 					.$row1["A4"]."|"
-					.$row1["ANSWER"];
+					.$row1["ANSWER"]."|";
 	    } else if ($choose == 1) {
 			echo $row2["QUESTION"]."|"
 					.$row2["A1"]."|"
 					.$row2["A2"]."|"
 					.$row2["A3"]."|"
 					.$row2["A4"]."|"
-					.$row2["ANSWER"];
+					.$row2["ANSWER"]."|";
 	    }
 		
 		//mysqli_free_result($result);

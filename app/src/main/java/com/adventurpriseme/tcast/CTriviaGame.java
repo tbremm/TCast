@@ -210,6 +210,10 @@ private String formatMessage (ArrayList<String> list)
         m_activity.sendMessage (MSG_END_ROUND);
     }
 
+    public void sendAnswer(String answer) {
+        m_activity.sendMessage(MSG_KEY_ANSWER + MSG_SPLIT_KEY_VALUE + answer);
+    }
+
 public void requestHost ()
 	{
 	m_activity.sendMessage ("request host");
