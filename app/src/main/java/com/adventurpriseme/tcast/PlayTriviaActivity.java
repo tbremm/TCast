@@ -28,6 +28,7 @@ import com.google.android.gms.cast.ApplicationMetadata;
 import com.google.android.gms.cast.Cast;
 import com.google.android.gms.cast.CastDevice;
 import com.google.android.gms.cast.CastMediaControlIntent;
+import com.google.android.gms.cast.LaunchOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -62,6 +63,9 @@ public class PlayTriviaActivity
 	private CCastChannel      m_CCastChannel;
 	private SharedPreferences m_sharedPreferences;
 	private Context m_context = this;
+
+    private String m_SessionId = "";
+
 
 	/**
 	 * Play Trivia Activity creator.
@@ -105,7 +109,7 @@ public class PlayTriviaActivity
 	protected void onStop ()
 		{
 		m_MediaRouter.removeCallback (m_MediaRouterCallback);
-        m_ApiClient.disconnect();
+        //m_ApiClient.disconnect();
 		super.onStop ();
 		}
 
@@ -202,7 +206,7 @@ public class PlayTriviaActivity
 		if (m_WaitingForReconnect)
 			{
 			m_WaitingForReconnect = false;
-			//reconnectChannels();
+			reconnectChannels();
 			}
 		else
 			{
@@ -210,7 +214,10 @@ public class PlayTriviaActivity
 				{
 				// Give the channel our message object
 				m_CCastChannel = new CCastChannel (this);
-				Cast.CastApi.launchApplication (m_ApiClient, "53EAA363", false)
+                LaunchOptions m_LaunchOptions = new LaunchOptions();
+                m_LaunchOptions.setRelaunchIfRunning(false);
+
+				Cast.CastApi.launchApplication (m_ApiClient, "53EAA363", m_LaunchOptions)
 					.setResultCallback (new ResultCallback<Cast.ApplicationConnectionResult> ()
 					{
 					@Override
@@ -245,6 +252,10 @@ public class PlayTriviaActivity
 			}
         chooseActivityContentView();
 		}
+
+    private void reconnectChannels() {
+
+    }
 
 	@Override
 	public void onConnectionSuspended (int i)
@@ -286,7 +297,7 @@ public class PlayTriviaActivity
 		super.onResume ();
 		m_MediaRouter.addCallback (m_MediaRouteSelector, m_MediaRouterCallback, MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
 
-            m_MediaRouter = MediaRouter.getInstance (getApplicationContext ());
+        m_MediaRouter = MediaRouter.getInstance (getApplicationContext ());
 
         // fixme - not really sure how to best save CC Connection info yet...
         // this feels hacky and gross -GN
