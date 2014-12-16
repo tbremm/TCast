@@ -36,6 +36,7 @@ import com.google.android.gms.common.api.Status;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is the trivia game entry point.
@@ -64,7 +65,7 @@ public class PlayTriviaActivity
 	private SharedPreferences m_sharedPreferences;
 	private Context m_context = this;
 
-    private String m_SessionId = "";
+    private String m_RouteId;
 
 
 	/**
@@ -88,7 +89,11 @@ public class PlayTriviaActivity
 		m_MediaRouterCallback = new MyMediaRouterCallback ();
 
         chooseActivityContentView();
-		}
+
+        m_RouteId = "";
+
+        }
+
 
 	/**
 	 * Set up the {@link android.app.ActionBar}, if the API is available.
@@ -109,7 +114,7 @@ public class PlayTriviaActivity
 	protected void onStop ()
 		{
 		m_MediaRouter.removeCallback (m_MediaRouterCallback);
-        //m_ApiClient.disconnect();
+        m_ApiClient.disconnect();
 		super.onStop ();
 		}
 
@@ -287,6 +292,15 @@ public class PlayTriviaActivity
 			{
 			m_MediaRouter.removeCallback (m_MediaRouterCallback);
 			}
+
+        if (!m_RouteId.equals(""))
+            {
+            SharedPreferences _sp = PreferenceManager.getDefaultSharedPreferences (this);
+            SharedPreferences.Editor _ed = _sp.edit();
+            _ed.putString("m_RouteId", m_RouteId);
+            _ed.commit();
+            }
+
 		super.onPause ();
 		}
 
@@ -312,6 +326,25 @@ public class PlayTriviaActivity
 	protected void onStart ()
 		{
 		super.onStart ();
+
+        SharedPreferences _sp = PreferenceManager.getDefaultSharedPreferences (this);
+        m_RouteId = _sp.getString("m_RouteId", "");
+
+        if (!m_RouteId.equals(""))
+            {
+            int i;
+            List<MediaRouter.RouteInfo> _list = m_MediaRouter.getRoutes();
+            Boolean reconnecting = false;
+            for (i = 0; i < _list.size(); i++)
+                {
+                if (m_RouteId.equals(_list.get(i).getId()))
+                    {
+                    // reconnect TODO
+                    reconnecting = true;
+                    }
+                }
+            }
+
 		// TODO: Should this be in onResume()?
 		m_MediaRouter.addCallback (m_MediaRouteSelector, m_MediaRouterCallback, MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
 
@@ -635,7 +668,7 @@ public class PlayTriviaActivity
 		public void onRouteSelected (MediaRouter router, MediaRouter.RouteInfo info)
 			{
 			mSelectedDevice = CastDevice.getFromBundle (info.getExtras ());
-			String routeId = info.getId ();
+			m_RouteId = info.getId ();  // save this for reconnects!
 			mCastClientListener = new Cast.Listener ()
 			{
 			@Override
@@ -676,8 +709,6 @@ public class PlayTriviaActivity
     public void onSaveInstanceState(Bundle savedInstanceState)
         {
         super.onSaveInstanceState(savedInstanceState);
-
-        savedInstanceState.putBoolean("fartbutt", true);
         // save all our important things
         /*savedInstanceState.put()
 
