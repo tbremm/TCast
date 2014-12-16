@@ -88,7 +88,7 @@ public class PlayTriviaActivity
 			                       .build ();
 		m_MediaRouterCallback = new MyMediaRouterCallback ();
 
-        chooseActivityContentView();
+        // do this in onStart() chooseActivityContentView();
 
         m_RouteId = "";
 
@@ -211,7 +211,7 @@ public class PlayTriviaActivity
 		if (m_WaitingForReconnect)
 			{
 			m_WaitingForReconnect = false;
-			reconnectChannels();
+			// fixme? TODO? maybe? reconnectChannels();
 			}
 		else
 			{
@@ -257,10 +257,6 @@ public class PlayTriviaActivity
 			}
         chooseActivityContentView();
 		}
-
-    private void reconnectChannels() {
-
-    }
 
 	@Override
 	public void onConnectionSuspended (int i)
@@ -339,8 +335,8 @@ public class PlayTriviaActivity
                 {
                 if (m_RouteId.equals(_list.get(i).getId()))
                     {
-                    // reconnect TODO
                     reconnecting = true;
+                    reconnectChannels(_list.get(i));
                     }
                 }
             }
@@ -348,7 +344,7 @@ public class PlayTriviaActivity
 		// TODO: Should this be in onResume()?
 		m_MediaRouter.addCallback (m_MediaRouteSelector, m_MediaRouterCallback, MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
 
-		// TODO chooseActivityContentView();
+		chooseActivityContentView();
 		}
 
 	/**
@@ -657,12 +653,13 @@ public class PlayTriviaActivity
 			}
 		}
 
-	private final class MyMediaRouterCallback
+
+    private CastDevice mSelectedDevice;
+    private Cast.Listener mCastClientListener;
+	public class MyMediaRouterCallback
 		extends MediaRouter.Callback
 		{
 		private final String TAG = "My Media Router Callback";
-		private CastDevice mSelectedDevice;
-		private Cast.Listener mCastClientListener;
 
 		@Override
 		public void onRouteSelected (MediaRouter router, MediaRouter.RouteInfo info)
@@ -670,33 +667,33 @@ public class PlayTriviaActivity
 			mSelectedDevice = CastDevice.getFromBundle (info.getExtras ());
 			m_RouteId = info.getId ();  // save this for reconnects!
 			mCastClientListener = new Cast.Listener ()
-			{
-			@Override
-			public void onApplicationStatusChanged ()
-				{
-				if (m_ApiClient != null)
-					{
-					Log.d (TAG, "onApplicationStatusChanged: " + Cast.CastApi.getApplicationStatus (m_ApiClient));
-					}
-				}
+			    {
+			    @Override
+			    public void onApplicationStatusChanged ()
+				    {
+				    if (m_ApiClient != null)
+					    {
+					    Log.d (TAG, "onApplicationStatusChanged: " + Cast.CastApi.getApplicationStatus (m_ApiClient));
+					    }
+				    }
 
-			@Override
-			public void onApplicationDisconnected (int errorCode)
-				{
-				Log.d (TAG, "Application Disconnected: " + errorCode);
-				setContentView (R.layout.activity_play_trivia_off);
-				// fixme teardown();
-				}
+			    @Override
+			    public void onApplicationDisconnected (int errorCode)
+				    {
+				    Log.d (TAG, "Application Disconnected: " + errorCode);
+				    setContentView (R.layout.activity_play_trivia_off);
+				    // fixme teardown();
+			    	}
 
-			@Override
-			public void onVolumeChanged ()
-				{
-				if (m_ApiClient != null)
-					{
-					Log.d (TAG, "onVolumeChanged: " + Cast.CastApi.getVolume (m_ApiClient));
-					}
-				}
-			};
+			    @Override
+			    public void onVolumeChanged ()
+				    {
+				    if (m_ApiClient != null)
+					    {
+					    Log.d (TAG, "onVolumeChanged: " + Cast.CastApi.getVolume (m_ApiClient));
+					    }
+				    }
+			    };
 			Cast.CastOptions.Builder apiOptionsBuilder = Cast.CastOptions.builder (mSelectedDevice, mCastClientListener);
 			m_ApiClient = new GoogleApiClient.Builder (PlayTriviaActivity.this).addApi (Cast.API, apiOptionsBuilder.build ())
 				              .addConnectionCallbacks (PlayTriviaActivity.this)
@@ -704,7 +701,52 @@ public class PlayTriviaActivity
 				              .build ();
 			m_ApiClient.connect ();
 			}
-		}
+        }
+
+    public void reconnectChannels(MediaRouter.RouteInfo info)
+        {
+        mSelectedDevice = CastDevice.getFromBundle (info.getExtras ());
+        m_RouteId = info.getId ();  // save this for reconnects!
+
+        // TODO: Unify this with the creation when we initial connect
+            mCastClientListener = new Cast.Listener ()
+            {
+                @Override
+                public void onApplicationStatusChanged ()
+                {
+                    if (m_ApiClient != null)
+                    {
+                        Log.d (TAG, "onApplicationStatusChanged: " + Cast.CastApi.getApplicationStatus (m_ApiClient));
+                    }
+                }
+
+                @Override
+                public void onApplicationDisconnected (int errorCode)
+                {
+                    Log.d (TAG, "Application Disconnected: " + errorCode);
+                    setContentView (R.layout.activity_play_trivia_off);
+                    // fixme teardown();
+                }
+
+                @Override
+                public void onVolumeChanged ()
+                {
+                    if (m_ApiClient != null)
+                    {
+                        Log.d (TAG, "onVolumeChanged: " + Cast.CastApi.getVolume (m_ApiClient));
+                    }
+                }
+            };
+
+
+        Cast.CastOptions.Builder apiOptionsBuilder = Cast.CastOptions.builder (mSelectedDevice, mCastClientListener);
+        m_ApiClient = new GoogleApiClient.Builder (PlayTriviaActivity.this).addApi (Cast.API, apiOptionsBuilder.build ())
+                .addConnectionCallbacks (PlayTriviaActivity.this)
+                .addOnConnectionFailedListener (PlayTriviaActivity.this)
+                .build ();
+        m_ApiClient.connect ();
+
+        }
 
     public void onSaveInstanceState(Bundle savedInstanceState)
         {
