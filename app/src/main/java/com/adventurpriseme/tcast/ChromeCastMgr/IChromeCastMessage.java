@@ -1,4 +1,4 @@
-package com.adventurpriseme.tcast.IChromeCast;
+package com.adventurpriseme.tcast.ChromeCastMgr;
 
 /**
  * Implement this class to interface with the chromecast receiver.

@@ -9,6 +9,4 @@ package com.adventurpriseme.tcast.GamesManager;
  * Copyright 12/17/2014 adventurpriseme.com
  */
 public interface IComms2Games
-	{
-	// TODO: Create Comms to Games interface
-	}
+	{}

@@ -30,7 +30,7 @@
 				android:value="com.adventurpriseme.tcast.MainActivity"/>
 		</activity>
 		<activity
-			android:name="com.adventurpriseme.tcast.TriviaPrefsActivity"
+			android:name=".TriviaGame.TriviaPrefsActivity"
 			android:label="@string/title_activity_trivia_prefs"
 			android:parentActivityName="com.adventurpriseme.tcast.PlayTriviaActivity">
 			<meta-data

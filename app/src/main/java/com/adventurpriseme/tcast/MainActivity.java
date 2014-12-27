@@ -3,10 +3,11 @@ package com.adventurpriseme.tcast;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import com.adventurpriseme.tcast.TriviaGame.TriviaPrefsActivity;
 
 public class MainActivity
 	extends Activity
@@ -20,12 +21,7 @@ public class MainActivity
 			{
 			getActionBar ().setDisplayHomeAsUpEnabled (true);
 			}
-		String str = "test";
-		changeString (str);
-		Log.e ("Pointer Test", str);
 		}
-
-	private void changeString (String str) {str = "I'm a new string!";}
 
 	@Override
 	public boolean onCreateOptionsMenu (Menu menu)

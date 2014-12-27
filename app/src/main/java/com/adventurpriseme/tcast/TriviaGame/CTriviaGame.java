@@ -1,17 +1,19 @@
-package com.adventurpriseme.tcast;
+package com.adventurpriseme.tcast.TriviaGame;
 
-import android.app.Activity;
+import com.adventurpriseme.tcast.GameInstanceMgr.IGamesMgr2Game;
+import com.adventurpriseme.tcast.GamesManager.IGame2GamesMgr;
+import com.adventurpriseme.tcast.PlayTriviaActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static com.adventurpriseme.tcast.CTriviaGame.TriviaGameState.CONNECTED;
-import static com.adventurpriseme.tcast.CTriviaGame.TriviaGameState.GOT_Q_AND_A;
-import static com.adventurpriseme.tcast.CTriviaGame.TriviaGameState.HOSTED;
-import static com.adventurpriseme.tcast.CTriviaGame.TriviaGameState.HOSTING;
-import static com.adventurpriseme.tcast.CTriviaGame.TriviaGameState.ROUND_LOSE;
-import static com.adventurpriseme.tcast.CTriviaGame.TriviaGameState.ROUND_WIN;
-import static com.adventurpriseme.tcast.CTriviaGame.TriviaGameState.WAITING;
+import static com.adventurpriseme.tcast.TriviaGame.CTriviaGame.TriviaGameState.CONNECTED;
+import static com.adventurpriseme.tcast.TriviaGame.CTriviaGame.TriviaGameState.GOT_Q_AND_A;
+import static com.adventurpriseme.tcast.TriviaGame.CTriviaGame.TriviaGameState.HOSTED;
+import static com.adventurpriseme.tcast.TriviaGame.CTriviaGame.TriviaGameState.HOSTING;
+import static com.adventurpriseme.tcast.TriviaGame.CTriviaGame.TriviaGameState.ROUND_LOSE;
+import static com.adventurpriseme.tcast.TriviaGame.CTriviaGame.TriviaGameState.ROUND_WIN;
+import static com.adventurpriseme.tcast.TriviaGame.CTriviaGame.TriviaGameState.WAITING;
 
 /**
  * This represents a trivia game.
@@ -22,6 +24,7 @@ import static com.adventurpriseme.tcast.CTriviaGame.TriviaGameState.WAITING;
  * Copyright 12/11/2014 adventurpriseme.com
  */
 public class CTriviaGame
+	implements IGamesMgr2Game
 	{
 	private static final String[] Q_AND_A_STRING_ARRAY         = new String[5];   // TODO: Don't hardcode this size
 	/**
@@ -38,19 +41,20 @@ public class CTriviaGame
 	private final static String   MSG_Q_AND_A                  = "qanda";
 	private final static String   MSG_ERROR                    = "error";
 	private final static String   MSG_WIN                      = "win";
-	private final static String   MSG_LOSE                     = "lose";
+	private final static String MSG_LOSE       = "lose";
 	// Key strings
 	private final static String   MSG_ROUND_TIMER              = "round timer";
 	private final static String   MSG_POSTROUND_TIMER          = "postround timer";
 	private final static String   MSG_PLAYER_NAME              = "player name";
 	private final static String   MSG_KEY_QUESTION             = "q";
-	private final static String   MSG_KEY_ANSWER               = "a";
+	private final static String MSG_KEY_ANSWER = "a";
 	// Message separators
 	private final static String   MSG_SPLIT_KEY_VALUE          = String.valueOf ('=');
 	private final static String   MSG_SPLIT_DATA               = String.valueOf ('|');
 	// Error messages
 	private final static String   MSG_ERROR_MSG                = "msg";
 	private final static String   MSG_ERROR_RECEIVED_EMPTY_MSG = "received empty message";
+	private IGame2GamesMgr m_gamesMgr;  // Games manager
 	// The caller's context
 	private PlayTriviaActivity m_activity;
 	private String             m_strMsgIn;
@@ -59,10 +63,11 @@ public class CTriviaGame
 	private ArrayList<String>  m_answers;
 	private TriviaGameState    m_eTriviaGameState;
 
-	public CTriviaGame (Activity activity)
+	public CTriviaGame (IGame2GamesMgr gamesMgr)
 		{
+		m_gamesMgr = gamesMgr;
 		m_strMsgOut = new ArrayList<String> ();    // TODO: Make this dependent on the type of question expected
-		m_activity = (PlayTriviaActivity) activity;
+		m_activity = (PlayTriviaActivity) gamesMgr.getActivity ();
 		m_question = "";
 		m_answers = new ArrayList<String> ();
 		setGameState (WAITING);

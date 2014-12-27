@@ -1,9 +1,9 @@
-package com.adventurpriseme.tcast;
+package com.adventurpriseme.tcast.ChromeCastMgr;
 
 import android.content.Context;
 import android.util.Log;
 
-import com.adventurpriseme.tcast.IChromeCast.IChromeCastMessage;
+import com.adventurpriseme.tcast.PlayTriviaActivity;
 import com.google.android.gms.cast.Cast;
 import com.google.android.gms.cast.CastDevice;
 

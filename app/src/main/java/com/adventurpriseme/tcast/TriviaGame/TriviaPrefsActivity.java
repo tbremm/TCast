@@ -1,4 +1,4 @@
-package com.adventurpriseme.tcast;
+package com.adventurpriseme.tcast.TriviaGame;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -12,6 +12,8 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
+
+import com.adventurpriseme.tcast.R;
 
 import java.util.List;
 

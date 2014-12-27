@@ -23,9 +23,14 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.adventurpriseme.tcast.ChromeCastMgr.CCastChannel;
+import com.adventurpriseme.tcast.ChromeCastMgr.IChromeCastMessage;
 import com.adventurpriseme.tcast.CommsMgr.CCommsManager;
+import com.adventurpriseme.tcast.CommsMgr.ECommChannelTypes;
 import com.adventurpriseme.tcast.GamesManager.CGamesManager;
-import com.adventurpriseme.tcast.IChromeCast.IChromeCastMessage;
+import com.adventurpriseme.tcast.GamesManager.ESupportedGames;
+import com.adventurpriseme.tcast.TriviaGame.CTriviaGame;
+import com.adventurpriseme.tcast.TriviaGame.TriviaPrefsActivity;
 import com.google.android.gms.cast.ApplicationMetadata;
 import com.google.android.gms.cast.Cast;
 import com.google.android.gms.cast.CastDevice;
@@ -51,15 +56,11 @@ public class PlayTriviaActivity
 	extends ActionBarActivity
 	implements IChromeCastMessage, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, Cast.MessageReceivedCallback
 	{
-	/** Manages communications handling */
 	private static final String   TAG                = "Trivia Activity";
 	private static final String[] EMPTY_STRING_ARRAY = new String[0];
-	//	final Context context = this;
 	private static MediaRouter.Callback m_MediaRouterCallback;
-	// Data members
-	private CGamesManager m_GamesMgr;
-	/** Manages game instances */
-	private CCommsManager m_CommsMgr;
+	private CGamesManager m_GamesMgr;   // Manages game instances
+	private CCommsManager m_CommsMgr;   // Manages communications handling
 	/** Data members */
 	private        CTriviaPlayer        m_cTriviaPlayer;
 	private        CTriviaGame          m_cTriviaGame;
@@ -124,16 +125,13 @@ public class PlayTriviaActivity
 	private void instantiateManagers ()
 		{
 		/** Must instantiate the manager objects before initializing them, because they will be initialized using instances of each other. */
-		m_GamesMgr = new CGamesManager ();  // Create a games manager
-		m_CommsMgr = new CCommsManager ();  // Create a communications manager
+		m_GamesMgr = new CGamesManager (this);  // Create a games manager
+		m_CommsMgr = new CCommsManager (ECommChannelTypes.CHROMECAST);  // Create a communications manager
+
 		/** Now the managers may be initialized */
-		m_GamesMgr.Initialize (m_CommsMgr); // Initialize the games manager
-		m_CommsMgr.Initialize (m_GamesMgr); // Initialize the comms manager/** Must instantiate the manager objects before initializing them, because they will be initialized using instances of each other. */
-		m_GamesMgr = new CGamesManager ();  // Create a games manager
-		m_CommsMgr = new CCommsManager ();  // Create a communications manager
-		/** Now the managers may be initialized */
-		m_GamesMgr.Initialize (m_CommsMgr); // Initialize the games manager
-		m_CommsMgr.Initialize (m_GamesMgr); // Initialize the comms manager
+		// TODO: Don't hard code the communication type selection. However, this is okay until we support another type of communication.
+		m_CommsMgr.Initialize (m_GamesMgr); // init the comms manager
+		m_GamesMgr.initCommunications (m_CommsMgr); // init the games manager
 		}
 
 	@Override
@@ -622,7 +620,7 @@ public class PlayTriviaActivity
 	public void onRestoreInstanceState (Bundle savedInstanceState)
 		{
 		super.onRestoreInstanceState (savedInstanceState);
-		m_test = savedInstanceState.getBoolean ("fartbutt");
+		m_test = savedInstanceState.getBoolean ("fartbutt");    // FIXME: fartbutt... hahahaha
 		}
 
 	/**
@@ -638,7 +636,10 @@ public class PlayTriviaActivity
 		// Create a new player
 		m_sharedPreferences = PreferenceManager.getDefaultSharedPreferences (this);
 		m_cTriviaPlayer = new CTriviaPlayer (m_sharedPreferences);
-		m_cTriviaGame = new CTriviaGame (this);
+		// FIXME: Fix game creation so that it is dependent on which game the user selects
+		// m_cTriviaGame = new CTriviaGame (this);
+		m_GamesMgr.initGame (ESupportedGames.TRIVIA);   // FIXME: Move this, don't hard code
+		m_cTriviaGame = (CTriviaGame) m_GamesMgr.getGameInstance ();  // FIXME: Shouldn't be using m_cTriviaGame here, this is just a shim for now
 		// TODO: We need to persist things like m_ApiClient in the onPause()/onStop() functions in order for this to really work
 		//chooseActivityContentView();
 		}
