@@ -23,6 +23,8 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.adventurpriseme.tcast.CommsMgr.CCommsManager;
+import com.adventurpriseme.tcast.GamesManager.CGamesManager;
 import com.adventurpriseme.tcast.IChromeCast.IChromeCastMessage;
 import com.google.android.gms.cast.ApplicationMetadata;
 import com.google.android.gms.cast.Cast;
@@ -49,10 +51,15 @@ public class PlayTriviaActivity
 	extends ActionBarActivity
 	implements IChromeCastMessage, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, Cast.MessageReceivedCallback
 	{
+	/** Manages communications handling */
 	private static final String   TAG                = "Trivia Activity";
 	private static final String[] EMPTY_STRING_ARRAY = new String[0];
 	//	final Context context = this;
 	private static MediaRouter.Callback m_MediaRouterCallback;
+	// Data members
+	private CGamesManager m_GamesMgr;
+	/** Manages game instances */
+	private CCommsManager m_CommsMgr;
 	/** Data members */
 	private        CTriviaPlayer        m_cTriviaPlayer;
 	private        CTriviaGame          m_cTriviaGame;
@@ -64,9 +71,10 @@ public class PlayTriviaActivity
 	private CCastChannel      m_CCastChannel;
 	private SharedPreferences m_sharedPreferences;
 	private Context m_context = this;
-
-    private String m_RouteId;
-
+	private String        m_RouteId;
+	private CastDevice    mSelectedDevice;
+	private Cast.Listener mCastClientListener;
+	private boolean m_test = false;
 
 	/**
 	 * Play Trivia Activity creator.
@@ -87,13 +95,11 @@ public class PlayTriviaActivity
 		m_MediaRouteSelector = new MediaRouteSelector.Builder ().addControlCategory (CastMediaControlIntent.categoryForCast ("53EAA363"))
 			                       .build ();
 		m_MediaRouterCallback = new MyMediaRouterCallback ();
-
-        // do this in onStart() chooseActivityContentView();
-
-        m_RouteId = "";
-
-        }
-
+		// do this in onStart() chooseActivityContentView();
+		m_RouteId = "";
+		// Create and initialize our game and comms managers
+		instantiateManagers ();
+		}
 
 	/**
 	 * Set up the {@link android.app.ActionBar}, if the API is available.
@@ -110,99 +116,38 @@ public class PlayTriviaActivity
 			}
 		}
 
+	/**
+	 * Create and initialize new Games and Comms managers.
+	 * <p/>
+	 * Instantiates a new m_GamesMgr and a new m_CommsMgr, and initializes each with each other.
+	 */
+	private void instantiateManagers ()
+		{
+		/** Must instantiate the manager objects before initializing them, because they will be initialized using instances of each other. */
+		m_GamesMgr = new CGamesManager ();  // Create a games manager
+		m_CommsMgr = new CCommsManager ();  // Create a communications manager
+		/** Now the managers may be initialized */
+		m_GamesMgr.Initialize (m_CommsMgr); // Initialize the games manager
+		m_CommsMgr.Initialize (m_GamesMgr); // Initialize the comms manager/** Must instantiate the manager objects before initializing them, because they will be initialized using instances of each other. */
+		m_GamesMgr = new CGamesManager ();  // Create a games manager
+		m_CommsMgr = new CCommsManager ();  // Create a communications manager
+		/** Now the managers may be initialized */
+		m_GamesMgr.Initialize (m_CommsMgr); // Initialize the games manager
+		m_CommsMgr.Initialize (m_GamesMgr); // Initialize the comms manager
+		}
+
 	@Override
 	protected void onStop ()
 		{
-		m_MediaRouter.removeCallback (m_MediaRouterCallback);
-        m_ApiClient.disconnect();
+		if (m_MediaRouter != null)
+			{
+			m_MediaRouter.removeCallback (m_MediaRouterCallback);
+			}
+		if (m_ApiClient != null)
+			{
+			m_ApiClient.disconnect ();
+			}
 		super.onStop ();
-		}
-
-	/**
-	 * Called after {@link this.onCreate()} has finished.
-	 *
-	 * @param savedInstanceState
-	 * 	(required)
-	 */
-	@Override
-	protected void onPostCreate (Bundle savedInstanceState)
-		{
-		super.onPostCreate (savedInstanceState);
-		// Create a new player
-		m_sharedPreferences = PreferenceManager.getDefaultSharedPreferences (this);
-		m_cTriviaPlayer = new CTriviaPlayer (m_sharedPreferences);
-		m_cTriviaGame = new CTriviaGame (this);
-		// TODO: We need to persist things like m_ApiClient in the onPause()/onStop() functions in order for this to really work
-        //chooseActivityContentView();
-		}
-
-    private void chooseActivityContentView ()
-        {
-        // Set the activity layout dependant on our connected state
-        if (m_ApiClient == null || !m_ApiClient.isConnected ())
-            {
-            setContentView (R.layout.activity_play_trivia_off);
-            }
-        else
-            {
-            setContentView (R.layout.activity_play_trivia_on);
-            }
-        }
-
-	@Override
-	public boolean onCreateOptionsMenu (Menu menu)
-		{
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater ().inflate (R.menu.menu_play_trivia, menu);
-		MenuItem mediaRouteMenuItem = menu.findItem (R.id.media_route_menu_item);
-		MediaRouteActionProvider mediaRouteActionProvider = (MediaRouteActionProvider) MenuItemCompat.getActionProvider (mediaRouteMenuItem);
-		mediaRouteActionProvider.setRouteSelector (m_MediaRouteSelector);
-		return true;
-		}
-
-	@Override
-	public boolean onOptionsItemSelected (MenuItem item)
-		{
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		switch (item.getItemId ())
-			{
-			case R.id.action_settings:
-			{
-			onSettingsSelected ();
-			return true;
-			}
-			case R.id.home:
-			{
-			// This ID represents the Home or Up button. In the case of this
-			// activity, the Up button is shown. Use NavUtils to allow users
-			// to navigate up one level in the application structure. For
-			// more details, see the Navigation pattern on Android Design:
-			//
-			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
-			//
-			NavUtils.navigateUpFromSameTask (this);
-			return true;
-			}
-			case R.id.action_about:
-			{
-			// Show an about dialog box with version info
-			CAboutDialog.Show (PlayTriviaActivity.this);
-			}
-			}
-		return super.onOptionsItemSelected (item);
-		}
-
-	/**
-	 * Action bar settings menu entry
-	 * <p/>
-	 * This will load the settings view.
-	 */
-	private void onSettingsSelected ()
-		{
-		Intent intent = new Intent (this, TriviaPrefsActivity.class);
-		startActivity (intent);
 		}
 
 	@Override
@@ -219,9 +164,8 @@ public class PlayTriviaActivity
 				{
 				// Give the channel our message object
 				m_CCastChannel = new CCastChannel (this);
-                LaunchOptions m_LaunchOptions = new LaunchOptions();
-                m_LaunchOptions.setRelaunchIfRunning(false);
-
+				LaunchOptions m_LaunchOptions = new LaunchOptions ();
+				m_LaunchOptions.setRelaunchIfRunning (false);
 				Cast.CastApi.launchApplication (m_ApiClient, "53EAA363", m_LaunchOptions)
 					.setResultCallback (new ResultCallback<Cast.ApplicationConnectionResult> ()
 					{
@@ -241,27 +185,40 @@ public class PlayTriviaActivity
 								Cast.CastApi.setMessageReceivedCallbacks (m_ApiClient, m_CCastChannel.getNamespace (), m_CCastChannel);
 								//sendMessage("http://gnosm.net/missilecommand/sounds/524
 								// .mp3");
-                                }
+								}
 							catch (IOException e)
-                                {
-                                Log.e(TAG, "Exception while creating channel", e);
-                                }
+								{
+								Log.e (TAG, "Exception while creating channel", e);
+								}
 							}
 						}
 					});
 				}
 			catch (Exception e)
-                {
-                Log.e(TAG, "Failed to launch application", e);
-                }
+				{
+				Log.e (TAG, "Failed to launch application", e);
+				}
 			}
-        chooseActivityContentView();
+		chooseActivityContentView ();
+		}
+
+	private void chooseActivityContentView ()
+		{
+		// Set the activity layout dependant on our connected state
+		if (m_ApiClient == null || !m_ApiClient.isConnected ())
+			{
+			setContentView (R.layout.activity_play_trivia_off);
+			}
+		else
+			{
+			setContentView (R.layout.activity_play_trivia_on);
+			}
 		}
 
 	@Override
 	public void onConnectionSuspended (int i)
 		{
-        // TODO
+		// TODO
 		m_WaitingForReconnect = true;
 		}
 
@@ -276,7 +233,7 @@ public class PlayTriviaActivity
 	public void onConnectionFailed (ConnectionResult connectionResult)
 		{
 		// TODO
-		chooseActivityContentView();
+		chooseActivityContentView ();
 		Log.e (TAG, "onConnectionFailed...");
 		}
 
@@ -288,15 +245,13 @@ public class PlayTriviaActivity
 			{
 			m_MediaRouter.removeCallback (m_MediaRouterCallback);
 			}
-
-        if (!m_RouteId.equals(""))
-            {
-            SharedPreferences _sp = PreferenceManager.getDefaultSharedPreferences (this);
-            SharedPreferences.Editor _ed = _sp.edit();
-            _ed.putString("m_RouteId", m_RouteId);
-            _ed.commit();
-            }
-
+		if (!m_RouteId.equals (""))
+			{
+			SharedPreferences _sp = PreferenceManager.getDefaultSharedPreferences (this);
+			SharedPreferences.Editor _ed = _sp.edit ();
+			_ed.putString ("m_RouteId", m_RouteId);
+			_ed.commit ();
+			}
 		super.onPause ();
 		}
 
@@ -306,45 +261,99 @@ public class PlayTriviaActivity
 		// TODO: Restore activity/game state here
 		super.onResume ();
 		m_MediaRouter.addCallback (m_MediaRouteSelector, m_MediaRouterCallback, MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
-
-        m_MediaRouter = MediaRouter.getInstance (getApplicationContext ());
-
-        // fixme - not really sure how to best save CC Connection info yet...
-        // this feels hacky and gross -GN
-        //if (m_ApiClientBuilt) {
-        //    m_ApiClient = this.getApiClient();
-        //}
-
+		m_MediaRouter = MediaRouter.getInstance (getApplicationContext ());
+		// fixme - not really sure how to best save CC Connection info yet...
+		// this feels hacky and gross -GN
+		//if (m_ApiClientBuilt) {
+		//    m_ApiClient = this.getApiClient();
+		//}
 		// TODO? chooseActivityContentView();
+		}
+
+	public void onSaveInstanceState (Bundle savedInstanceState)
+		{
+		super.onSaveInstanceState (savedInstanceState);
+		// save all our important things
+		/*savedInstanceState.put()
+
+
+            private        CTriviaPlayer        m_cTriviaPlayer;
+            private        CTriviaGame          m_cTriviaGame;
+            private        MediaRouter          m_MediaRouter;
+            private        MediaRouteSelector   m_MediaRouteSelector;
+            private        GoogleApiClient      m_ApiClient;
+            private boolean m_WaitingForReconnect = false;
+            private boolean m_ApplicationStarted  = false;
+            private CCastChannel      m_CCastChannel;
+            private SharedPreferences m_sharedPreferences;
+            private Context m_context = this;*/
 		}
 
 	@Override
 	protected void onStart ()
 		{
 		super.onStart ();
-
-        SharedPreferences _sp = PreferenceManager.getDefaultSharedPreferences (this);
-        m_RouteId = _sp.getString("m_RouteId", "");
-
-        if (!m_RouteId.equals(""))
-            {
-            int i;
-            List<MediaRouter.RouteInfo> _list = m_MediaRouter.getRoutes();
-            Boolean reconnecting = false;
-            for (i = 0; i < _list.size(); i++)
-                {
-                if (m_RouteId.equals(_list.get(i).getId()))
-                    {
-                    reconnecting = true;
-                    reconnectChannels(_list.get(i));
-                    }
-                }
-            }
-
+		SharedPreferences _sp = PreferenceManager.getDefaultSharedPreferences (this);
+		m_RouteId = _sp.getString ("m_RouteId", "");
+		if (!m_RouteId.equals (""))
+			{
+			int i;
+			List<MediaRouter.RouteInfo> _list = m_MediaRouter.getRoutes ();
+			Boolean reconnecting = false;
+			for (i = 0; i < _list.size (); i++)
+				{
+				if (m_RouteId.equals (_list.get (i)
+					                      .getId ()))
+					{
+					reconnecting = true;
+					reconnectChannels (_list.get (i));
+					}
+				}
+			}
 		// TODO: Should this be in onResume()?
 		m_MediaRouter.addCallback (m_MediaRouteSelector, m_MediaRouterCallback, MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
+		chooseActivityContentView ();
+		}
 
-		chooseActivityContentView();
+	public void reconnectChannels (MediaRouter.RouteInfo info)
+		{
+		mSelectedDevice = CastDevice.getFromBundle (info.getExtras ());
+		m_RouteId = info.getId ();  // save this for reconnects!
+		// TODO: Unify this with the creation when we initial connect
+		mCastClientListener = new Cast.Listener ()
+		{
+		@Override
+		public void onApplicationStatusChanged ()
+			{
+			if (m_ApiClient != null)
+				{
+				Log.d (TAG, "onApplicationStatusChanged: " + Cast.CastApi.getApplicationStatus (m_ApiClient));
+				}
+			}
+
+		@Override
+		public void onApplicationDisconnected (int errorCode)
+			{
+			Log.d (TAG, "Application Disconnected: " + errorCode);
+			setContentView (R.layout.activity_play_trivia_off);
+			// fixme teardown();
+			}
+
+		@Override
+		public void onVolumeChanged ()
+			{
+			if (m_ApiClient != null)
+				{
+				Log.d (TAG, "onVolumeChanged: " + Cast.CastApi.getVolume (m_ApiClient));
+				}
+			}
+		};
+		Cast.CastOptions.Builder apiOptionsBuilder = Cast.CastOptions.builder (mSelectedDevice, mCastClientListener);
+		m_ApiClient = new GoogleApiClient.Builder (PlayTriviaActivity.this).addApi (Cast.API, apiOptionsBuilder.build ())
+			              .addConnectionCallbacks (PlayTriviaActivity.this)
+			              .addOnConnectionFailedListener (PlayTriviaActivity.this)
+			              .build ();
+		m_ApiClient.connect ();
 		}
 
 	/**
@@ -384,7 +393,7 @@ public class PlayTriviaActivity
 					@Override
 					public void onClick (View view)
 						{
-                            m_cTriviaGame.requestHost();
+						m_cTriviaGame.requestHost ();
 						}
 					});
 					btnBeginNewRound.setVisibility (View.VISIBLE);
@@ -405,7 +414,7 @@ public class PlayTriviaActivity
 				@Override
 				public void onClick (View view)
 					{
-                    m_cTriviaGame.beginNewRound();
+					m_cTriviaGame.beginNewRound ();
 					}
 				});
 				btnBeginNewRound.setVisibility (View.VISIBLE);
@@ -425,9 +434,9 @@ public class PlayTriviaActivity
 				tvQuestion.setVisibility (View.VISIBLE);            // Make it visible
 				ArrayList<String> answers = m_cTriviaGame.getAnswers ();
 				rgAnswers.removeAllViews ();                        // Remove any pre-existing radio buttons
-				for (int i = 0; i < answers.size(); ++i)            // Add a radio button for each available answer
+				for (int i = 0; i < answers.size (); ++i)            // Add a radio button for each available answer
 					{
-					rgAnswers.addView (new CAnswerRadioButton (this, i, answers.get(i)));
+					rgAnswers.addView (new CAnswerRadioButton (this, i, answers.get (i)));
 					}
 				rgAnswers.setVisibility (View.VISIBLE);         // Make sure we see the buttons
 				if (m_cTriviaPlayer.isHosting ())               // Host gets to short-circuit the question
@@ -439,7 +448,7 @@ public class PlayTriviaActivity
 					@Override
 					public void onClick (View view)
 						{
-                        m_cTriviaGame.endRound();
+						m_cTriviaGame.endRound ();
 						}
 					});
 					AddButtonLayout (btnBeginNewRound, RelativeLayout.ALIGN_BASELINE); // Put button at the beginning of the screen
@@ -459,7 +468,7 @@ public class PlayTriviaActivity
 					@Override
 					public void onClick (View view)
 						{
-                            m_cTriviaGame.beginNewRound();
+						m_cTriviaGame.beginNewRound ();
 						}
 					});
 					AddButtonLayout (btnBeginNewRound, RelativeLayout.ALIGN_BASELINE); // Put button at the bottom of the screen
@@ -479,7 +488,7 @@ public class PlayTriviaActivity
 					@Override
 					public void onClick (View view)
 						{
-                            m_cTriviaGame.beginNewRound();
+						m_cTriviaGame.beginNewRound ();
 						}
 					});
 					AddButtonLayout (btnBeginNewRound, RelativeLayout.ALIGN_BASELINE); // Put button at the bottom of the screen
@@ -594,7 +603,7 @@ public class PlayTriviaActivity
 
 	public boolean getRoundTimerEnable ()
 		{
-        SharedPreferences temp = PreferenceManager.getDefaultSharedPreferences(this); // helpful for debug
+		SharedPreferences temp = PreferenceManager.getDefaultSharedPreferences (this); // helpful for debug
 		return PreferenceManager.getDefaultSharedPreferences (this)
 			       .getBoolean ("pref_host_checkbox_round_timer", true);
 		}
@@ -610,10 +619,91 @@ public class PlayTriviaActivity
 		return m_cTriviaPlayer;
 		}
 
+	public void onRestoreInstanceState (Bundle savedInstanceState)
+		{
+		super.onRestoreInstanceState (savedInstanceState);
+		m_test = savedInstanceState.getBoolean ("fartbutt");
+		}
+
+	/**
+	 * Called after {@link this.onCreate()} has finished.
+	 *
+	 * @param savedInstanceState
+	 * 	(required)
+	 */
+	@Override
+	protected void onPostCreate (Bundle savedInstanceState)
+		{
+		super.onPostCreate (savedInstanceState);
+		// Create a new player
+		m_sharedPreferences = PreferenceManager.getDefaultSharedPreferences (this);
+		m_cTriviaPlayer = new CTriviaPlayer (m_sharedPreferences);
+		m_cTriviaGame = new CTriviaGame (this);
+		// TODO: We need to persist things like m_ApiClient in the onPause()/onStop() functions in order for this to really work
+		//chooseActivityContentView();
+		}
+
+	@Override
+	public boolean onCreateOptionsMenu (Menu menu)
+		{
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater ().inflate (R.menu.menu_play_trivia, menu);
+		MenuItem mediaRouteMenuItem = menu.findItem (R.id.media_route_menu_item);
+		MediaRouteActionProvider mediaRouteActionProvider = (MediaRouteActionProvider) MenuItemCompat.getActionProvider (mediaRouteMenuItem);
+		mediaRouteActionProvider.setRouteSelector (m_MediaRouteSelector);
+		return true;
+		}
+
+	@Override
+	public boolean onOptionsItemSelected (MenuItem item)
+		{
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		switch (item.getItemId ())
+			{
+			case R.id.action_settings:
+			{
+			onSettingsSelected ();
+			return true;
+			}
+			case R.id.home:
+			{
+			// This ID represents the Home or Up button. In the case of this
+			// activity, the Up button is shown. Use NavUtils to allow users
+			// to navigate up one level in the application structure. For
+			// more details, see the Navigation pattern on Android Design:
+			//
+			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
+			//
+			NavUtils.navigateUpFromSameTask (this);
+			return true;
+			}
+			case R.id.action_about:
+			{
+			// Show an about dialog box with version info
+			CAboutDialog.Show (PlayTriviaActivity.this);
+			}
+			}
+		return super.onOptionsItemSelected (item);
+		}
+
+	/**
+	 * Action bar settings menu entry
+	 * <p/>
+	 * This will load the settings view.
+	 */
+	private void onSettingsSelected ()
+		{
+		Intent intent = new Intent (this, TriviaPrefsActivity.class);
+		startActivity (intent);
+		}
+
 	/**
 	 * Creates a radio button customized for a trivia answer
 	 */
-	private class CAnswerRadioButton extends RadioButton
+	private class CAnswerRadioButton
+		extends RadioButton
 		{
 		/**
 		 * Constructor for the button.
@@ -646,16 +736,12 @@ public class PlayTriviaActivity
 				((RadioGroup) view.getParent ()).check (view.getId ());                     // Check the radio button
 				m_cTriviaPlayer.setAnswer (((RadioButton) view).getText ()
 					                           .toString ());    // Save off the answer
-
-                m_cTriviaGame.sendAnswer(m_cTriviaPlayer.getAnswer());                          // Send the answer to the game server
+				m_cTriviaGame.sendAnswer (m_cTriviaPlayer.getAnswer ());                          // Send the answer to the game server
 				}
 			});
 			}
 		}
 
-
-    private CastDevice mSelectedDevice;
-    private Cast.Listener mCastClientListener;
 	public class MyMediaRouterCallback
 		extends MediaRouter.Callback
 		{
@@ -667,33 +753,33 @@ public class PlayTriviaActivity
 			mSelectedDevice = CastDevice.getFromBundle (info.getExtras ());
 			m_RouteId = info.getId ();  // save this for reconnects!
 			mCastClientListener = new Cast.Listener ()
-			    {
-			    @Override
-			    public void onApplicationStatusChanged ()
-				    {
-				    if (m_ApiClient != null)
-					    {
-					    Log.d (TAG, "onApplicationStatusChanged: " + Cast.CastApi.getApplicationStatus (m_ApiClient));
-					    }
-				    }
+			{
+			@Override
+			public void onApplicationStatusChanged ()
+				{
+				if (m_ApiClient != null)
+					{
+					Log.d (TAG, "onApplicationStatusChanged: " + Cast.CastApi.getApplicationStatus (m_ApiClient));
+					}
+				}
 
-			    @Override
-			    public void onApplicationDisconnected (int errorCode)
-				    {
-				    Log.d (TAG, "Application Disconnected: " + errorCode);
-				    setContentView (R.layout.activity_play_trivia_off);
-				    // fixme teardown();
-			    	}
+			@Override
+			public void onApplicationDisconnected (int errorCode)
+				{
+				Log.d (TAG, "Application Disconnected: " + errorCode);
+				setContentView (R.layout.activity_play_trivia_off);
+				// fixme teardown();
+				}
 
-			    @Override
-			    public void onVolumeChanged ()
-				    {
-				    if (m_ApiClient != null)
-					    {
-					    Log.d (TAG, "onVolumeChanged: " + Cast.CastApi.getVolume (m_ApiClient));
-					    }
-				    }
-			    };
+			@Override
+			public void onVolumeChanged ()
+				{
+				if (m_ApiClient != null)
+					{
+					Log.d (TAG, "onVolumeChanged: " + Cast.CastApi.getVolume (m_ApiClient));
+					}
+				}
+			};
 			Cast.CastOptions.Builder apiOptionsBuilder = Cast.CastOptions.builder (mSelectedDevice, mCastClientListener);
 			m_ApiClient = new GoogleApiClient.Builder (PlayTriviaActivity.this).addApi (Cast.API, apiOptionsBuilder.build ())
 				              .addConnectionCallbacks (PlayTriviaActivity.this)
@@ -701,81 +787,7 @@ public class PlayTriviaActivity
 				              .build ();
 			m_ApiClient.connect ();
 			}
-        }
-
-    public void reconnectChannels(MediaRouter.RouteInfo info)
-        {
-        mSelectedDevice = CastDevice.getFromBundle (info.getExtras ());
-        m_RouteId = info.getId ();  // save this for reconnects!
-
-        // TODO: Unify this with the creation when we initial connect
-            mCastClientListener = new Cast.Listener ()
-            {
-                @Override
-                public void onApplicationStatusChanged ()
-                {
-                    if (m_ApiClient != null)
-                    {
-                        Log.d (TAG, "onApplicationStatusChanged: " + Cast.CastApi.getApplicationStatus (m_ApiClient));
-                    }
-                }
-
-                @Override
-                public void onApplicationDisconnected (int errorCode)
-                {
-                    Log.d (TAG, "Application Disconnected: " + errorCode);
-                    setContentView (R.layout.activity_play_trivia_off);
-                    // fixme teardown();
-                }
-
-                @Override
-                public void onVolumeChanged ()
-                {
-                    if (m_ApiClient != null)
-                    {
-                        Log.d (TAG, "onVolumeChanged: " + Cast.CastApi.getVolume (m_ApiClient));
-                    }
-                }
-            };
-
-
-        Cast.CastOptions.Builder apiOptionsBuilder = Cast.CastOptions.builder (mSelectedDevice, mCastClientListener);
-        m_ApiClient = new GoogleApiClient.Builder (PlayTriviaActivity.this).addApi (Cast.API, apiOptionsBuilder.build ())
-                .addConnectionCallbacks (PlayTriviaActivity.this)
-                .addOnConnectionFailedListener (PlayTriviaActivity.this)
-                .build ();
-        m_ApiClient.connect ();
-
-        }
-
-    public void onSaveInstanceState(Bundle savedInstanceState)
-        {
-        super.onSaveInstanceState(savedInstanceState);
-        // save all our important things
-        /*savedInstanceState.put()
-
-
-            private        CTriviaPlayer        m_cTriviaPlayer;
-            private        CTriviaGame          m_cTriviaGame;
-            private        MediaRouter          m_MediaRouter;
-            private        MediaRouteSelector   m_MediaRouteSelector;
-            private        GoogleApiClient      m_ApiClient;
-            private boolean m_WaitingForReconnect = false;
-            private boolean m_ApplicationStarted  = false;
-            private CCastChannel      m_CCastChannel;
-            private SharedPreferences m_sharedPreferences;
-            private Context m_context = this;*/
-
-        }
-
-        private boolean m_test=false;
-    public void onRestoreInstanceState(Bundle savedInstanceState)
-        {
-            super.onRestoreInstanceState(savedInstanceState);
-
-            m_test = savedInstanceState.getBoolean("fartbutt");
-
-        }
+		}
 	}
 
 

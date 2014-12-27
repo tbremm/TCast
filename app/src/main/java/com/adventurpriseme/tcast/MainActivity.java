@@ -3,6 +3,7 @@ package com.adventurpriseme.tcast;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,7 +20,12 @@ public class MainActivity
 			{
 			getActionBar ().setDisplayHomeAsUpEnabled (true);
 			}
+		String str = "test";
+		changeString (str);
+		Log.e ("Pointer Test", str);
 		}
+
+	private void changeString (String str) {str = "I'm a new string!";}
 
 	@Override
 	public boolean onCreateOptionsMenu (Menu menu)
@@ -41,6 +47,7 @@ public class MainActivity
 			{
 			case R.id.action_settings:
 			{
+			onSettingsSelected ();
 			return true;
 			}
 			case R.id.action_about:
@@ -50,6 +57,17 @@ public class MainActivity
 			}
 			}
 		return super.onOptionsItemSelected (item);
+		}
+
+	/**
+	 * Action bar settings menu entry
+	 * <p/>
+	 * This will load the settings view.
+	 */
+	private void onSettingsSelected ()
+		{
+		Intent intent = new Intent (this, TriviaPrefsActivity.class);
+		startActivity (intent);
 		}
 
 	// onClick handler for the playgame button
