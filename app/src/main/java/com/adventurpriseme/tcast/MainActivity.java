@@ -3,15 +3,23 @@ package com.adventurpriseme.tcast;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.GridView;
 
+import com.adventurpriseme.tcast.CustomGridView.CustomGridAdapter;
 import com.adventurpriseme.tcast.TriviaGame.TriviaPrefsActivity;
 
 public class MainActivity
 	extends Activity
 	{
+	public static final  String   TAG       = "CastMe Main Activity";
+	private static final String[] GRID_DATA = new String[] {"Trivia", "Game 2", "Game 3", "Game 4", "Enders Game"};
+	private GridView m_gridView;
+
 	@Override
 	protected void onCreate (Bundle savedInstanceState)
 		{
@@ -21,6 +29,26 @@ public class MainActivity
 			{
 			getActionBar ().setDisplayHomeAsUpEnabled (true);
 			}
+		// Get the gridview object from xml
+		m_gridView = (GridView) findViewById (R.id.main_layout);
+		// Set gridview custom adapter
+		m_gridView.setAdapter (new CustomGridAdapter (this, GRID_DATA));
+		m_gridView.setOnItemClickListener (new AdapterView.OnItemClickListener ()
+		{
+		@Override
+		public void onItemClick (AdapterView<?> parent, View view, int pos, long id)
+			{
+			switch (pos)
+				{
+				case 0:
+					playGame_Trivia ();
+					break;
+				default:
+					Log.e (TAG, "ERROR: Unhandled grid selection...");
+					break;
+				}
+			}
+		});
 		}
 
 	@Override
@@ -66,11 +94,16 @@ public class MainActivity
 		startActivity (intent);
 		}
 
-	// onClick handler for the playgame button
-	// This launches the trivia game entry intent
-	public void onPlayGame (View view)
+	public void playGame_Trivia ()
 		{
 		Intent intent = new Intent (this, PlayTriviaActivity.class);
 		startActivity (intent);
+		}
+
+	// onClick handler for the playgame button
+	// This launches the trivia game entry intent
+	public void onPlayGame_Trivia (View view)
+		{
+		playGame_Trivia ();
 		}
 	}

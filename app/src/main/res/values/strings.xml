@@ -39,5 +39,6 @@
 	<string name="next_question">Next Question!</string>
 	<string name="waiting_for_host">Waiting for host...</string>
 	<string name="finish_round">Finish round</string>
+	<string name="playTrivia">Play Trivia!</string>
 
 </resources>
