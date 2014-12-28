@@ -66,11 +66,11 @@ public class CustomGridAdapter
 			String arrLabel = gridValues[position];
 			if (arrLabel.equals ("Trivia"))
 				{
-				imageView.setImageResource (R.drawable.triviacast_logo);
+				imageView.setImageResource (R.drawable.logo_triviacast);
 				}
 			else
 				{
-				imageView.setImageResource (R.drawable.ic_launcher);    // FIXME: Make a better resource
+				imageView.setImageResource (R.drawable.ic_castme_logo);    // FIXME: Make a better resource
 				}
 			}
 		else
