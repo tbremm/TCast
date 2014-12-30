@@ -10,7 +10,7 @@
 
 			var gameState;
 			// possibilities for game state
-			
+
 			var GAME_PENDING = 0;   // game has not started
 			var HOST_SELECTED = 1;	// host selected
 			var ROUND = 2;  // question is up, timer ticking
@@ -36,43 +36,44 @@
 			// commands from phones -> web
             var TRUE = "true";					// for an answer of 'true'
             var FALSE = "false";				// for an answer of 'false'
-			var CONNECTED = "connected";		// message to let us know phone connected - also echoed back
+			var CONNECTED = "connected";		// message to let us know phone connected
+			var ACK_CONNECTED = "ack connected";    // received from sender after it gets CONNECTED
 			var HOST_REQUEST = "request host";	// phone requesting to be host
 			var CONFIG = "config";				// configuration message from host
 			var BEGIN_ROUND = "begin round";	// begin a round, sent from host
 			var END_ROUND = "end round";		// end a round, sent from host
 			var ANSWER = "a";					// answer from a phone
-			
+
 			// commands from web -> phones
-			var HOST_ACK = "host";				// let phone know they are the host	
+			var HOST_ACK = "host";				// let phone know they are the host
 			var GAME_HOSTED = "hosted";			// let non-host phones know that host has been selected
-			
+
             var WIN = "win";
             var LOSE = "lose";
 
-			getPlayerIndexById = function(id) 
+			getPlayerIndexById = function(id)
 				{
 				var i;
-				for (i = 0; i < players.length; i++) 
+				for (i = 0; i < players.length; i++)
 					{
-					if (players[i].id = id) 
+					if (players[i].id = id)
 						{
 						return i;
 						}
 					}
 				}
-				
+
 			triviaMessageReceived = function(id, data)
 				{
 			    // do stuff
 				var senderIndex = getPlayerIndexById(id);
-				
+
 				//players.indexOf(id);
-				
+
 				if (senderIndex > -1)
 					{
 					var data_split = data.split('|');
-					
+
 					var command = data_split[0].toLowerCase();
 					var cmd_split = command.split('=');
 					var switch_arg;
@@ -83,23 +84,24 @@
 						case ANSWER:
 							{
 							players[senderIndex].answer = cmd_split[1];
+							break;
 							}
 						case HOST_REQUEST:
 							{
-							if (gameState == GAME_PENDING) 
+							if (gameState == GAME_PENDING)
 								{
 								// select host - first person who gets here
 								hostID = players[senderIndex].id;
 								gameState = HOST_SELECTED;
-									
+
 								var i;
-								for (i = 0; i < players.length; i++) 
+								for (i = 0; i < players.length; i++)
 									{
-									if (players[i].id == hostID) 
+									if (players[i].id == hostID)
 										{
 										triviaSendMessage(players[i].id, HOST_ACK);
-										} 
-									else 
+										}
+									else
 										{
 										triviaSendMessage(players[i].id, GAME_HOSTED);
 										}
@@ -109,7 +111,7 @@
 							}
 						case BEGIN_ROUND:
 							{
-							if (gameState == HOST_SELECTED || ((gameState == POST_ROUND) && !round_timer_enable)) 
+							if (gameState == HOST_SELECTED || ((gameState == POST_ROUND) && !round_timer_enable))
 								{
 								// fixme - this is awkward as fuck
 								var j;
@@ -120,16 +122,16 @@
 									if (j != (data_split.length - 2)) {
 										arg += "|";
 									}
-								}	
+								}
 								configureTrivia(arg, id); // dont allow in questions? fixme todo
-								
+
 								resetRound();
 								doRound();
 								}
 							break;
 							}
 						case CONFIG:
-							{	
+							{
 							// fixme todo : do configuration here, in data_splits[1]
 							// fixme todo : add in conditions so config can / cant change on the fly
 							// fixme - this is awkward as fuck
@@ -143,7 +145,7 @@
 							}
 						case END_ROUND:
 							{
-							if ((gameState == ROUND) && !postround_timer_enable) 
+							if ((gameState == ROUND) && !postround_timer_enable)
 								{
 								endRound();
 								}
@@ -155,11 +157,12 @@
 							}
 						}
 					}
-				}	
+				}
 
 			triviaOnDisconnect = function(id) {
 			    // do stuff
 			    var ind = getPlayerIndexById(id);//players.indexOf(id);
+			    console.log ("Player disconnected: " + getPlayerIndexById (id));
 			    // fixme todo players.splice(ind, 1);
 			    //if (players.length == 0) {
 			    //    setGamePending();
@@ -167,22 +170,33 @@
 			}
 
 			var readyForMessages = true; // todo
-			triviaOnConnect = function(id) {
-			    // do stuff
-                // temp
-				if (readyForMessages) {
-					sendCastMessage(id, "connected");
-				}
-				if (players.length == 0) {
-					setGamePending();
-				}
-				
+			triviaOnConnect = function(id)
+				{
+				var i;
+				for (i = 0; i < players.length; i++)
+					{
+					if (id == players[i].id)
+						{
+						console.log ("ERROR: Player with id \'" + id + "\' already connected as: \'" + players[i].name + "\'");
+						return;
+						// TODO: Handle a reconnect
+						}
+					}
 				var _new_player = new Object();
 				_new_player.id = id;
-				
+
 				players.push(_new_player);
+
+				if (players.length == 1)
+					{
+                	setGamePending();
+                	}
+                if (readyForMessages)
+	                {
+	                sendCastMessage(id, "connected");
+	                }
 			    //doRound();
-			}
+				}
 
 			triviaSendMessage = function(id, msg) {
 			    // do stuff
@@ -196,7 +210,7 @@
 		        qbox.style.opacity = 1.0;
 				qbox.innerHTML = "Game Pending...";
 			}
-			
+
 			var round_timer_enable = true;
 			var postround_timer_enable = true;
 			configureTrivia = function(cfg, senderId) {
@@ -205,18 +219,18 @@
 				var i;
 				for (i = 0; i < cfg_options.length; i++){
 					var option = cfg_options[i];
-	
+
 					var option_split = option.split('=');
 					var switch_arg;
 					switch_arg = option_split[0];
-					
+
 					switch (switch_arg) {
 						case "round timer": {
 							if (option_split[1] == "true") {
 								if ((gameState == ROUND) && !round_timer_enable) {
 									// timer resets upon this change - does not hold state
 									startRoundTimer();
-								}	
+								}
 								round_timer_enable = true;
 							} else if (option_split[1] == "false") {
 								if ((gameState == ROUND) && round_timer_enable) {
@@ -242,11 +256,16 @@
 						} case "player name": {
 							var ind = getPlayerIndexById(senderId);
 							players[ind].name = option_split[1];
-						}	
-						
+							break;
+						} default:
+							{
+							break;
+							}
+
+
 					}
 				}
-					
+
 			}
 
 			doRound = function() {
@@ -287,12 +306,12 @@
 										"|a=" + a2 +
 										"|a=" + a3 +
 										"|a=" + a4;
-										
+
 						    triviaSendMessage(players[i].id, msg);
 					    }
 						fadeStartTime = $.now();
 						fadeInVar = setInterval(fadeIn, 50);
-						
+
 					},
 					error: function(xhr, desc, err) {
 						console.log(xhr);
@@ -304,7 +323,7 @@
 			endRound = function () {
 				var qbox = document.getElementById("qbox");
 				qbox.innerHTML = (qbox.innerHTML + "<br>" + "Answer: " + roundAnswer);
-		        
+
                 gameState = POST_ROUND;
 
 			    var i;
@@ -319,7 +338,7 @@
 						// todo decrement scores sometimes?
 					}
 			    }
-				
+
 				startPostRouteTimer();
 			}
 
@@ -335,7 +354,7 @@
 					}, 50);
 				}
 			}
-						
+
 			function fadeIn () {
 				var totalTime = 2000; // 2 second fade in
 				var thisTime = $.now();
@@ -382,5 +401,5 @@
 						// no need to send timeout message triviaSendMessage(players[i].id, "timeout");
 					//} no need for this for loop - win/loss message will make it clear the round is over
 					endRound(); // fixme todo - give phones time to give last-seond answer?
-				} 
+				}
 			}

@@ -31,7 +31,6 @@
 				<div id="aboxtext">
 				</div>
 			</div>
+			<div id="timer">100</div>
 		</div>
-		<div id="timer">100</div>
-	</body>	
-	
+	</body>

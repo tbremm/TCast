@@ -1,5 +1,7 @@
 package com.adventurpriseme.tcast.TriviaGame;
 
+import android.util.Log;
+
 import com.adventurpriseme.tcast.GameInstanceMgr.IGamesMgr2Game;
 import com.adventurpriseme.tcast.GamesManager.IGame2GamesMgr;
 import com.adventurpriseme.tcast.PlayTriviaActivity;
@@ -31,7 +33,10 @@ public class CTriviaGame
 	 * Strings used for communication with the web.
 	 */
 	// Command strings
+	private final static String   TAG                          = "CTriviaGame";
+	private final static String   MSG_READY                    = "ready";
 	private final static String   MSG_CONNECTED                = "connected";
+	private final static String   MSG_ACK_CONNECTED            = "ack connected";
 	private final static String   MSG_REQUEST_HOST             = "request host";
 	private final static String   MSG_HOST                     = "host";
 	private final static String   MSG_HOSTED                   = "hosted";
@@ -41,20 +46,21 @@ public class CTriviaGame
 	private final static String   MSG_Q_AND_A                  = "qanda";
 	private final static String   MSG_ERROR                    = "error";
 	private final static String   MSG_WIN                      = "win";
-	private final static String MSG_LOSE       = "lose";
+	private final static String   MSG_LOSE                     = "lose";
 	// Key strings
 	private final static String   MSG_ROUND_TIMER              = "round timer";
 	private final static String   MSG_POSTROUND_TIMER          = "postround timer";
 	private final static String   MSG_PLAYER_NAME              = "player name";
 	private final static String   MSG_KEY_QUESTION             = "q";
-	private final static String MSG_KEY_ANSWER = "a";
+	private final static String   MSG_KEY_ANSWER               = "a";
 	// Message separators
 	private final static String   MSG_SPLIT_KEY_VALUE          = String.valueOf ('=');
 	private final static String   MSG_SPLIT_DATA               = String.valueOf ('|');
 	// Error messages
 	private final static String   MSG_ERROR_MSG                = "msg";
 	private final static String   MSG_ERROR_RECEIVED_EMPTY_MSG = "received empty message";
-	private IGame2GamesMgr m_gamesMgr;  // Games manager
+	private static final String   MSG_ACK_READY                = "ack ready";
+	private IGame2GamesMgr     m_gamesMgr;  // Games manager
 	// The caller's context
 	private PlayTriviaActivity m_activity;
 	private String             m_strMsgIn;
@@ -109,6 +115,7 @@ public class CTriviaGame
 		ArrayList<String> inMsgSplit = new ArrayList<String> (Arrays.asList (strMsgIn.split ("\\" + MSG_SPLIT_DATA)));
 		ArrayList<String> messageOut = new ArrayList<String> ();
 		messageOut.clear ();
+		// Error handling
 		if (inMsgSplit.size () < 1)
 			{
 			messageOut.add (MSG_ERROR);
@@ -117,11 +124,11 @@ public class CTriviaGame
 			m_activity.updateUI (TriviaGameState.ERROR);
 			return;
 			}
+		// Process the message
 		if (inMsgSplit.get (0)
 			    .equals (MSG_CONNECTED))
 			{
-			messageOut.add (MSG_CONNECTED);
-			m_activity.sendMessage (formatMessage (messageOut));
+			// Don't need to send anything yet, just update the UI
 			m_activity.updateUI (CONNECTED);
 			}
 		else if (inMsgSplit.get (0)
@@ -180,6 +187,7 @@ public class CTriviaGame
 		else
 			{
 			// TODO: Handle unexpected command
+			Log.e (TAG, "Unhandled message received: " + inMsgSplit.get (0));
 			}
 		}
 
@@ -225,7 +233,7 @@ public class CTriviaGame
 
 	public void requestHost ()
 		{
-		m_activity.sendMessage ("request host");
+		m_activity.sendMessage (MSG_REQUEST_HOST);
 		}
 
 	public String getQuestion ()
@@ -242,6 +250,7 @@ public class CTriviaGame
 	public static enum TriviaGameState
 		{
 			WAITING,
+			READY,
 			CONNECTED,
 			HOSTING,
 			HOSTED,
