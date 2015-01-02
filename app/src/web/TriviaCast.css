@@ -1,5 +1,5 @@
 body {
-	background-color: #000000;
+	background-color: #ACACAC;
 }
 
 #container {
@@ -35,10 +35,10 @@ body {
 
 #timer {
 	position: fixed;
-	color: yellow;
+	background-color: #E62E00;
 	opacity: 1.0;
-	bottom: 25%;
-	right: 50%;
+	bottom: 10;
+	right: 10;
 }
 
 #abox {

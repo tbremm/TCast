@@ -15,7 +15,7 @@
 	<!--
 	<body onload="init()">
 		<div align="center">
-		<canvas id="canvas" width="500" height="600" style="background-color: #000000">
+		<canvas id="canvas" width="500" height="600" style="background-color: #ACACAC">
 			HTML5 canvas not supported. shit.
 		</canvas>
 		</div>
@@ -30,7 +30,7 @@
 			<div id="abox">
 				<div id="aboxtext">
 				</div>
+				<div id="timer" style="background-color:#199E5C">Timer</div>
 			</div>
-			<div id="timer">100</div>
 		</div>
 	</body>
