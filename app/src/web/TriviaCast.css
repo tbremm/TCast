@@ -35,8 +35,10 @@ body {
 
 #timer {
 	position: fixed;
-	bottom: 0;
-	right: 0;
+	color: yellow;
+	opacity: 1.0;
+	bottom: 25%;
+	right: 50%;
 }
 
 #abox {

@@ -379,6 +379,10 @@ public class PlayTriviaActivity
 		// TODO Add an onCheckedChangeListener to handle button graphical state?
 		switch (state)
 			{
+			case WAITING:
+				break;
+			case READY:
+				break;
 			case CONNECTED:
 				// Clear the display of UI elements
 				setAllUiElements_Visibility (View.INVISIBLE);
@@ -394,6 +398,7 @@ public class PlayTriviaActivity
 						m_cTriviaGame.requestHost ();
 						}
 					});
+					AddButtonLayout (btnBeginNewRound, RelativeLayout.CENTER_IN_PARENT); // Put button in the center of the screen
 					btnBeginNewRound.setVisibility (View.VISIBLE);
 					}
 				else
@@ -415,9 +420,10 @@ public class PlayTriviaActivity
 					m_cTriviaGame.beginNewRound ();
 					}
 				});
+				AddButtonLayout (btnBeginNewRound, RelativeLayout.CENTER_IN_PARENT); // Put button in the center of the screen
 				btnBeginNewRound.setVisibility (View.VISIBLE);
 				break;
-			case HOSTED:
+			case HOSTED:    // The game is already hosted, waiting to start
 				// Clear the display of UI elements
 				setAllUiElements_Visibility (View.INVISIBLE);
 				m_cTriviaPlayer.setIsHosting (false);
@@ -426,7 +432,7 @@ public class PlayTriviaActivity
 				break;
 			case GOT_Q_AND_A:
 				setAllUiElements_Visibility (View.INVISIBLE);       // Clear the display of UI elements
-				tvPlayTitle.setText (R.string.true_or_false);       // Create the title text
+				tvPlayTitle.setText (getString (R.string.select_an_answer));       // Create the title text
 				tvPlayTitle.setVisibility (View.VISIBLE);           // Make it visible
 				tvQuestion.setText (m_cTriviaGame.getQuestion ());   // Create the question text
 				tvQuestion.setVisibility (View.VISIBLE);            // Make it visible
@@ -459,7 +465,7 @@ public class PlayTriviaActivity
 				tvPlayTitle.setVisibility (View.VISIBLE);
 				if (m_cTriviaPlayer.isHosting ())               // Host gets to short-circuit the question
 					{
-					btnBeginNewRound.setText (getString (R.string.finish_round));
+					btnBeginNewRound.setText (getString (R.string.btn_new_round));
 					btnBeginNewRound.setVisibility (View.VISIBLE);
 					btnBeginNewRound.setOnClickListener (new View.OnClickListener ()    // TODO: Investigate if we have to remove old listeners here (possible leak?)
 					{
@@ -479,7 +485,7 @@ public class PlayTriviaActivity
 				tvPlayTitle.setVisibility (View.VISIBLE);
 				if (m_cTriviaPlayer.isHosting ())               // Host gets to short-circuit the question
 					{
-					btnBeginNewRound.setText (getString (R.string.finish_round));
+					btnBeginNewRound.setText (getString (R.string.btn_new_round));
 					btnBeginNewRound.setVisibility (View.VISIBLE);
 					btnBeginNewRound.setOnClickListener (new View.OnClickListener ()    // TODO: Investigate if we have to remove old listeners here (possible leak?)
 					{

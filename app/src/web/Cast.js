@@ -39,19 +39,17 @@
             // **********************************************
             // handler for 'senderdisconnected' event
             // **********************************************
-            castReceiverManager.onSenderDisconnected = function (event) {
+            castReceiverManager.onSenderDisconnected = function (event)
+                {
                 displayDebug ('Received Sender Disconnected event: ' + event.data);
-                if (window.castReceiverManager.getSenders ().length == 0) {
-                    window.close ();
-
-                }
-                displayDebug ("onSenderDisconnected");
-
-				// TODO: STUFF ON DISCONNECT HERE
-
-                // CALL INTO TRIVIA
+                // Let trivia tear down
                 triviaOnDisconnect(event.senderId);
-            };
+                if (window.castReceiverManager.getSenders ().length == 0)
+                    {
+                    window.close ();
+                    }
+                displayDebug ("onSenderDisconnected");
+                };
 
             // **********************************************
             // handler for 'systemvolumechanged' event
@@ -76,8 +74,6 @@
                 // TODO: Remove debugging code
                 displayDebug ('Message [' + event.senderId + ']: ' + event.data);    // Output debug info
                 displayMessage (event.data);                                         // Output raw message to screen for debug
-
-				// TODO: DO GAME STUFF HERE
 
                 // CALL INTO TRIVIA
                 triviaMessageReceived(event.senderId, event.data);

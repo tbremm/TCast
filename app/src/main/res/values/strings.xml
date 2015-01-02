@@ -40,5 +40,7 @@
 	<string name="waiting_for_host">Waiting for host...</string>
 	<string name="finish_round">Finish round</string>
 	<string name="playTrivia">Play Trivia!</string>
+	<string name="btn_new_round">New Round!</string>
+	<string name="select_an_answer">Select an answer!</string>
 
 </resources>

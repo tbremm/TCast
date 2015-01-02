@@ -210,12 +210,16 @@ public class CTriviaGame
 	public void beginNewRound ()
 		{
 		// TODO: Should wrap all configuration into a single object to be passed around -GN
+		// Set the round timer
 		String enableRoundTimer = MSG_ROUND_TIMER + MSG_SPLIT_KEY_VALUE +
 		                          String.valueOf (m_activity.getRoundTimerEnable ());
+		// Set the post round timer
 		String enablePostRoundTimer = MSG_POSTROUND_TIMER + MSG_SPLIT_KEY_VALUE +
 		                              String.valueOf (m_activity.getPostRoundTimerEnable ());
+		// Set the player's name
 		String playerName = MSG_PLAYER_NAME + MSG_SPLIT_KEY_VALUE +
 		                    String.valueOf (m_activity.getPlayerName ());
+		// Send the game start packet
 		m_activity.sendMessage (MSG_BEGIN_ROUND + MSG_SPLIT_DATA + enableRoundTimer +
 		                        MSG_SPLIT_DATA + enablePostRoundTimer +
 		                        MSG_SPLIT_DATA + playerName);
@@ -226,9 +230,30 @@ public class CTriviaGame
 		m_activity.sendMessage (MSG_END_ROUND);
 		}
 
+	/**
+	 * Send the user's answer to the web server.
+	 *
+	 * @param answer
+	 * 	(required) String  The player's answer to send
+	 */
 	public void sendAnswer (String answer)
 		{
-		m_activity.sendMessage (MSG_KEY_ANSWER + MSG_SPLIT_KEY_VALUE + answer);
+		m_activity.sendMessage (formatAnswer (answer));
+		}
+
+	/**
+	 * Formats a user's answer so that the web server can parse it.
+	 * <p/>
+	 * Current answer message format is:
+	 * "a|answer"
+	 *
+	 * @param answer
+	 *
+	 * @return String  Formatted answer
+	 */
+	public String formatAnswer (String answer)
+		{
+		return (MSG_KEY_ANSWER + MSG_SPLIT_DATA + answer);
 		}
 
 	public void requestHost ()
