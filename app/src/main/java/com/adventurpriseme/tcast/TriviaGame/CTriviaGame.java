@@ -9,13 +9,28 @@ import com.adventurpriseme.tcast.PlayTriviaActivity;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static com.adventurpriseme.tcast.TriviaGame.CTriviaGame.TriviaGameState.CONNECTED;
-import static com.adventurpriseme.tcast.TriviaGame.CTriviaGame.TriviaGameState.GOT_Q_AND_A;
-import static com.adventurpriseme.tcast.TriviaGame.CTriviaGame.TriviaGameState.HOSTED;
-import static com.adventurpriseme.tcast.TriviaGame.CTriviaGame.TriviaGameState.HOSTING;
-import static com.adventurpriseme.tcast.TriviaGame.CTriviaGame.TriviaGameState.ROUND_LOSE;
-import static com.adventurpriseme.tcast.TriviaGame.CTriviaGame.TriviaGameState.ROUND_WIN;
-import static com.adventurpriseme.tcast.TriviaGame.CTriviaGame.TriviaGameState.WAITING;
+import static com.adventurpriseme.tcast.TriviaGame.EConfigKeys.MSG_KEY_ANSWER;
+import static com.adventurpriseme.tcast.TriviaGame.EConfigKeys.MSG_KEY_PLAYER_NAME;
+import static com.adventurpriseme.tcast.TriviaGame.EConfigKeys.MSG_KEY_POSTROUND_TIMER;
+import static com.adventurpriseme.tcast.TriviaGame.EConfigKeys.MSG_KEY_QUESTION;
+import static com.adventurpriseme.tcast.TriviaGame.EConfigKeys.MSG_KEY_ROUND_TIMER;
+import static com.adventurpriseme.tcast.TriviaGame.EErrorMessages.MSG_ERROR;
+import static com.adventurpriseme.tcast.TriviaGame.EErrorMessages.MSG_ERROR_MSG;
+import static com.adventurpriseme.tcast.TriviaGame.EErrorMessages.MSG_ERROR_RECEIVED_EMPTY_MSG;
+import static com.adventurpriseme.tcast.TriviaGame.EMessageDelimiters.MSG_SPLIT_DATA;
+import static com.adventurpriseme.tcast.TriviaGame.EMessageDelimiters.MSG_SPLIT_KEY_VALUE;
+import static com.adventurpriseme.tcast.TriviaGame.ETriviaGameStates.CONNECTED;
+import static com.adventurpriseme.tcast.TriviaGame.ETriviaGameStates.GET_CONFIG;
+import static com.adventurpriseme.tcast.TriviaGame.ETriviaGameStates.GOT_Q_AND_A;
+import static com.adventurpriseme.tcast.TriviaGame.ETriviaGameStates.HOSTED;
+import static com.adventurpriseme.tcast.TriviaGame.ETriviaGameStates.HOSTING;
+import static com.adventurpriseme.tcast.TriviaGame.ETriviaGameStates.ROUND_LOSE;
+import static com.adventurpriseme.tcast.TriviaGame.ETriviaGameStates.ROUND_WIN;
+import static com.adventurpriseme.tcast.TriviaGame.ETriviaGameStates.WAITING;
+import static com.adventurpriseme.tcast.TriviaGame.ETriviaMessagesToServer.MSG_BEGIN_ROUND;
+import static com.adventurpriseme.tcast.TriviaGame.ETriviaMessagesToServer.MSG_CONFIG;
+import static com.adventurpriseme.tcast.TriviaGame.ETriviaMessagesToServer.MSG_END_ROUND;
+import static com.adventurpriseme.tcast.TriviaGame.ETriviaMessagesToServer.MSG_REQUEST_HOST;
 
 /**
  * This represents a trivia game.
@@ -28,38 +43,9 @@ import static com.adventurpriseme.tcast.TriviaGame.CTriviaGame.TriviaGameState.W
 public class CTriviaGame
 	implements IGamesMgr2Game
 	{
-	private static final String[] Q_AND_A_STRING_ARRAY         = new String[5];   // TODO: Don't hardcode this size
-	/**
-	 * Strings used for communication with the web.
-	 */
-	// Command strings
-	private final static String   TAG                          = "CTriviaGame";
-	private final static String   MSG_READY                    = "ready";
-	private final static String   MSG_CONNECTED                = "connected";
-	private final static String   MSG_ACK_CONNECTED            = "ack connected";
-	private final static String   MSG_REQUEST_HOST             = "request host";
-	private final static String   MSG_HOST                     = "host";
-	private final static String   MSG_HOSTED                   = "hosted";
-	private final static String   MSG_BEGIN_ROUND              = "begin round";
-	private final static String   MSG_END_ROUND                = "end round";
-	private final static String   MSG_CONFIG                   = "config";
-	private final static String   MSG_Q_AND_A                  = "qanda";
-	private final static String   MSG_ERROR                    = "error";
-	private final static String   MSG_WIN                      = "win";
-	private final static String   MSG_LOSE                     = "lose";
-	// Key strings
-	private final static String   MSG_ROUND_TIMER              = "round timer";
-	private final static String   MSG_POSTROUND_TIMER          = "postround timer";
-	private final static String   MSG_PLAYER_NAME              = "player name";
-	private final static String   MSG_KEY_QUESTION             = "q";
-	private final static String   MSG_KEY_ANSWER               = "a";
-	// Message separators
-	private final static String   MSG_SPLIT_KEY_VALUE          = String.valueOf ('=');
-	private final static String   MSG_SPLIT_DATA               = String.valueOf ('|');
-	// Error messages
-	private final static String   MSG_ERROR_MSG                = "msg";
-	private final static String   MSG_ERROR_RECEIVED_EMPTY_MSG = "received empty message";
-	private static final String   MSG_ACK_READY                = "ack ready";
+	private static final String[] Q_AND_A_STRING_ARRAY = new String[5];   // TODO: Don't hardcode this size
+	// Private data members
+	private final        String   TAG                  = "CTriviaGame";
 	private IGame2GamesMgr     m_gamesMgr;  // Games manager
 	// The caller's context
 	private PlayTriviaActivity m_activity;
@@ -67,7 +53,7 @@ public class CTriviaGame
 	private ArrayList<String>  m_strMsgOut;
 	private String             m_question;
 	private ArrayList<String>  m_answers;
-	private TriviaGameState    m_eTriviaGameState;
+	private ETriviaGameStates m_eTriviaGameState;
 
 	public CTriviaGame (IGame2GamesMgr gamesMgr)
 		{
@@ -79,12 +65,12 @@ public class CTriviaGame
 		setGameState (WAITING);
 		}
 
-	public TriviaGameState getGameState ()
+	public ETriviaGameStates getGameState ()
 		{
 		return m_eTriviaGameState;
 		}
 
-	private void setGameState (TriviaGameState state)
+	private void setGameState (ETriviaGameStates state)
 		{
 		m_eTriviaGameState = state;
 		}
@@ -118,76 +104,88 @@ public class CTriviaGame
 		// Error handling
 		if (inMsgSplit.size () < 1)
 			{
-			messageOut.add (MSG_ERROR);
-			messageOut.add (MSG_ERROR_MSG + MSG_SPLIT_KEY_VALUE + MSG_ERROR_RECEIVED_EMPTY_MSG);
+			messageOut.add (MSG_ERROR.toString ());
+			messageOut.add (MSG_ERROR_MSG.toString () + MSG_SPLIT_KEY_VALUE.toString () + MSG_ERROR_RECEIVED_EMPTY_MSG.toString ());
 			m_activity.sendMessage (formatMessage (messageOut));
-			m_activity.updateUI (TriviaGameState.ERROR);
+			m_activity.updateUI (ETriviaGameStates.ERROR);
 			return;
 			}
+		ETriviaMessagesFromServer command = ETriviaMessagesFromServer.getEnumFromString (inMsgSplit.get (0));
 		// Process the message
-		if (inMsgSplit.get (0)
-			    .equals (MSG_CONNECTED))
+		switch (command)
 			{
-			// Don't need to send anything yet, just update the UI
-			m_activity.updateUI (CONNECTED);
-			}
-		else if (inMsgSplit.get (0)
-			         .equals (MSG_HOST))
+			case MSG_CONNECTED:
+				{
+				// Don't need to send anything yet, just update the UI
+				m_activity.updateUI (CONNECTED);
+				break;
+				}
+			case MSG_HOST:
 			{
 			m_activity.updateUI (HOSTING);
+			break;
 			}
-		else if (inMsgSplit.get (0)
-			         .equals (MSG_HOSTED))
+			case MSG_HOSTED:
 			{
-			messageOut.add (MSG_CONFIG);
-			messageOut.add (MSG_PLAYER_NAME + MSG_SPLIT_KEY_VALUE + m_activity.getPlayerName ());
+			messageOut.add (MSG_CONFIG.toString ());
+			messageOut.add (MSG_KEY_PLAYER_NAME.toString () + MSG_SPLIT_KEY_VALUE.toString () + m_activity.getPlayerName ());
 			m_activity.updateUI (HOSTED);
+			break;
 			}
-		else if (inMsgSplit.get (0)
-			         .equals (MSG_Q_AND_A))
+			case MSG_REQUEST_CONFIG:
+			{
+			// The server is asking for config data
+			// TODO: Make this smarter (get all player info and send in as key-value pairs)
+			messageOut.add (MSG_CONFIG.toString ());
+			messageOut.add (MSG_KEY_PLAYER_NAME.toString () + MSG_SPLIT_KEY_VALUE.toString () + m_activity.getPlayerName ());
+			m_activity.updateUI (GET_CONFIG);
+			break;
+			}
+			case MSG_Q_AND_A:
 			{
 			if (inMsgSplit.size () == 6)                         // command, question, answers 1-4
-				{
-				m_question = "";    // clear question
-				m_answers.clear ();  // clear answers
-				int answerIndex = 0;
-				for (int i = 0; i < inMsgSplit.size (); ++i)     // Get and strip the question and answer values
 					{
-					String[] key_value_split = inMsgSplit.get (i)
-						                           .split (MSG_SPLIT_KEY_VALUE);
-					if (key_value_split[0].equals (MSG_KEY_ANSWER))       // Check for the message key
+					m_question = "";    // clear question
+					m_answers.clear ();  // clear answers
+					int answerIndex = 0;
+					for (int i = 0; i < inMsgSplit.size (); ++i)     // Get and strip the question and answer values
 						{
-						m_answers.add (inMsgSplit.get (i)
-							               .split (MSG_SPLIT_KEY_VALUE)[1]);    // Get the answer value
-						}
-					else if (key_value_split[0].equals (MSG_KEY_QUESTION))
-						{
-						m_question = inMsgSplit.get (i)
-							             .split (MSG_SPLIT_KEY_VALUE)[1];
+						String[] key_value_split = inMsgSplit.get (i)
+							                           .split (MSG_SPLIT_KEY_VALUE.toString ());
+						if (key_value_split[0].equals (MSG_KEY_ANSWER.toString ()))       // Check for the answer key
+							{
+							m_answers.add (inMsgSplit.get (i)
+								               .split (MSG_SPLIT_KEY_VALUE.toString ())[1]);    // Get the answer value
+							}
+						else if (key_value_split[0].equals (MSG_KEY_QUESTION.toString ()))
+							{
+							m_question = inMsgSplit.get (i)
+								             .split (MSG_SPLIT_KEY_VALUE.toString ())[1];
+							}
 						}
 					}
-				}
 			m_activity.updateUI (GOT_Q_AND_A);
-			}
-		else if (inMsgSplit.get (0)
-			         .equals (MSG_WIN))
+			break;
+				}
+			case MSG_WIN:
 			{
 			m_activity.updateUI (ROUND_WIN);
+			break;
 			}
-		else if (inMsgSplit.get (0)
-			         .equals (MSG_LOSE))
+			case MSG_LOSE:
 			{
 			m_activity.updateUI (ROUND_LOSE);
+			break;
 			}
-		else if (inMsgSplit.get (0)
-			         .equals (MSG_CONFIG))
-			{
-			// TODO: Handle config messages
-			}
-		else
+			case MSG_ERROR:
+				// TODO: Handle error messages received from the server
+				break;
+			default:
 			{
 			// TODO: Handle unexpected command
 			Log.e (TAG, "Unhandled message received: " + inMsgSplit.get (0));
+			break;
+			}
 			}
 		}
 
@@ -199,7 +197,7 @@ public class CTriviaGame
 			ret += list.get (i);
 			if (i < (list.size () - 1))
 				{
-				ret += MSG_SPLIT_DATA;
+				ret += MSG_SPLIT_DATA.toString ();
 				}
 			}
 		return ret;
@@ -211,23 +209,23 @@ public class CTriviaGame
 		{
 		// TODO: Should wrap all configuration into a single object to be passed around -GN
 		// Set the round timer
-		String enableRoundTimer = MSG_ROUND_TIMER + MSG_SPLIT_KEY_VALUE +
+		String enableRoundTimer = MSG_KEY_ROUND_TIMER.toString () + MSG_SPLIT_KEY_VALUE.toString () +
 		                          String.valueOf (m_activity.getRoundTimerEnable ());
 		// Set the post round timer
-		String enablePostRoundTimer = MSG_POSTROUND_TIMER + MSG_SPLIT_KEY_VALUE +
+		String enablePostRoundTimer = MSG_KEY_POSTROUND_TIMER.toString () + MSG_SPLIT_KEY_VALUE.toString () +
 		                              String.valueOf (m_activity.getPostRoundTimerEnable ());
 		// Set the player's name
-		String playerName = MSG_PLAYER_NAME + MSG_SPLIT_KEY_VALUE +
+		String playerName = MSG_KEY_PLAYER_NAME.toString () + MSG_SPLIT_KEY_VALUE.toString () +
 		                    String.valueOf (m_activity.getPlayerName ());
 		// Send the game start packet
-		m_activity.sendMessage (MSG_BEGIN_ROUND + MSG_SPLIT_DATA + enableRoundTimer +
-		                        MSG_SPLIT_DATA + enablePostRoundTimer +
-		                        MSG_SPLIT_DATA + playerName);
+		m_activity.sendMessage (MSG_BEGIN_ROUND.toString () + MSG_SPLIT_DATA.toString () + enableRoundTimer +
+		                        MSG_SPLIT_DATA.toString () + enablePostRoundTimer +
+		                        MSG_SPLIT_DATA.toString () + playerName);
 		}
 
 	public void endRound ()
 		{
-		m_activity.sendMessage (MSG_END_ROUND);
+		m_activity.sendMessage (MSG_END_ROUND.toString ());
 		}
 
 	/**
@@ -253,12 +251,12 @@ public class CTriviaGame
 	 */
 	public String formatAnswer (String answer)
 		{
-		return (MSG_KEY_ANSWER + MSG_SPLIT_DATA + answer);
+		return (MSG_KEY_ANSWER.toString () + MSG_SPLIT_DATA.toString () + answer);
 		}
 
 	public void requestHost ()
 		{
-		m_activity.sendMessage (MSG_REQUEST_HOST);
+		m_activity.sendMessage (MSG_REQUEST_HOST.toString ());
 		}
 
 	public String getQuestion ()
@@ -269,20 +267,5 @@ public class CTriviaGame
 	public ArrayList<String> getAnswers ()
 		{
 		return m_answers;
-		}
-
-	// Game state
-	public static enum TriviaGameState
-		{
-			WAITING,
-			READY,
-			CONNECTED,
-			HOSTING,
-			HOSTED,
-			GOT_Q_AND_A,
-			ROUND_WIN,
-			ROUND_LOSE,
-			QUIT,
-			ERROR
 		}
 	}

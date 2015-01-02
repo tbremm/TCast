@@ -30,6 +30,7 @@ import com.adventurpriseme.tcast.CommsMgr.ECommChannelTypes;
 import com.adventurpriseme.tcast.GamesManager.CGamesManager;
 import com.adventurpriseme.tcast.GamesManager.ESupportedGames;
 import com.adventurpriseme.tcast.TriviaGame.CTriviaGame;
+import com.adventurpriseme.tcast.TriviaGame.ETriviaGameStates;
 import com.adventurpriseme.tcast.TriviaGame.TriviaPrefsActivity;
 import com.google.android.gms.cast.ApplicationMetadata;
 import com.google.android.gms.cast.Cast;
@@ -369,7 +370,7 @@ public class PlayTriviaActivity
 		m_cTriviaGame.onMessageIn (strMsg);
 		}
 
-	public void updateUI (CTriviaGame.TriviaGameState state)
+	public void updateUI (ETriviaGameStates state)
 		{
 		// Get all of our GUI elements
 		TextView tvPlayTitle = (TextView) findViewById (R.id.tvPlayTitle);
@@ -379,6 +380,8 @@ public class PlayTriviaActivity
 		// TODO Add an onCheckedChangeListener to handle button graphical state?
 		switch (state)
 			{
+			case GET_CONFIG:
+				break;
 			case WAITING:
 				break;
 			case READY:
@@ -403,6 +406,7 @@ public class PlayTriviaActivity
 					}
 				else
 					{
+					m_cTriviaPlayer.setIsHosting (false);
 					tvQuestion.setText (getString (R.string.waiting_for_host));
 					tvQuestion.setVisibility (View.VISIBLE);
 					}

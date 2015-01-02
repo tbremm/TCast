@@ -14,12 +14,12 @@
             var GAME_HOSTED = "hosted";			// let non-host phones know that host has been selected
             var WIN = "win";                    // Let player know they won a round
             var LOSE = "lose";                  // Let player know they lost a round
+            var GET_CONFIG = "request config";  // Ask the player for their config info
 
 			// commands from phones -> web
             var TRUE = "true";					    // for an answer of 'true'
             var FALSE = "false";				    // for an answer of 'false'
 			var CONNECTED = "connected";		    // message to let us know phone connected
-			var ACK_CONNECTED = "ack connected";    // received from sender after it gets CONNECTED
 			var HOST_REQUEST = "request host";	    // phone requesting to be host
 			var CONFIG = "config";				    // configuration message from host
 			var BEGIN_ROUND = "begin round";	    // begin a round, sent from host
@@ -256,28 +256,59 @@
 			triviaOnConnect = function(id)
 				{
 				// Don't allow duplicate ID's
-				if (getPlayerIndexById (id) != -1)
+				if (getPlayerIndexById (id) == -1)
 					{
-					console.log ("ERROR: Player with id \'" + id + "\' already connected...");
-					return;
-					}
+					var _new_player = new Object();     // Create a new, unique player
+					_new_player.id = id;                // Assign the id to the new player
+					_new_player.score = 0;              // Initialize the player's score
+					_new_player.name = "";              // Initialize the player's name
+					m_players.push(_new_player);        // Add player to players list
 
-				// Create a new player
-				var _new_player = new Object();
-				_new_player.id = id;
-
-				// Add player to players list
-				m_players.push(_new_player);
-
-				if (m_players.length == 1)
-					{
-					resetRound ();
-                	setGamePending();
-                	}
-                if (m_readyForMessages)
-	                {
-	                sendCastMessage(id, "connected");
+					// Add the player to the game depending on game state
+					switch (m_gameState)
+						{
+						case GAME_PENDING:
+							{
+							// If this is the first player, initialize the game
+							if (m_players.length == 1)
+                                {
+                                resetRound ();
+                                setGamePending();
+                                }
+                            if (m_readyForMessages)
+                                {
+                                sendCastMessage(id, "connected");
+                                }
+							break;
+							}
+						case HOST_SELECTED:
+							{
+							if (m_readyForMessages)
+	                            {
+	                            sendCastMessage(id, GAME_HOSTED);   // Let player know they're not hosting. This will also cause them to send us their config info.
+	                            }
+							break;
+							}
+						case ROUND:
+							{
+							break;
+							}
+						case POST_ROUND:
+							{
+							break;
+							}
+						default:
+							{
+							console.log ("ERROR: Unknown gamestate - " + m_gameState);
+							return;
+							}
+						}
 	                }
+	            else
+                    {
+                    console.log ("ERROR: Player with id \'" + id + "\' already connected...");
+                    return;
+                    }
 				}
 
 			triviaSendMessage = function(id, msg) {
