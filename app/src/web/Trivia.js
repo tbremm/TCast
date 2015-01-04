@@ -261,16 +261,21 @@
 			        }
 				}
 
+			// Player constructor
+			function Player (id)
+				{
+				this.id = id;       // Assign the id to the new player
+				this.score = 0;     // Initialize the player's score
+				this.name = "";     // Initialize the player's name
+				this.answer = "";   // Initialize the player's answer
+				}
+
 			triviaOnConnect = function(id)
 				{
 				// Don't allow duplicate ID's
 				if (getPlayerIndexById (id) == -1)
 					{
-					var _new_player = new Object();     // Create a new, unique player
-					_new_player.id = id;                // Assign the id to the new player
-					_new_player.score = 0;              // Initialize the player's score
-					_new_player.name = "";              // Initialize the player's name
-					m_players.push(_new_player);        // Add player to players list
+					m_players.push (new Player (id));        // Add player to players list
 
 					// Add the player to the game depending on game state
 					switch (m_gameState)
@@ -449,6 +454,7 @@
 				{
 				var qbox = document.getElementById("qbox");
 				var strWinners = "";    // Winners list to display
+				var strScores = "";     // Scores list to display
 			    // fixme think about player disconnects during loops
 			    // fixme:   Could check game state during onConnect, and not allow entry until the proper game state.
 			    // fixme:   We could put their name in a waiting list, then check it between rounds?
@@ -492,10 +498,44 @@
 						triviaSendMessage(m_players[i].id, LOSE);
 						// todo decrement scores sometimes?
 						}
+
+					// Reset player answers
+					resetPlayerAnswers ();
 			        }
 
-			    qbox.innerHTML = (qbox.innerHTML + "<br>" + "Answer: " + m_roundAnswer + "<br>" + "Winners:" + strWinners);
+			    qbox.innerHTML = (qbox.innerHTML + "<br><br>" + "Answer: " + m_roundAnswer + "<br><br>" + "Winners:" + strWinners + "<br><br>" + "Scores:<br>" getScores ());
 				startPostRoundTimer();
+				}
+
+			function resetPlayerAnswers ()
+				{
+				for (var i = 0; i < m_players.length; i++)
+					{
+					m_players[i].answer = "";
+					}
+				}
+
+			function getScores ()
+				{
+				var strOut = "";
+				for (var i = 0; i < m_players.length; i++)
+					{
+					// Make sure there's some kind of name
+					if (typeof (m_players[i].name) == "undefined")
+                        {
+                        m_players[i].name = "Player" + i;
+                        }
+
+                    // Initialize the score if necessary
+					if (typeof (m_players[i].score) == "undefined")
+						{
+						m_players[i].score = 0;
+						}
+
+					// Build the output string
+					strOut += m_players[i].name + "&nbsp;&nbsp;" + m_players[i].score + "<br>";
+					}
+				return strOut;
 				}
 
 			function startPostRoundTimer ()
