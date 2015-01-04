@@ -99,14 +99,13 @@ public class CTriviaGame
 		{
 		// Break apart the message into its parts
 		ArrayList<String> inMsgSplit = new ArrayList<String> (Arrays.asList (strMsgIn.split ("\\" + MSG_SPLIT_DATA)));
-		ArrayList<String> messageOut = new ArrayList<String> ();
-		messageOut.clear ();
+		m_strMsgOut.clear ();   // Clear out the output array
 		// Error handling
 		if (inMsgSplit.size () < 1)
 			{
-			messageOut.add (MSG_ERROR.toString ());
-			messageOut.add (MSG_ERROR_MSG.toString () + MSG_SPLIT_KEY_VALUE.toString () + MSG_ERROR_RECEIVED_EMPTY_MSG.toString ());
-			m_activity.sendMessage (formatMessage (messageOut));
+			m_strMsgOut.add (MSG_ERROR.toString ());
+			m_strMsgOut.add (MSG_ERROR_MSG.toString () + MSG_SPLIT_KEY_VALUE.toString () + MSG_ERROR_RECEIVED_EMPTY_MSG.toString ());
+			m_activity.sendMessage (formatMessage (m_strMsgOut));
 			m_activity.updateUI (ETriviaGameStates.ERROR);
 			return;
 			}
@@ -117,6 +116,8 @@ public class CTriviaGame
 			case MSG_CONNECTED:
 				{
 				// Don't need to send anything yet, just update the UI
+				m_strMsgOut.add (MSG_CONFIG.toString ());
+				m_strMsgOut.add (MSG_KEY_PLAYER_NAME.toString () + MSG_SPLIT_KEY_VALUE.toString () + m_activity.getPlayerName ());
 				m_activity.updateUI (CONNECTED);
 				break;
 				}
@@ -127,8 +128,8 @@ public class CTriviaGame
 			}
 			case MSG_HOSTED:
 			{
-			messageOut.add (MSG_CONFIG.toString ());
-			messageOut.add (MSG_KEY_PLAYER_NAME.toString () + MSG_SPLIT_KEY_VALUE.toString () + m_activity.getPlayerName ());
+			m_strMsgOut.add (MSG_CONFIG.toString ());
+			m_strMsgOut.add (MSG_KEY_PLAYER_NAME.toString () + MSG_SPLIT_KEY_VALUE.toString () + m_activity.getPlayerName ());
 			m_activity.updateUI (HOSTED);
 			break;
 			}
@@ -136,34 +137,34 @@ public class CTriviaGame
 			{
 			// The server is asking for config data
 			// TODO: Make this smarter (get all player info and send in as key-value pairs)
-			messageOut.add (MSG_CONFIG.toString ());
-			messageOut.add (MSG_KEY_PLAYER_NAME.toString () + MSG_SPLIT_KEY_VALUE.toString () + m_activity.getPlayerName ());
+			m_strMsgOut.add (MSG_CONFIG.toString ());
+			m_strMsgOut.add (MSG_KEY_PLAYER_NAME.toString () + MSG_SPLIT_KEY_VALUE.toString () + m_activity.getPlayerName ());
 			m_activity.updateUI (GET_CONFIG);
 			break;
 			}
 			case MSG_Q_AND_A:
 			{
 			if (inMsgSplit.size () == 6)                         // command, question, answers 1-4
+				{
+				m_question = "";    // clear question
+				m_answers.clear ();  // clear answers
+				int answerIndex = 0;
+				for (int i = 0; i < inMsgSplit.size (); ++i)     // Get and strip the question and answer values
+					{
+					String[] key_value_split = inMsgSplit.get (i)
+						                           .split (MSG_SPLIT_KEY_VALUE.toString ());
+					if (key_value_split[0].equals (MSG_KEY_ANSWER.toString ()))       // Check for the answer key
 						{
-						m_question = "";    // clear question
-						m_answers.clear ();  // clear answers
-						int answerIndex = 0;
-						for (int i = 0; i < inMsgSplit.size (); ++i)     // Get and strip the question and answer values
-							{
-							String[] key_value_split = inMsgSplit.get (i)
-								                           .split (MSG_SPLIT_KEY_VALUE.toString ());
-							if (key_value_split[0].equals (MSG_KEY_ANSWER.toString ()))       // Check for the answer key
-								{
-								m_answers.add (inMsgSplit.get (i)
-									               .split (MSG_SPLIT_KEY_VALUE.toString ())[1]);    // Get the answer value
-								}
-							else if (key_value_split[0].equals (MSG_KEY_QUESTION.toString ()))
-								{
-								m_question = inMsgSplit.get (i)
-									             .split (MSG_SPLIT_KEY_VALUE.toString ())[1];
-								}
-							}
+						m_answers.add (inMsgSplit.get (i)
+							               .split (MSG_SPLIT_KEY_VALUE.toString ())[1]);    // Get the answer value
 						}
+					else if (key_value_split[0].equals (MSG_KEY_QUESTION.toString ()))
+						{
+						m_question = inMsgSplit.get (i)
+							             .split (MSG_SPLIT_KEY_VALUE.toString ())[1];
+						}
+					}
+				}
 			m_activity.updateUI (GOT_Q_AND_A);
 			break;
 				}
@@ -203,6 +204,17 @@ public class CTriviaGame
 		return ret;
 		}
 
+	/**
+	 * Send the user's strMessage to the web server.
+	 *
+	 * @param strMessage
+	 * 	(required) String  The player's strMessage to send
+	 */
+	public void sendMessage (ArrayList<String> strMessage)
+		{
+		m_activity.sendMessage (formatMessage (strMessage));
+		}
+
 	// TODO: same function call for beginning a game as starting a new round.
 	// may want to separate calls (ie. one with config data - one without)
 	public void beginNewRound ()
@@ -229,29 +241,29 @@ public class CTriviaGame
 		}
 
 	/**
-	 * Send the user's answer to the web server.
+	 * Send the user's strMessage to the web server.
 	 *
-	 * @param answer
-	 * 	(required) String  The player's answer to send
+	 * @param strMessage
+	 * 	(required) String  The player's strMessage to send
 	 */
-	public void sendAnswer (String answer)
+	public void sendMessage (String strMessage)
 		{
-		m_activity.sendMessage (formatAnswer (answer));
+		m_activity.sendMessage (formatMessage (strMessage));
 		}
 
 	/**
-	 * Formats a user's answer so that the web server can parse it.
+	 * Formats a user's strMessage so that the web server can parse it.
 	 * <p/>
-	 * Current answer message format is:
-	 * "a|answer"
+	 * Current strMessage message format is:
+	 * "a|strMessage"
 	 *
-	 * @param answer
+	 * @param strMessage
 	 *
-	 * @return String  Formatted answer
+	 * @return String  Formatted strMessage
 	 */
-	public String formatAnswer (String answer)
+	public String formatMessage (String strMessage)
 		{
-		return (MSG_KEY_ANSWER.toString () + MSG_SPLIT_DATA.toString () + answer);
+		return (MSG_KEY_ANSWER.toString () + MSG_SPLIT_DATA.toString () + strMessage);
 		}
 
 	public void requestHost ()
@@ -267,5 +279,10 @@ public class CTriviaGame
 	public ArrayList<String> getAnswers ()
 		{
 		return m_answers;
+		}
+
+	public ArrayList<String> getOutMsg ()
+		{
+		return m_strMsgOut;
 		}
 	}

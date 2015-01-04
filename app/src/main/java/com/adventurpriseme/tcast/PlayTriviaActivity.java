@@ -410,6 +410,7 @@ public class PlayTriviaActivity
 					tvQuestion.setText (getString (R.string.waiting_for_host));
 					tvQuestion.setVisibility (View.VISIBLE);
 					}
+				m_cTriviaGame.sendMessage (m_cTriviaGame.getOutMsg ());
 				break;
 			case HOSTING:
 				// Clear the display of UI elements
@@ -747,7 +748,7 @@ public class PlayTriviaActivity
 				((RadioGroup) view.getParent ()).check (view.getId ());                     // Check the radio button
 				m_cTriviaPlayer.setAnswer (((RadioButton) view).getText ()
 					                           .toString ());    // Save off the answer
-				m_cTriviaGame.sendAnswer (m_cTriviaPlayer.getAnswer ());                          // Send the answer to the game server
+				m_cTriviaGame.sendMessage (m_cTriviaPlayer.getAnswer ());                          // Send the answer to the game server
 				}
 			});
 			}

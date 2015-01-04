@@ -102,12 +102,25 @@
 				var i;
 				for (i = 0; i < m_players.length; i++)
 					{
-					if (m_players[i].id = id)
+					if (m_players[i].id == id)
 						{
 						return i;
 						}
 					}
 				return -1;
+				}
+
+			// Send a message to all players
+			// Set bIncludeHost == true in order to send to the host as well
+			sendToAllPlayers = function (message, bIncludeHost)
+				{
+				for (var i = 0; i < m_players.length; i++)
+	                {
+	                if (bIncludeHost == true || m_players[i].id != m_hostID)
+	                    {
+	                    triviaSendMessage(m_players[i].id, message);
+	                    }
+	                }
 				}
 
 			// **************************************
@@ -156,18 +169,13 @@
 										{
 										m_hostID = m_players[senderIndex].id;
 										triviaSendMessage(m_hostID, HOST_ACK);
+										sendToAllPlayers (GAME_HOSTED, false);  // Send to all but host that the game is ready
 										m_gameState = HOST_SELECTED;
 										}
 									else
 										{
-										// Host is already assigned, let all other players know
-										for (var i = 0; i < m_players.length; i++)
-	                                        {
-	                                        if (m_players[i].id != m_hostID)
-	                                            {
-	                                            triviaSendMessage(m_players[i].id, GAME_HOSTED);
-	                                            }
-	                                        }
+										// Host is already assigned, let the player know
+	                                    triviaSendMessage(m_players[senderIndex].id, GAME_HOSTED);
 										}
 									}
 								break;
