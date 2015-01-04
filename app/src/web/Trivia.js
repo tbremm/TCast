@@ -15,6 +15,7 @@
             var WIN = "win";                    // Let player know they won a round
             var LOSE = "lose";                  // Let player know they lost a round
             var GET_CONFIG = "request config";  // Ask the player for their config info
+			var UID = "uid";					// UID info for reconnects
 
 			// commands from phones -> web
             var TRUE = "true";					    // for an answer of 'true'
@@ -290,7 +291,7 @@
                                 }
                             if (m_readyForMessages)
                                 {
-                                sendCastMessage(id, "connected");
+                                sendCastMessage(id, CONNECTED + "|" + UID + "=" + id);
                                 }
 							break;
 							}
