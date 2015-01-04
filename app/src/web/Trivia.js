@@ -503,7 +503,7 @@
 					resetPlayerAnswers ();
 			        }
 
-			    qbox.innerHTML = (qbox.innerHTML + "<br><br>" + "Answer: " + m_roundAnswer + "<br><br>" + "Winners:" + strWinners + "<br><br>" + "Scores:<br>" getScores ());
+			    qbox.innerHTML = (qbox.innerHTML + "<br><br>" + "Answer: " + m_roundAnswer + "<br><br>" + "Winners:" + strWinners + "<br><br>" + "Scores:<br>" + getScores ());
 				startPostRoundTimer();
 				}
 
