@@ -1,10 +1,12 @@
 package com.adventurpriseme.tcast.TriviaGame;
 
 /**
+ * Contains all command strings expected to be received from the server.
+ *
  * Created by Timothy on 1/2/2015.
  * Copyright 1/2/2015 adventurpriseme.com
  */
-public enum ETriviaMessagesFromServer
+public enum ETriviaCommandsFromServer
 	{
 		// **************************
 		// Enum values
@@ -29,7 +31,7 @@ public enum ETriviaMessagesFromServer
 	// **************************
 	private final String text;
 
-	private ETriviaMessagesFromServer (final String text)
+	private ETriviaCommandsFromServer (final String text)
 		{
 		this.text = text;
 		}
@@ -42,9 +44,9 @@ public enum ETriviaMessagesFromServer
 	 *
 	 * @return ETriviaMessagesToServer  The enum whose string value matches str
 	 */
-	public static ETriviaMessagesFromServer getEnumFromString (String str)
+	public static ETriviaCommandsFromServer getEnumFromString (String str)
 		{
-		for (ETriviaMessagesFromServer eMsg : ETriviaMessagesFromServer.values ())
+		for (ETriviaCommandsFromServer eMsg : ETriviaCommandsFromServer.values ())
 			{
 			if (str.equals (eMsg.toString ()))
 				{

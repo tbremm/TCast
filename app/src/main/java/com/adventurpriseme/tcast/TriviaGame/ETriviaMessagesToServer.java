@@ -1,7 +1,7 @@
 package com.adventurpriseme.tcast.TriviaGame;
 
 /**
- * Contains all Trivia-related communication string parts.
+ * Contains all Trivia-related commands sent from device to server.
  * <p/>
  * Call toString() on the desired enum in order to get it's string value.
  * <p/>
@@ -15,7 +15,6 @@ public enum ETriviaMessagesToServer
 		// **************************
 		E_INVALID ("invalid"),
 		// This must go first
-		// Command strings
 		MSG_CONFIG ("config"),
 		MSG_BEGIN_ROUND ("begin round"),
 		MSG_END_ROUND ("end round"),

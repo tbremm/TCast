@@ -110,7 +110,7 @@ public class CTriviaGame
 			m_activity.updateUI (ETriviaGameStates.ERROR);
 			return;
 			}
-		ETriviaMessagesFromServer command = ETriviaMessagesFromServer.getEnumFromString (inMsgSplit.get (0));
+		ETriviaCommandsFromServer command = ETriviaCommandsFromServer.getEnumFromString (inMsgSplit.get (0));
 		// Process the message
 		switch (command)
 			{
@@ -144,26 +144,26 @@ public class CTriviaGame
 			case MSG_Q_AND_A:
 			{
 			if (inMsgSplit.size () == 6)                         // command, question, answers 1-4
-					{
-					m_question = "";    // clear question
-					m_answers.clear ();  // clear answers
-					int answerIndex = 0;
-					for (int i = 0; i < inMsgSplit.size (); ++i)     // Get and strip the question and answer values
 						{
-						String[] key_value_split = inMsgSplit.get (i)
-							                           .split (MSG_SPLIT_KEY_VALUE.toString ());
-						if (key_value_split[0].equals (MSG_KEY_ANSWER.toString ()))       // Check for the answer key
+						m_question = "";    // clear question
+						m_answers.clear ();  // clear answers
+						int answerIndex = 0;
+						for (int i = 0; i < inMsgSplit.size (); ++i)     // Get and strip the question and answer values
 							{
-							m_answers.add (inMsgSplit.get (i)
-								               .split (MSG_SPLIT_KEY_VALUE.toString ())[1]);    // Get the answer value
-							}
-						else if (key_value_split[0].equals (MSG_KEY_QUESTION.toString ()))
-							{
-							m_question = inMsgSplit.get (i)
-								             .split (MSG_SPLIT_KEY_VALUE.toString ())[1];
+							String[] key_value_split = inMsgSplit.get (i)
+								                           .split (MSG_SPLIT_KEY_VALUE.toString ());
+							if (key_value_split[0].equals (MSG_KEY_ANSWER.toString ()))       // Check for the answer key
+								{
+								m_answers.add (inMsgSplit.get (i)
+									               .split (MSG_SPLIT_KEY_VALUE.toString ())[1]);    // Get the answer value
+								}
+							else if (key_value_split[0].equals (MSG_KEY_QUESTION.toString ()))
+								{
+								m_question = inMsgSplit.get (i)
+									             .split (MSG_SPLIT_KEY_VALUE.toString ())[1];
+								}
 							}
 						}
-					}
 			m_activity.updateUI (GOT_Q_AND_A);
 			break;
 				}
