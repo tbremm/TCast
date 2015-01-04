@@ -380,6 +380,17 @@
 							m_players[ind].name = value;
 							break;
 							}
+						case CFG_UID:
+							{
+							var new_ind = getPlayerIndexById (senderId);	// replace old sender ID on reconnects with new sender ID
+							var old_ind = getPlayerIndexById (value);
+							if (getPlayerIndex != -1) 
+								{
+								m_players[old_ind].id = m_players[new_ind].id; 	// update senderID for new reconnects
+								m_players.splice(new_ind);						// remove new one
+								// TODO: Should any awarded score on the 'new' player be handed over to the 'old' one?
+								}
+							}
 						default:
 							{
 							break;

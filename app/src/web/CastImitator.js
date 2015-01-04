@@ -3,9 +3,23 @@ function init () {
 	document.onkeyup = keyuphandler;
 	ctr = 0;
 
+	
+	
+
 	console = new Object();
 	console.log = function (msg) { };
 }
+
+function player () {
+	this.id = "";
+	this.name = "";
+	
+	this.connect = function () {
+		triviaOnConnect(id);
+		//triviaMessageReceived(this.id + "|config|player name=" + this.name);
+	}
+}
+
 		
 function keyuphandler(e) {
 	if (e.keyCode == 32) {	// space
@@ -22,10 +36,7 @@ function host_advance_game () {
 }
 
 function connect_players() {
-	triviaOnConnect("1");
-	triviaMessageReceived("1" + "|config|player name=Gabe");
-	triviaOnConnect("2");
-	triviaMessageReceived("1" + "|config|player name=Tim");
+
 }
 
 var ctr;
