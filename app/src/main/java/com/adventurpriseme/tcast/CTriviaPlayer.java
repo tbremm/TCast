@@ -25,7 +25,8 @@ public class CTriviaPlayer
 	private boolean m_bEnablePostRoundTimer = true;
 	private int     m_nScore                = 0;
 	private String  m_strAnswer             = "";
-	private Map     m_mapPlayerInfo         = new HashMap ();
+	private Map    m_mapPlayerInfo = new HashMap ();
+	private String m_UID           = "";
 	// TODO: migrate all config settings into the map
 
 	/**
@@ -174,5 +175,15 @@ public class CTriviaPlayer
 	public void setEnablePostRoundTimer (boolean bEnablePostRoundTimer)
 		{
 		m_bEnablePostRoundTimer = bEnablePostRoundTimer;
+		}
+
+	public String getUID ()
+		{
+		return m_UID;
+		}
+
+	public void setUID (String UID)
+		{
+		m_UID = UID;
 		}
 	}
