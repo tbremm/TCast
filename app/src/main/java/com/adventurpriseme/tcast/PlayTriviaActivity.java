@@ -645,7 +645,7 @@ public class PlayTriviaActivity
 		super.onPostCreate (savedInstanceState);
 		// Create a new player
 		m_sharedPreferences = PreferenceManager.getDefaultSharedPreferences (this);
-		m_cTriviaPlayer = new CTriviaPlayer (m_sharedPreferences);
+		m_cTriviaPlayer = new CTriviaPlayer (this);
 		// FIXME: Fix game creation so that it is dependent on which game the user selects
 		// m_cTriviaGame = new CTriviaGame (this);
 		m_GamesMgr.initGame (ESupportedGames.TRIVIA);   // FIXME: Move this, don't hard code
