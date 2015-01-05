@@ -31,6 +31,7 @@
 			var CFG_ROUND_TIMER = "round timer";            // Configure the round timer
 			var CFG_POST_ROUND_TIMER = "postround timer";   // Configure the post-round timer
 			var CFG_PLAYER_NAME = "player name";            // Configure the player name
+			var CFG_UID = "uid";
 
 			// Configuration values
 			var CFG_ENABLE = "true";      // Standard value to enable a binary option
