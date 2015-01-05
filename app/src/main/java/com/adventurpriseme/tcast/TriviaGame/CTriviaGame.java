@@ -14,6 +14,7 @@ import static com.adventurpriseme.tcast.TriviaGame.EConfigKeys.MSG_KEY_PLAYER_NA
 import static com.adventurpriseme.tcast.TriviaGame.EConfigKeys.MSG_KEY_POSTROUND_TIMER;
 import static com.adventurpriseme.tcast.TriviaGame.EConfigKeys.MSG_KEY_QUESTION;
 import static com.adventurpriseme.tcast.TriviaGame.EConfigKeys.MSG_KEY_ROUND_TIMER;
+import static com.adventurpriseme.tcast.TriviaGame.EConfigKeys.MSG_KEY_UID;
 import static com.adventurpriseme.tcast.TriviaGame.EErrorMessages.MSG_ERROR;
 import static com.adventurpriseme.tcast.TriviaGame.EErrorMessages.MSG_ERROR_MSG;
 import static com.adventurpriseme.tcast.TriviaGame.EErrorMessages.MSG_ERROR_RECEIVED_EMPTY_MSG;
@@ -115,9 +116,19 @@ public class CTriviaGame
 			{
 			case MSG_CONNECTED:
 				{
-				// Don't need to send anything yet, just update the UI
-				m_strMsgOut.add (MSG_CONFIG.toString ());
-				m_strMsgOut.add (MSG_KEY_PLAYER_NAME.toString () + MSG_SPLIT_KEY_VALUE.toString () + m_activity.getPlayerName ());
+				// Send config values and currently known UID. This UID will be updated.
+				m_strMsgOut.addAll (getPlayerConfigKeyValues ());
+				// We expect a unique player ID here (it is currently our senderID)
+				if (inMsgSplit.size () > 1)
+					{
+					String[] dataSplit = inMsgSplit.get (1)
+						                     .split (MSG_SPLIT_KEY_VALUE.toString ());
+					if (dataSplit.length == 2 && dataSplit[0].equals (MSG_KEY_UID.toString ()))
+						{
+						m_activity.getTriviaPlayer ()
+							.setUID (dataSplit[1]);
+						}
+					}
 				m_activity.updateUI (CONNECTED);
 				break;
 				}
@@ -128,8 +139,7 @@ public class CTriviaGame
 			}
 			case MSG_HOSTED:
 			{
-			m_strMsgOut.add (MSG_CONFIG.toString ());
-			m_strMsgOut.add (MSG_KEY_PLAYER_NAME.toString () + MSG_SPLIT_KEY_VALUE.toString () + m_activity.getPlayerName ());
+			m_strMsgOut.addAll (getPlayerConfigKeyValues ());
 			m_activity.updateUI (HOSTED);
 			break;
 			}
@@ -137,8 +147,7 @@ public class CTriviaGame
 			{
 			// The server is asking for config data
 			// TODO: Make this smarter (get all player info and send in as key-value pairs)
-			m_strMsgOut.add (MSG_CONFIG.toString ());
-			m_strMsgOut.add (MSG_KEY_PLAYER_NAME.toString () + MSG_SPLIT_KEY_VALUE.toString () + m_activity.getPlayerName ());
+			m_strMsgOut.addAll (getPlayerConfigKeyValues ());
 			m_activity.updateUI (GET_CONFIG);
 			break;
 			}
@@ -202,6 +211,16 @@ public class CTriviaGame
 				}
 			}
 		return ret;
+		}
+
+	private ArrayList<String> getPlayerConfigKeyValues ()
+		{
+		ArrayList<String> starOut = new ArrayList<String> ();
+		starOut.add (MSG_CONFIG.toString ());
+		starOut.add (MSG_KEY_PLAYER_NAME.toString () + MSG_SPLIT_KEY_VALUE.toString () + m_activity.getPlayerName ());      // Player name
+		starOut.add (MSG_KEY_UID.toString () + MSG_SPLIT_KEY_VALUE.toString () + m_activity.getTriviaPlayer ()
+			                                                                         .getUID ());  // Player Unique ID
+		return starOut;
 		}
 
 	/**

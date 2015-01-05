@@ -74,8 +74,8 @@ public class PlayTriviaActivity
 	private SharedPreferences m_sharedPreferences;
 	private Context m_context = this;
 	private String        m_RouteId;
-	private CastDevice    mSelectedDevice;
-	private Cast.Listener mCastClientListener;
+	private CastDevice    m_SelectedDevice;
+	private Cast.Listener m_CastClientListener;
 	private boolean m_test = false;
 
 	/**
@@ -128,7 +128,6 @@ public class PlayTriviaActivity
 		/** Must instantiate the manager objects before initializing them, because they will be initialized using instances of each other. */
 		m_GamesMgr = new CGamesManager (this);  // Create a games manager
 		m_CommsMgr = new CCommsManager (ECommChannelTypes.CHROMECAST);  // Create a communications manager
-
 		/** Now the managers may be initialized */
 		// TODO: Don't hard code the communication type selection. However, this is okay until we support another type of communication.
 		m_CommsMgr.Initialize (m_GamesMgr); // init the comms manager
@@ -316,10 +315,10 @@ public class PlayTriviaActivity
 
 	public void reconnectChannels (MediaRouter.RouteInfo info)
 		{
-		mSelectedDevice = CastDevice.getFromBundle (info.getExtras ());
+		m_SelectedDevice = CastDevice.getFromBundle (info.getExtras ());
 		m_RouteId = info.getId ();  // save this for reconnects!
 		// TODO: Unify this with the creation when we initial connect
-		mCastClientListener = new Cast.Listener ()
+		m_CastClientListener = new Cast.Listener ()
 		{
 		@Override
 		public void onApplicationStatusChanged ()
@@ -347,7 +346,7 @@ public class PlayTriviaActivity
 				}
 			}
 		};
-		Cast.CastOptions.Builder apiOptionsBuilder = Cast.CastOptions.builder (mSelectedDevice, mCastClientListener);
+		Cast.CastOptions.Builder apiOptionsBuilder = Cast.CastOptions.builder (m_SelectedDevice, m_CastClientListener);
 		m_ApiClient = new GoogleApiClient.Builder (PlayTriviaActivity.this).addApi (Cast.API, apiOptionsBuilder.build ())
 			              .addConnectionCallbacks (PlayTriviaActivity.this)
 			              .addOnConnectionFailedListener (PlayTriviaActivity.this)
@@ -646,7 +645,7 @@ public class PlayTriviaActivity
 		super.onPostCreate (savedInstanceState);
 		// Create a new player
 		m_sharedPreferences = PreferenceManager.getDefaultSharedPreferences (this);
-		m_cTriviaPlayer = new CTriviaPlayer (m_sharedPreferences);
+		m_cTriviaPlayer = new CTriviaPlayer (this);
 		// FIXME: Fix game creation so that it is dependent on which game the user selects
 		// m_cTriviaGame = new CTriviaGame (this);
 		m_GamesMgr.initGame (ESupportedGames.TRIVIA);   // FIXME: Move this, don't hard code
@@ -762,9 +761,9 @@ public class PlayTriviaActivity
 		@Override
 		public void onRouteSelected (MediaRouter router, MediaRouter.RouteInfo info)
 			{
-			mSelectedDevice = CastDevice.getFromBundle (info.getExtras ());
+			m_SelectedDevice = CastDevice.getFromBundle (info.getExtras ());
 			m_RouteId = info.getId ();  // save this for reconnects!
-			mCastClientListener = new Cast.Listener ()
+			m_CastClientListener = new Cast.Listener ()
 			{
 			@Override
 			public void onApplicationStatusChanged ()
@@ -792,7 +791,7 @@ public class PlayTriviaActivity
 					}
 				}
 			};
-			Cast.CastOptions.Builder apiOptionsBuilder = Cast.CastOptions.builder (mSelectedDevice, mCastClientListener);
+			Cast.CastOptions.Builder apiOptionsBuilder = Cast.CastOptions.builder (m_SelectedDevice, m_CastClientListener);
 			m_ApiClient = new GoogleApiClient.Builder (PlayTriviaActivity.this).addApi (Cast.API, apiOptionsBuilder.build ())
 				              .addConnectionCallbacks (PlayTriviaActivity.this)
 				              .addOnConnectionFailedListener (PlayTriviaActivity.this)

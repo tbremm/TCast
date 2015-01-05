@@ -1,6 +1,8 @@
 package com.adventurpriseme.tcast;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import com.adventurpriseme.tcast.TriviaGame.EConfigKeys;
 
@@ -25,19 +27,23 @@ public class CTriviaPlayer
 	private boolean m_bEnablePostRoundTimer = true;
 	private int     m_nScore                = 0;
 	private String  m_strAnswer             = "";
-	private Map     m_mapPlayerInfo         = new HashMap ();
+	private Map    m_mapPlayerInfo = new HashMap ();
+	private String m_UID           = "";
+	private Activity m_activity;
 	// TODO: migrate all config settings into the map
 
 	/**
 	 * Constructor
 	 */
-	public CTriviaPlayer (SharedPreferences preferences)
+	public CTriviaPlayer (Activity activity)
 		{
+		m_activity = activity;
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences (m_activity);
 		_InitPlayerInfoMap (preferences);
 		setWillHost (preferences.getBoolean ("pref_host_checkbox_will_host", false));               // Player's willingness to host
 		setName (preferences.getString ("pref_player_name_text", ""));                              // Player's name
 		setEnablePostRoundTimer (preferences.getBoolean ("pref_host_checkbox_round_timer", true));  // Post round timer enable
-		setEnableRoundTimer (preferences.getBoolean ("pref_host_checkbox_postround_timer", true));  // Round timer enable
+		setEnableRoundTimer (preferences.getBoolean (m_activity.getString (R.string.config_host_postround_timer_enable), true));  // Round timer enable
 		setScore (0);
 		}
 
@@ -86,6 +92,9 @@ public class CTriviaPlayer
 	public void setName (String strName)
 		{
 		m_strName = strName;
+		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences (m_activity)
+			                                  .edit ();
+		editor.putString ("config_player_name", m_strName);
 		}
 
 	/**
@@ -109,6 +118,9 @@ public class CTriviaPlayer
 		if (m_bWillHost != bWillHost)
 			{
 			m_bWillHost = bWillHost;
+			SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences (m_activity)
+				                                  .edit ();
+			editor.putBoolean ("pref_host_checkbox_will_host", false);
 			}
 		}
 
@@ -133,6 +145,9 @@ public class CTriviaPlayer
 		if (m_nScore != nScore)
 			{
 			m_nScore = nScore;
+			SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences (m_activity)
+				                                  .edit ();
+			editor.putInt ("config_player_score", m_nScore);
 			}
 		}
 
@@ -144,6 +159,9 @@ public class CTriviaPlayer
 	public void setAnswer (String strAnswer)
 		{
 		m_strAnswer = strAnswer;
+		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences (m_activity)
+			                                  .edit ();
+		editor.putString ("config_player_answer", m_strAnswer);
 		}
 
 	public boolean isHosting ()
@@ -154,6 +172,9 @@ public class CTriviaPlayer
 	public void setIsHosting (boolean bHosting)
 		{
 		m_bHosting = bHosting;
+		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences (m_activity)
+			                                  .edit ();
+		editor.putBoolean ("config_player_hosting", m_bHosting);
 		}
 
 	public boolean getEnableRoundTimer ()
@@ -164,6 +185,9 @@ public class CTriviaPlayer
 	public void setEnableRoundTimer (boolean bEnableRoundTimer)
 		{
 		m_bEnableRoundTimer = bEnableRoundTimer;
+		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences (m_activity)
+			                                  .edit ();
+		editor.putBoolean ("pref_host_checkbox_round_timer", m_bEnableRoundTimer);
 		}
 
 	public boolean getEnablePostRoundTimer ()
@@ -174,5 +198,21 @@ public class CTriviaPlayer
 	public void setEnablePostRoundTimer (boolean bEnablePostRoundTimer)
 		{
 		m_bEnablePostRoundTimer = bEnablePostRoundTimer;
+		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences (m_activity)
+			                                  .edit ();
+		editor.putBoolean (m_activity.getString (R.string.config_host_postround_timer_enable), m_bEnablePostRoundTimer);
+		}
+
+	public String getUID ()
+		{
+		return m_UID;
+		}
+
+	public void setUID (String UID)
+		{
+		m_UID = UID;
+		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences (m_activity)
+			                                  .edit ();
+		editor.putString ("config_player_uid", m_UID);
 		}
 	}

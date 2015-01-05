@@ -12,6 +12,7 @@ public enum EConfigKeys
 		E_INVALID ("invalid"),
 		// This must go first
 		// Key strings
+		MSG_KEY_UID ("uid"),
 		MSG_KEY_ROUND_TIMER ("round timer"),
 		MSG_KEY_POSTROUND_TIMER ("postround timer"),
 		MSG_KEY_PLAYER_NAME ("player name"),
