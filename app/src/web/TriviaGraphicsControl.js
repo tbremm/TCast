@@ -1,5 +1,6 @@
 var NOTHING	= 0;
 var SPLASH	= 1;
+var SPLASH_DONE = 2;
 
 var screenState = 0;
 var splashImg;
@@ -27,6 +28,9 @@ draw = function() {
 			};
 			splashImg.src = 'http://www.adventurpriseme.com/triviacast/MIcon.png';
 			break;
+		case SPLASH_DONE:
+			// do stuff TODO
+			break
 	}
 }
 
@@ -51,6 +55,7 @@ function splashFadeIn(total_time) {
 					
 			if (fractional_time_passed >= 1.0) {
 				clearInterval(splashFadeInVar);
+				screenState = SPLASH_DONE;
 			}
 		}
 		, DEFAULT_TIMER_RESOLUTION

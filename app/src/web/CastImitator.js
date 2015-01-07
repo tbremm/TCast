@@ -1,8 +1,10 @@
 var canvas, ctx;
+var debug_canvas, debug_ctx; // for displaying debug info
 var console;
 var p1;
 function init () {
 	document.onkeyup = keyuphandler;
+	document.onkeydown = keydownhandler;
 	ctr = 0;
 	
 	p1 = new Player();
@@ -12,11 +14,17 @@ function init () {
 	canvas = document.getElementById('canvas');
 	ctx = canvas.getContext('2d');
 	
+	debug_canvas = document.getElementById('debug_canvas');
+	debug_ctx = debug_canvas.getContext('2d');
+	
 	// resize the canvas to fill browser window dynamically
     window.addEventListener('resize', resizeCanvas, false);
 	function resizeCanvas() {
 		canvas.width = window.innerWidth;
 		canvas.height = window.innerHeight;
+	
+		debug_canvas.width = canvas.width;
+		debug_canvas.height = canvas.height;
 	
 		width = canvas.width;
 		height = canvas.height;	
@@ -40,9 +48,16 @@ function testPhone () {
 	}
 }
 
+function keydownhandler(e) {
+	if (e.keyCode == 16) {	// shift
+		debug_canvas.style.opacity = 0.4;
+	}
+}
 		
 function keyuphandler(e) {
-	if (e.keyCode == 32) {	// space
+	if (e.keyCode == 16) { 	// shift
+		debug_canvas.style.opacity = 0.0;
+	} else if (e.keyCode == 32) {	// space
 		advance_test();
 	} else if (e.keyCode == 78) { // 'n'
 		host_advance_game();
