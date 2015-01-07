@@ -277,8 +277,13 @@
 				// Don't allow duplicate ID's
 				if (getPlayerIndexById (id) == -1)
 					{
-					m_players.push (new Player (id));        // Add player to players list
-
+					m_players.push({
+								id: id,
+								score: 0,
+								name: "",
+								answer: ""
+								});
+					
 					// Add the player to the game depending on game state
 					switch (m_gameState)
 						{
