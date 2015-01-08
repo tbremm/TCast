@@ -17,7 +17,7 @@ public class MainActivity
 	extends Activity
 	{
 	public static final  String   TAG       = "CastMe Main Activity";
-	private static final String[] GRID_DATA = new String[] {"Trivia", "Game 2", "Game 3", "Game 4", "Enders Game"};
+	private static final String[] GRID_DATA = new String[] {"Trivia"};
 	private GridView m_gridView;
 
 	@Override
