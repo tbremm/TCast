@@ -7,11 +7,18 @@ html, body {
 
 canvas { display:block; } /* To remove the scrollbars */
 
-#canvas {
+#background_canvas {
 	position:absolute;
     left:0px;
     top:0px;
 }
+
+#foreground_canvas {
+	position:absolute;
+    left:0px;
+    top:0px;
+}
+
 #debug_canvas {
 	position:absolute;
     left:0px;

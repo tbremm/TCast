@@ -26,10 +26,11 @@
 	
 	<body onload="init()">
 		<div align="center">
-			<canvas id="canvas" style="background-color: #ACACAC; z-index: 1">
+			<canvas id="background_canvas" style="background-color: #000000; z-index: 1">
 				HTML5 canvas not supported.
 			</canvas>
-			<canvas id="debug_canvas" style="background-color:#333333; opacity: 0.0; z-index: 2"></canvas>
+			<canvas id="foreground_canvas" style="z-index: 2"></canvas>
+			<canvas id="debug_canvas" style="background-color:#333333; opacity: 0.0; z-index: 3"></canvas>
 		</div>
 	</body>
 
