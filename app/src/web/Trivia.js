@@ -68,6 +68,9 @@
 			// *********************************
             triviaWindowLoad = function ()
                 {
+				if (typeof(DEBUG_MODE) != "undefined") { // TODO: remove
+					setSplashScreen();
+				}
                 // Init game state
                 resetRound ();
                 setGamePending();
@@ -88,9 +91,11 @@
                 clearInterval (m_roundTimerVar);
                 clearInterval (m_postRoundTimerVar);
 
-				// Make text box disappear
-				var qbox = document.getElementById("qbox");
-				qbox.style.opacity = 0.0;
+				if (typeof(DEBUG_MODE) == "undefined") {	// TODO: remove
+					// Make text box disappear
+					var qbox = document.getElementById("qbox");
+					qbox.style.opacity = 0.0;
+				}
 
 			}
 
@@ -171,6 +176,12 @@
 										{
 										m_hostID = m_players[senderIndex].id;
 										triviaSendMessage(m_hostID, HOST_ACK);
+										
+										if (typeof(DEBUG_MODE) != "undefined") { // TODO: remove
+											setWaitingForHostStart();
+										}
+											
+										
 										sendToAllPlayers (GAME_HOSTED, false);  // Send to all but host that the game is ready
 										m_gameState = HOST_SELECTED;
 										}
@@ -344,9 +355,13 @@
 			setGamePending = function()
 				{
 			    m_gameState = GAME_PENDING;
-		        var qbox = document.getElementById("qbox");
-		        qbox.style.opacity = 1.0;
-				qbox.innerHTML = "Game Pending...";
+				
+				if (typeof(DEBUG_MODE) == "undefined") 		// TODO: remove
+					{ 
+					var qbox = document.getElementById("qbox");
+					qbox.style.opacity = 1.0;
+					qbox.innerHTML = "Game Pending...";
+					}
 				}
 
 			// *****************************************
@@ -434,11 +449,26 @@
 						var a4 = $.trim(split_data[4]);
 						m_roundAnswer = $.trim(split_data[5]);
 
-						// Populate UI with question/answer choices
-						var qbox = document.getElementById("qbox");
-						var questionHTML = question + "<br>" + a1 + "<br>" + a2 + "<br>" + a3 + "<br>" + a4;
-						qbox.innerHTML = questionHTML;
-
+						// temporary code while we make the transition to the new graphics. TODO: remove -GN
+						if (typeof(DEBUG_MODE) == "undefined") {
+							// Populate UI with question/answer choices
+							var qbox = document.getElementById("qbox");
+							var questionHTML = question + "<br>" + a1 + "<br>" + a2 + "<br>" + a3 + "<br>" + a4;
+							qbox.innerHTML = questionHTML;
+							
+							// Fade in question/answer box
+							m_fadeStartTime = $.now();
+							m_qboxFadeInVar = setInterval(fadeIn, DEFAULT_TIMER_RESOLUTION);
+						
+						} else {
+							showQuestion(	question,
+											a1,
+											a2,
+											a3,
+											a4
+										);
+						}
+						
 						// send Q&A to m_players
 						var i;
 						for (i = 0; i < m_players.length; i++)
@@ -455,10 +485,7 @@
 						    triviaSendMessage(m_players[i].id, msg);
 					        }
 
-					    // Fade in question/answer box
-						m_fadeStartTime = $.now();
-						m_qboxFadeInVar = setInterval(fadeIn, DEFAULT_TIMER_RESOLUTION);
-						},
+					    },
 					error: function(xhr, desc, err)
 						{
 						m_gameState = ERROR_DATABASE;

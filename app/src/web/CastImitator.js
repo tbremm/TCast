@@ -3,7 +3,9 @@ var foreground_canvas, foreground_ctx;
 var debug_canvas, debug_ctx; // for displaying debug info
 var console;
 var p1;
+var DEBUG_MODE;
 function init () {
+	DEBUG_MODE = "definitely not undefined";
 	document.onkeyup = keyuphandler;
 	document.onkeydown = keydownhandler;
 	ctr = 0;
@@ -84,26 +86,40 @@ function connect_players() {
 }
 
 var ctr;
+var host_id;
 function advance_test() {
 	if (ctr == 0) {
-		write_to_debug_screen ("Setting splash screen");
-		setSplashScreen();
-		//triviaWindowLoad();
+		write_to_debug_screen ("Loading Trivia.");
+		triviaWindowLoad(); 	
 	} else if (ctr == 1) {
-		write_to_debug_screen ("Setting \"waiting for host connection\"");
-		setWaitingForHostConnection();
-		//triviaMessageReceived("1",HOST_REQUEST);
+		//write_to_debug_screen ("Setting \"waiting for host connection\"");
+		//setWaitingForHostConnection();
+		//host_id = "1";
 	} else if (ctr == 2) {
-		triviaMessageReceived("1", BEGIN_ROUND);
-	} else if (ctr >= 3) {
-		write_to_debug_screen ("test asdgg " + ctr);
+		host_id = "1";	
+		write_to_debug_screen ("Connecting " + host_id + "...");
+		triviaOnConnect(host_id);
+	} else if (ctr == 3) {
+		write_to_debug_screen (host_id + " requesting host..");
+		triviaMessageReceived(host_id,HOST_REQUEST);
+	} else if (ctr == 4) {
+		write_to_debug_screen (host_id + " starting game...");
+		triviaMessageReceived(host_id, BEGIN_ROUND);
 	}
 	
 	ctr++;
 }
 
 function sendCastMessage (id, data) {
-	alert(id + " " + data);
+	// TODO: make a general JS message parsing routine so it can be shared
+	if (id == host_id) {
+		if (data == ("connected|uid="+id)) {
+			write_to_debug_screen(id + " connected.");
+		} else if (data == "host") {
+			write_to_debug_screen(id + " granted host.");
+			triviaMessageReceived(id, "begin round");
+		}
+	}
 }
 
 var debug_txt_x_frac = 0.1;
